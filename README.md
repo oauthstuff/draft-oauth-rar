@@ -1,5 +1,5 @@
 # draft-oauth-rar
 
-This repository contains the draft on OAuth Rich Authorzation Requests.
+This repository contains the IETF draft on OAuth Rich Authorzation Requests.
 
-ddd
+To build the xml2rfc file and transform it into html and txt run `make-v2.sh`.
