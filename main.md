@@ -26,11 +26,9 @@ organization="yes.com"
 
 .# Abstract 
 
-This document describes best current security practice for OAuth 2.0.
-It updates and extends the OAuth 2.0 Security Threat Model to
-incorporate practical experiences gathered since OAuth 2.0 was
-published and covers new threats relevant due to the broader
-application of OAuth 2.0.ddd
+This document specifies a new parameter `authorization_details` that is 
+used to carry fine grained authorization data into the OAuth authorization 
+request. 
 
 {mainmatter}
 

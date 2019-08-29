@@ -19,3 +19,13 @@
    <date day="8" month="Nov" year="2014"/>
   </front>
 </reference>
+
+<reference anchor="transaction-authorization" target="https://medium.com/oauth-2/transaction-authorization-or-why-we-need-to-re-think-oauth-scopes-2326e2038948">
+  <front>
+    <title>Transaction Authorization or why we need to re-think OAuth scopes</title>
+    <author initials="T." surname="Lodderstedt" fullname="Torsten Lodderstedt">
+      <organization>yes.com</organization>
+    </author>
+   <date day="20" month="Apr" year="2019"/>
+  </front>
+</reference>
