@@ -1,6 +1,6 @@
 # Introduction {#Introduction}
 
-[@RFC6749] defines the parameter `scope` that allows OAuth clients
+[@!RFC6749] defines the parameter `scope` that allows OAuth clients
 to specify the expected scope, i.e. the permission, of an access token. 
 This mechanism is sufficient to implement static scenarios and course 
 grain authorization requests, such as "give me read access to 
@@ -9,7 +9,9 @@ fine grained authorization requirements, such as "please let me
 make a payment with the amount of 45 Euros" or "please give me
 read access to folder A and write access to file X".
 
-This draft introduces a new parameter `authorization_details` that allows clients to specify their fine grained authorization requirements using the expresivness of JSON data structures. For example, a request for payment authorization can use a JSON object like this:
+This draft introduces a new parameter `authorization_details` that allows clients to specify their fine grained authorization requirements using the expressiveness of JSON data structures. 
+
+For example, a request for payment authorization can use a JSON object like this:
 
 ```JSON
 {  
@@ -28,14 +30,14 @@ This draft introduces a new parameter `authorization_details` that allows client
 }
 ```
 
-For a comprehensive discussion of the challenges arising from new use cases in the open banking and eletronic signing spaces see [@!transaction-authorization]. 
+For a comprehensive discussion of the challenges arising from new use cases in the open banking and eletronic signing spaces see [@transaction-authorization]. 
 
 ## Conventions and Terminology
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
 "MAY", and "OPTIONAL" in this document are to be interpreted as
-described in BCP 14 [@RFC2119] [@RFC8174] when, and only when, they
+described in BCP 14 [@!RFC2119] [@!RFC8174] when, and only when, they
 appear in all capitals, as shown here.
 
 This specification uses the terms "access token", "refresh token",
@@ -103,15 +105,33 @@ This example shows a combined request asking for access to account information a
 }
 ```
 
-The named JSON objects `account` and `payment` represent the different authorization data to be used by the AS to ask for consent and must subsequently also be made available to the respective RSs.
+The named JSON objects `account` and `payment` represent the different authorization data to be used by the AS to ask for consent and MUST subsequently also be made available to the respective RSs.
 
-## Structure of the authorization data elements
+## Authorization data elements types
 
-It is assumed that the sructure of each of the authorization data elements is tailored to the needs of a certain application, API, or resource type.
+It is assumed that the structure of each of the authorization data elements is tailored to the needs of a certain application, API, or resource type. For example, the example structures shown above are based on certain kinds of APIs that can be found in the Open Banking space. 
 
-For example, the example structures shown above are based on certain kinds of APIs that can be found in the Open Banking space. 
+This draft therefore only defines the `authorization_details` element (the container) and a minimal set of requirements regarding the structure of the contained authorization data elements. 
 
-This draft therefore does only define a few requirements (see below) on the structure of authorization data elements. 
+Note: different applications MUST ensure that their authorization data types do not collide. This is either achieved by using a namespace under the control of the entity defining the type name or by registering the type with the new `OAuth Authorization Data Type Registry` (see (#iana_considerations)). 
+
+The following example shows how an implementation could utilize the namespace `https://scheme.examples.org/` to ensure collision resistent element names.
+
+```JSON
+{  
+   "https://scheme.examples.org/files":{  
+      "permissions":[  
+         {  
+            "path":"/myfiles/A",
+            "access":[  
+               "read"
+            ]
+         }
+      ]
+   }
+}
+```
+
 
 ## Multiple instances of the same authorization data type
 
@@ -123,7 +143,7 @@ Here is an example:
 
 ```JSON
 {  
-   "files":{  
+   "https://scheme.examples.org/files":{  
       "permissions":[  
          {  
             "path":"/myfiles/A",
@@ -147,7 +167,7 @@ Alternatively, a client MAY specify multiple instances of the same authorization
 
 ```JSON
 {  
-   "imap":{  
+   "https://scheme.examples.org/imap":{  
       "server":"imap.example.com",
       "mailbox":"/users/<current>",
       "access":[  
@@ -155,7 +175,7 @@ Alternatively, a client MAY specify multiple instances of the same authorization
          "write"
       ]
    },
-   "imap$2":{  
+   "https://scheme.examples.org/imap$2":{  
       "server":"imap.example.org",
       "mailbox":"/users/shared/folder3",
       "access":[  
@@ -165,17 +185,17 @@ Alternatively, a client MAY specify multiple instances of the same authorization
 }
 ```
 
-# Using "authorization_details"
+## Using "authorization_details"
 
 The request parameter can be used anywhere where the `scope` parameter is used, examples include:  
 
-* Authorization requests as specified in [@RFC6749], 
+* Authorization requests as specified in [@!RFC6749], 
 * Request objects as specified in [@I-D.ietf-oauth-jwsreq], 
-* Device Authorization Request as specified in [@RFC8628]
+* Device Authorization Request as specified in [@!RFC8628]
 
 Parameter encoding is determined by the respective context. 
 
-In the context of an authorization request according to [@RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format as shown in the following example (JSON string trimmed for brevity):
+In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format as shown in the following example (JSON string trimmed for brevity):
 
 ```
 GET /authorize?response_type=code&client_id=s6BhdRkqt3
@@ -191,7 +211,7 @@ GET /authorize?response_type=code&client_id=s6BhdRkqt3
     2C%22remittanceInformationUnstructured%22%3A%22Ref%20Number%20Me
     rchant%22%7D%7D HTTP/1.1
 Host: server.example.com
-```
+``` 
 
 In the context of a request object, `autorization_details` is added as another top level JSON element.
 
@@ -224,7 +244,9 @@ In the context of a request object, `autorization_details` is added as another t
 } 
 ```
 
-# Processing 
+Note: Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider to use the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq], potentially in combination with the pushed request object mechanism as defined in [@PRO] to pass authorization details in a reliable and secure manner.
+
+## Authorization Request Processing 
 
 Based on the data provided in the `authorization_details` parameter the AS will ask the user for consent to the requested access permissions. 
 
@@ -232,13 +254,49 @@ Note: the AS is supposed to merge the authorization requirements given in the `s
 
 The AS MUST refuse to process any unknown authorization data type. If the `authorization_details` contains any unknown authorization data type, the AS MUST abort processing and respond with an error `invalid_scope` to the client.
 
-If the resource owner grants the client the request access, the AS will issue tokens to the client that are associated with the respective `authorization_details`.
+If the resource owner grants the client the requested access, the AS will issue tokens to the client that are associated with the respective `authorization_details`.
 
 The AS MUST make the `authorization_details` available to the respective resource servers. The AS MAY add the `authorization_details` element to access tokens in JWT format and to Token Introspection responses. 
 
 The AS MUST take into consideration the privacy implications when sharing authorization details with the resource servers. The AS SHOULD share this data with the resource servers on a "need to know" basis.
 
-# Relationship to "resource" parameter
+## Token Response
+In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
+
+This is shown in the following example:
+
+```JSON
+     HTTP/1.1 200 OK
+     Content-Type: application/json;charset=UTF-8
+     Cache-Control: no-store
+     Pragma: no-cache
+
+     {
+       "access_token":"2YotnFZFEjr1zCsicMWpAA",
+       "token_type":"example",
+       "expires_in":3600,
+       "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA",
+       "authorization_details":{  
+         "payment":{  
+           "instructedAmount":{  
+             "currency":"EUR",
+             "amount":"123.50"
+           },
+           "debtorAccount":{  
+             "iban":"DE40100100103307118608"
+           },
+           "creditorName":"Merchant123",
+             "creditorAccount":{  
+               "iban":"DE02100100109307118603"
+           },
+           "remittanceInformationUnstructured":
+           "Ref Number Merchant"
+      	  }
+      	}              
+     }
+```
+
+## Relationship to "resource" parameter
 
 [@I-D.ietf-oauth-resource-indicators] defines the request parameter `resource` indicating to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant.
  
@@ -248,11 +306,11 @@ This draft can be used in conjunction with [@I-D.ietf-oauth-resource-indicators]
 
 While this depends on the AS to know what authorization details are relevant for what RS, this draft can also be combined with the concept of resource indicators to make this relationsship explicit and to narrow the privileges of an access token down to certain permissions given on a certain resource down to the individual operation (see [@I-D.ietf-oauth-security-topics], section-3.3). 
 
-As an example, it is possible to specify that the client will get "read" access to "file X" stored at the resource "https://store.example.com". To achieve this the example given above for access to an IMAP server is slightly modfied to use the `resource` element in as part of the top level claims within the authorization data element. 
+As an example, it is possible to specify that the client will get "read" access to "file X" stored at the resource "https://store.example.com". To achieve this, the example given above for access to an IMAP server is slightly modfied to use the `resource` element as part of the top level claims within the authorization data element. 
 
 ```JSON
 {  
-   "imap":{  
+   "https://scheme.examples.org/imap":{  
       "resource":"imap.example.com",
       "mailbox":"/users/<current>",
       "access":[  
@@ -260,7 +318,7 @@ As an example, it is possible to specify that the client will get "read" access 
          "write"
       ]
    },
-   "imap$2":{  
+   "https://scheme.examples.org/imap$2":{  
       "resource":"imap.example.org",
       "mailbox":"/users/shared/folder3",
       "access":[  
@@ -274,11 +332,11 @@ The AS MUST respect the value of the `resource` element when deciding whether a 
 
 # Metadata
 
+TBD 
+
 The AS advertises support for `authorization_details` using the metadata parameter `authorization_details_supported` of type boolean.
 
 The authorization data types supported can be determined using the metadata parameter `authorization_data_types_supported`, which is an JSON array.
-
-Note: different applications MUST make sure their authorization data types do not collide. This is either achieved by using a namespace under the control of the entity defining the type name or by registering the type with the new `OAuth Authorization Data Type Registry`. 
 
 Clients annonce the authorization data types the use in the new dynamic client registration parameter `authorization_data_types`.
 
@@ -300,17 +358,23 @@ The scheme and processing will significantly vary among different authorization 
 
 One option would be to have a mechanism allowing the registration of extension modules, each of them responsible for rendering the respective user consent and any transformation needed to provide the data needed to the resource server by way of structured access tokens or token introspection responses. 
 
+# Security Considerations
+
+Authorization details are sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. In order to ensure their integrity, the client SHOULD send authorization details in a signed request object as defined in [@I-D.ietf-oauth-jwsreq] or use the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq] to pass the URI of the request object to the authorization server.
+
+# Privacy Considerations
+
+Implementers MUST design and use authorization details in a privacy preserving manner. Any sensitive personal data included in authorization details MUST be prevented from leakage, e.g. through referrer headers. Implementation options include encrypted request objects as defined in [@I-D.ietf-oauth-jwsreq] or transmission of authorization details via end-to-end encrypted connections between client ans authorization server by utilizing the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq].
+
 # Acknowledgements {#Acknowledgements}
       
 I would would like to thank Brian Campbell, Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, Rob Otto, and Justin Richer for their valuable feedback during the preparation of this draft.
 
-# IANA Considerations
+I would like to thank Dave Tonge and Aaron Parecki for their valuable feedback.
+
+# IANA Considerations {#iana_considerations}
 
 * `authorization_details` as JWT claim
 * `authorization_details_supported` and `authorization_data_types_supported` as metadata parameters
 * `authorization_data_types` as dynamic client registration parameter
 * establish authorization data type registry
-
-# Security Considerations
-
-TBD

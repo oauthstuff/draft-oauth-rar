@@ -29,3 +29,17 @@
    <date day="20" month="Apr" year="2019"/>
   </front>
 </reference>
+
+<reference anchor="PRO" target="https://bitbucket.org/openid/fapi/src/master/Financial_API_Pushed_Request_Object.md">
+  <front>
+    <title>Financial-grade API: Pushed Request Object</title>
+    <author initials="T." surname="Lodderstedt" fullname="Torsten Lodderstedt">
+      <organization>yes.com</organization>
+    </author>
+    <author initials="B." surname="Campbell" fullname="Brian Campbell">
+      <organization>Ping Identity</organization>
+    </author>
+   <date day="28" month="08" year="2019"/>
+  </front>
+</reference>
+

@@ -6,11 +6,11 @@ area = "Security"
 workgroup = "Web Authorization Protocol"
 keyword = ["security", "oauth2"]
 
-date = 2019-08-29T12:00:00Z
+date = 2019-09-02T12:00:00Z
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-lodderstedt-oauth-rar-00"
+value = "draft-lodderstedt-oauth-rar-01"
 stream = "IETF"
 status = "standard"
 
