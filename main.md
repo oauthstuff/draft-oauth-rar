@@ -6,7 +6,7 @@ area = "Security"
 workgroup = "Web Authorization Protocol"
 keyword = ["security", "oauth2"]
 
-date = 2019-09-02T12:00:00Z
+date = 2019-09-11T12:00:00Z
 
 [seriesInfo]
 name = "Internet-Draft"
@@ -21,6 +21,14 @@ fullname="Torsten Lodderstedt"
 organization="yes.com"
     [author.address]
     email = "torsten@lodderstedt.net"
+
+[[author]]
+initials="J."
+surname="Richer"
+fullname="Justin Richer"
+organization="Bespoke Engineering"
+    [author.address]
+    email = "ietf@justin.richer.org"
     
 %%%
 

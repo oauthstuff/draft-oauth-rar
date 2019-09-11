@@ -14,7 +14,9 @@ This draft introduces a new parameter `authorization_details` that allows client
 For example, a request for payment authorization can be encoded using a JSON object like this:
 
 ```JSON
-{  
+[
+ {  
+   "type": "https://www.someorg.com/payment_initation",
    "instructedAmount":{  
       "currency":"EUR",
       "amount":"123.50"
@@ -27,8 +29,11 @@ For example, a request for payment authorization can be encoded using a JSON obj
       "iban":"DE02100100109307118603"
    },
    "remittanceInformationUnstructured":"Ref Number Merchant"
-}
+ }
+]
 ```
+
+In addition to facilitating custom authorization requests, this draft also introduces a set of common data type fields for use across different APIs.
 
 For a comprehensive discussion of the challenges arising from new use cases in the open banking and electronic signing spaces see [@transaction-authorization]. 
 
@@ -48,13 +53,18 @@ This specification uses the terms "access token", "refresh token",
 
 # Request parameter "authorization_details"
 
-The request parameter `authorization_details` contains a JSON object. This JSON object is composed of one or more JSON objects on the second level, each of them containing the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the name of the JSON object. 
+The request parameter `authorization_details` contains a JSON array of JSON objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field. 
 
 This example shows the specification of authorization details for a payment initiation transaction: 
 
 ```JSON
-{  
-   "payment":{  
+[  
+   {  
+      "type": "https://www.someorg.com/payment_initation",
+      "actions": ["initiate", "status", "cancel"],
+      "locations":[  
+        "https://example.com/payments"
+      ],
       "instructedAmount":{  
          "currency":"EUR",
          "amount":"123.50"
@@ -67,28 +77,28 @@ This example shows the specification of authorization details for a payment init
          "iban":"DE02100100109307118603"
       },
       "remittanceInformationUnstructured":"Ref Number Merchant"
-   }
-}
+   }  
+]
 ```
 
 This example shows a combined request asking for access to account information and permission to initiate a payment:
 
 ```JSON
-{  
-   "accounts":{  
-      "access":{  
-         "accounts":[  
-
-         ],
-         "balances":[  
-
-         ],
-         "transactions":[  
-
-         ]
-      }
+[
+   {  
+      "type": "https://www.someorg.com/account_information",
+      "actions":["list_accounts", "read_balances", "read_transactions"],
+      "identifier": "abc-123565",
+      "locations": [
+        "https://example.com/accounts"
+      ]
    },
-   "payment":{  
+   {  
+      "type": "https://www.someorg.com/payment_initation",
+      "actions": ["initiate", "status", "cancel"],
+      "locations":[  
+        "https://example.com/payments"
+      ],
       "instructedAmount":{  
          "currency":"EUR",
          "amount":"123.50"
@@ -101,17 +111,32 @@ This example shows a combined request asking for access to account information a
          "iban":"DE02100100109307118603"
       },
       "remittanceInformationUnstructured":"Ref Number Merchant"
-   }
-}
+   }  
+]
 ```
 
-The named JSON objects `accounts` and `payment` represent the different authorization data to be used by the AS to ask for consent and MUST subsequently also be made available to the respective resource servers.
+The JSON objects with `type` fields of `https://www.someorg.com/account_information` and `https://www.someorg.com/payment_initation` represent the different authorization data to be used by the AS to ask for consent and MUST subsequently also be made available to the respective resource servers. The array MAY contain several elements of the same `type`. 
 
 ## Authorization data elements types
 
-It is assumed that the structure of each of the authorization data elements is tailored to the needs of a certain application, API, or resource type. The example structures shown above are based on certain kinds of APIs that can be found in the Open Banking space. 
+This draft defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. Unless otherwise noted, all data elements are OPTIONAL.
 
-This draft therefore only defines the `authorization_details` element (the container) and a minimal set of requirements regarding the structure of the contained authorization data elements. 
+type:
+:   The type of resource request as a string. This field MAY define which other elements are allowed in the request. This element is REQUIRED.
+
+locations:
+:   An array of strings representing the location of the resource or resource server. This is typically composed of URIs.
+
+actions:
+:   An array of strings representing the kinds of actions to be taken at the resource. The values of the strings are determined by the API being protected.
+
+data:
+:   An array of strings representing the kinds of data being requested from the resource. 
+
+identifier:
+:   A string identifier indicating a specific resource available at the API. 
+
+An API MAY define its own extensions, subject to the `type` of the request. It is assumed that the full structure of each of the authorization data elements is tailored to the needs of a certain application, API, or resource type. The example structures shown above are based on certain kinds of APIs that can be found in the Open Banking space. 
 
 Note: Applications MUST ensure that their authorization data types do not collide. This is either achieved by using a namespace under the control of the entity defining the type name or by registering the type with the new `OAuth Authorization Data Type Registry` (see (#iana_considerations)). 
 
@@ -132,58 +157,6 @@ The following example shows how an implementation could utilize the namespace `h
 }
 ```
 
-
-## Multiple instances of the same authorization data type
-
-It is possible that the client asks for different kinds of access to different resources of the same type. There are two ways to represent this in an `authorization_details` JSON object. 
-
-For some applications, e.g., file access, it might be reasonable to build a way to allocate authorization data to certain resources into the application specific JSON structure. 
-
-Here is an example: 
-
-```JSON
-{  
-   "https://scheme.example.org/files":{  
-      "permissions":[  
-         {  
-            "path":"/myfiles/A",
-            "access":[  
-               "read"
-            ]
-         },
-         {  
-            "path":"/myfiles/A/X",
-            "access":[  
-               "read",
-               "write"
-            ]
-         }
-      ]
-   }
-}
-```
-
-Alternatively, a client MAY specify multiple instances of the same authorization data element type and distinguish those elements by adding a suffix `$`+`<instancename>`. The following shows authorization details for requesting access to different folder on different IMAP servers (assuming the resource owner has access to both of them): 
-
-```JSON
-{  
-   "https://scheme.example.org/imap":{  
-      "server":"imap.example.com",
-      "mailbox":"/users/<current>",
-      "access":[  
-         "read",
-         "write"
-      ]
-   },
-   "https://scheme.example.org/imap$2":{  
-      "server":"imap.example.org",
-      "mailbox":"/users/shared/folder3",
-      "access":[  
-         "read"
-      ]
-   }
-}
-```
 
 ## Using "authorization_details"
 
@@ -225,22 +198,27 @@ In the context of a request object as specified in [@I-D.ietf-oauth-jwsreq], `au
    "state":"af0ifjsldkj",
    "code_challenge_method":"S256",
    "code_challenge":"5c305578f8f19b2dcdb6c3c955c0a…97e43917cd",
-   "authorization_details":{  
-      "payment":{  
-         "instructedAmount":{  
-            "currency":"EUR",
-            "amount":"123.50"
-         },
-         "debtorAccount":{  
-            "iban":"DE40100100103307118608"
-         },
-         "creditorName":"Merchant123",
-         "creditorAccount":{  
-            "iban":"DE02100100109307118603"
-         },
-         "remittanceInformationUnstructured":"Ref Number Merchant"
-      }
-   }
+   "authorization_details":[  
+     {  
+        "type": "https://www.someorg.com/payment_initation",
+        "actions": ["initiate", "status", "cancel"],
+        "locations":[  
+          "https://example.com/payments"
+        ],
+        "instructedAmount":{  
+           "currency":"EUR",
+           "amount":"123.50"
+        },
+        "debtorAccount":{  
+           "iban":"DE40100100103307118608"
+        },
+        "creditorName":"Merchant123",
+        "creditorAccount":{  
+           "iban":"DE02100100109307118603"
+        },
+        "remittanceInformationUnstructured":"Ref Number Merchant"
+     }  
+  ]
 } 
 ```
 
@@ -276,24 +254,28 @@ This is shown in the following example:
        "token_type":"example",
        "expires_in":3600,
        "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA",
-       "authorization_details":{  
-         "payment":{  
-           "instructedAmount":{  
-             "currency":"EUR",
-             "amount":"123.50"
-           },
-           "debtorAccount":{  
-             "iban":"DE40100100103307118608"
-           },
-           "creditorName":"Merchant123",
-             "creditorAccount":{  
+       "authorization_details":[  
+         {  
+            "type": "https://www.someorg.com/payment_initation",
+            "actions": ["initiate", "status", "cancel"],
+            "locations":[  
+              "https://example.com/payments"
+            ],
+            "instructedAmount":{  
+               "currency":"EUR",
+               "amount":"123.50"
+            },
+            "debtorAccount":{  
+               "iban":"DE40100100103307118608"
+            },
+            "creditorName":"Merchant123",
+            "creditorAccount":{  
                "iban":"DE02100100109307118603"
-           },
-           "remittanceInformationUnstructured":
-           "Ref Number Merchant"
-      	  }
-      	}              
-     }
+            },
+            "remittanceInformationUnstructured":"Ref Number Merchant"
+         }  
+      ]
+    }
 ```
 
 ## Relationship to "resource" parameter
@@ -309,19 +291,21 @@ This depends, however, on the AS to know what authorization details are relevant
 As an example, it is possible to specify that the client will get "read" access to "file X" stored at the resource "https://store.example.com". To achieve this, the example given above for access to an IMAP server is slightly modified to use the `resource` element as part of the top level claims within the `authorization_details` element. 
 
 ```JSON
-{  
-   "https://scheme.example.org/imap":{  
+[  
+   {
+      "type": "https://scheme.example.org/imap":
       "resource":"imap.example.com",
-      "mailbox":"/users/<current>",
-      "access":[  
+      "identifier":"/users/<current>",
+      "actions":[  
          "read",
          "write"
       ]
    },
-   "https://scheme.example.org/imap$2":{  
+   {
+      "type": "https://scheme.example.org/imap":
       "resource":"imap.example.org",
-      "mailbox":"/users/shared/folder3",
-      "access":[  
+      "identifier":"/users/shared/folder3",
+      "actions":[  
          "read"
       ]
    }
