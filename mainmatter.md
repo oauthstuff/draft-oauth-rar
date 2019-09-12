@@ -352,9 +352,9 @@ Implementers MUST design and use authorization details in a privacy preserving m
 
 # Acknowledgements {#Acknowledgements}
       
-I would would like to thank Brian Campbell, Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, Rob Otto, and Justin Richer for their valuable feedback during the preparation of this draft.
+We would would like to thank Brian Campbell, Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
 
-I would like to thank Dave Tonge and Aaron Parecki for their valuable feedback.
+We would also like to thank Dave Tonge and Aaron Parecki for their valuable feedback to this draft.
 
 # IANA Considerations {#iana_considerations}
 
