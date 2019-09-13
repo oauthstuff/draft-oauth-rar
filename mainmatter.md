@@ -152,6 +152,13 @@ The following example shows how an implementation could utilize the namespace `h
             "access":[  
                "read"
             ]
+         },
+         {  
+            "path":"/myfiles/A/X",
+            "access":[  
+               "read",
+               "write"
+            ]
          }
       ]
    }
