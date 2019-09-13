@@ -144,6 +144,7 @@ The following example shows how an implementation could utilize the namespace `h
 
 ```JSON
 {  
+   "type": "https://example.org/files",
    "https://scheme.example.org/files":{  
       "permissions":[  
          {  
