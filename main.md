@@ -6,8 +6,6 @@ area = "Security"
 workgroup = "Web Authorization Protocol"
 keyword = ["security", "oauth2"]
 
-date = 2019-09-11T12:00:00Z
-
 [seriesInfo]
 name = "Internet-Draft"
 value = "draft-lodderstedt-oauth-rar-02"
@@ -30,12 +28,21 @@ organization="Bespoke Engineering"
     [author.address]
     email = "ietf@justin.richer.org"
     
+[[author]]
+initials="B."
+surname="Campbell"
+fullname="Brian Campbell"
+organization="Ping Identity"
+    [author.address]
+    email = "bcampbell@pingidentity.com"
+        
+    
 %%%
 
 .# Abstract 
 
 This document specifies a new parameter `authorization_details` that is 
-used to carry fine grained authorization data into the OAuth authorization 
+used to carry fine grained authorization data in the OAuth authorization 
 request. 
 
 {mainmatter}
@@ -43,7 +50,7 @@ request.
 # Introduction {#Introduction}
 
 The OAuth 2.0 authorization framework [@!RFC6749] defines the parameter `scope` that allows OAuth clients to
-specify the expected scope, i.e., the permission, of an access token.
+specify the requested scope, i.e., the permission, of an access token.
 This mechanism is sufficient to implement static scenarios and
 coarse-grained authorization requests, such as "give me read access to
 the resource owner's profile" but it is not sufficient to specify
@@ -53,12 +60,12 @@ folder A and write access to file X".
 
 This draft introduces a new parameter `authorization_details` that allows clients to specify their fine-grained authorization requirements using the expressiveness of JSON data structures. 
 
-For example, a request for payment authorization can be encoded using a JSON object like this:
+For example, a request for payment authorization can be represented using a JSON object like this:
 
 ```JSON
 [
  {  
-   "type": "payment_initation",
+   "type": "payment_initiation",
    "instructedAmount":{  
       "currency":"EUR",
       "amount":"123.50"
@@ -102,7 +109,7 @@ This example shows the specification of authorization details for a payment init
 ```JSON
 [  
    {  
-      "type": "payment_initation",
+      "type": "payment_initiation",
       "actions": ["initiate", "status", "cancel"],
       "locations":[  
         "https://example.com/payments"
@@ -129,14 +136,15 @@ This example shows a combined request asking for access to account information a
 [
    {  
       "type": "account_information",
-      "actions":["list_accounts", "read_balances", "read_transactions"],
+      "actions":
+        ["list_accounts", "read_balances", "read_transactions"],
       "identifier": "abc-123565",
       "locations": [
         "https://example.com/accounts"
       ]
    },
    {  
-      "type": "payment_initation",
+      "type": "payment_initiation",
       "actions": ["initiate", "status", "cancel"],
       "locations":[  
         "https://example.com/payments"
@@ -157,7 +165,7 @@ This example shows a combined request asking for access to account information a
 ]
 ```
 
-The JSON objects with `type` fields of `account_information` and `payment_initation` represent the different authorization data to be used by the AS to ask for consent and MUST subsequently also be made available to the respective resource servers. The array MAY contain several elements of the same `type`. 
+The JSON objects with `type` fields of `account_information` and `payment_initiation` represent the different authorization data to be used by the AS to ask for consent and MUST subsequently also be made available to the respective resource servers. The array MAY contain several elements of the same `type`. 
 
 ## Authorization data elements types
 
@@ -182,7 +190,7 @@ An API MAY define its own extensions, subject to the `type` of the request. It i
 
 Note: Applications MUST ensure that their authorization data types do not collide. This is either achieved by using a namespace under the control of the entity defining the type name or by registering the type with the new `OAuth Authorization Data Type Registry` (see (#iana_considerations)). 
 
-The following example shows how an implementation could utilize the namespace `https://scheme.example.org/` to ensure collision resistent element names.
+The following example shows how an implementation could utilize the namespace `https://scheme.example.org/` to ensure collision resistant element names.
 
 ```JSON
 { 
@@ -214,6 +222,7 @@ The following example shows how an implementation could utilize the namespace `h
 The request parameter can be used anywhere where the `scope` parameter is used, examples include:  
 
 * Authorization requests as specified in [@!RFC6749], 
+* Access token requests as specified in [@!RFC6749],
 * Request objects as specified in [@I-D.ietf-oauth-jwsreq], 
 * Device Authorization Request as specified in [@!RFC8628].
 
@@ -224,11 +233,11 @@ In the context of an authorization request according to [@!RFC6749], the paramet
 ```
 GET /authorize?response_type=code&client_id=s6BhdRkqt3
     &state=af0ifjsldkj
-    &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb 
-    &code_challenge_method=S256,
-    &code_challenge=5c305578f8f19b2dcdb6c3c955c0a…97e43917cd,
+    &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb 
+    &code_challenge_method=S256
+    &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U
     &authorization_details=%5B%7B%22type%22%3A%22https%3A%2F%2F
-    www.someorg.com%2Fpayment_initation%22%2C%22actions%22%3A%5
+    www.someorg.com%2Fpayment_initiation%22%2C%22actions%22%3A%5
     B%22initiate%22%2C%22status%22%2C%22cancel%22%5D%2C%22locat
     ions%22%3A%5B%22https%3A%2F%2Fexample.com%2Fpayments%22%5D%
     2C%22instructedAmount%22%3A%7B%22currency%22%3A%22EUR%22%2C
@@ -241,7 +250,7 @@ GET /authorize?response_type=code&client_id=s6BhdRkqt3
 Host: server.example.com
 ``` 
 
-In the context of a request object as specified in [@I-D.ietf-oauth-jwsreq], `autorization_details` is added as another top level JSON element.
+In the context of a request object as specified in [@I-D.ietf-oauth-jwsreq], `authorization_details` is added as another top level JSON element.
 
 ```JSON
 {  
@@ -252,10 +261,10 @@ In the context of a request object as specified in [@I-D.ietf-oauth-jwsreq], `au
    "redirect_uri":"https://client.example.com/cb",
    "state":"af0ifjsldkj",
    "code_challenge_method":"S256",
-   "code_challenge":"5c305578f8f19b2dcdb6c3c955c0a…97e43917cd",
+   "code_challenge":"K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U",
    "authorization_details":[  
      {  
-        "type": "https://www.someorg.com/payment_initation",
+        "type": "https://www.someorg.com/payment_initiation",
         "actions": ["initiate", "status", "cancel"],
         "locations":[  
           "https://example.com/payments"
@@ -277,7 +286,7 @@ In the context of a request object as specified in [@I-D.ietf-oauth-jwsreq], `au
 } 
 ```
 
-Note: Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider to use the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq], potentially in combination with the pushed request object mechanism as defined in [@PRO] to pass authorization details in a reliable and secure manner.
+Note: Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider using the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq], potentially in combination with the pushed request object mechanism as defined in [@PRO] to pass authorization details in a reliable and secure manner.
 
 ## Authorization Request Processing 
 
@@ -300,9 +309,8 @@ This is shown in the following example:
 
 ```JSON
      HTTP/1.1 200 OK
-     Content-Type: application/json;charset=UTF-8
-     Cache-Control: no-store
-     Pragma: no-cache
+     Content-Type: application/json
+     Cache-Control: no-cache, no-store
 
      {
        "access_token":"2YotnFZFEjr1zCsicMWpAA",
@@ -311,7 +319,7 @@ This is shown in the following example:
        "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA",
        "authorization_details":[  
          {  
-            "type": "https://www.someorg.com/payment_initation",
+            "type": "https://www.someorg.com/payment_initiation",
             "actions": ["initiate", "status", "cancel"],
             "locations":[  
               "https://example.com/payments"
@@ -368,7 +376,7 @@ The AS advertises support for `authorization_details` using the metadata paramet
 
 The authorization data types supported can be determined using the metadata parameter `authorization_data_types_supported`, which is an JSON array.
 
-Clients annonce the authorization data types the use in the new dynamic client registration parameter `authorization_data_types`.
+Clients announce the authorization data types the use in the new dynamic client registration parameter `authorization_data_types`.
 
 The registration of new authorization data types with the AS is out of scope of this draft. 
 
@@ -398,7 +406,7 @@ Implementers MUST design and use authorization details in a privacy preserving m
 
 # Acknowledgements {#Acknowledgements}
       
-We would would like to thank Brian Campbell, Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
+We would would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
 
 We would also like to thank Dave Tonge and Aaron Parecki for their valuable feedback to this draft.
 
@@ -467,7 +475,7 @@ We would also like to thank Dave Tonge and Aaron Parecki for their valuable feed
    * Added notes on URI size and authorization details
    * Added requirement to return the effective authorization details granted by the resource owner in the token response 
    * changed `authorization_details` structure from object to array
-   * added Justin Richer as Co-Author
+   * added Justin Richer & Brian Campbell as Co-Author
 
    -00 / -01
 
