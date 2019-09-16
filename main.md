@@ -10,7 +10,7 @@ date = 2019-09-11T12:00:00Z
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-lodderstedt-oauth-rar-01"
+value = "draft-lodderstedt-oauth-rar-02"
 stream = "IETF"
 status = "standard"
 
@@ -460,7 +460,7 @@ We would also like to thank Dave Tonge and Aaron Parecki for their valuable feed
 
    [[ To be removed from the final specification ]]
    
-   -01
+   -02
    
    * Added Security Considerations
    * Added Privacy Considerations
@@ -469,7 +469,7 @@ We would also like to thank Dave Tonge and Aaron Parecki for their valuable feed
    * changed `authorization_details` structure from object to array
    * added Justin Richer as Co-Author
 
-   -00 
+   -00 / -01
 
    *  first draft
    
