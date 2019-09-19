@@ -370,25 +370,13 @@ The AS MUST respect those values when deciding whether a certain element is plac
 
 # Metadata
 
-TBD 
-
 The AS advertises support for `authorization_details` using the metadata parameter `authorization_details_supported` of type boolean.
 
 The authorization data types supported can be determined using the metadata parameter `authorization_data_types_supported`, which is an JSON array.
 
-Clients announce the authorization data types the use in the new dynamic client registration parameter `authorization_data_types`.
+Clients announce the authorization data types they use in the new dynamic client registration parameter `authorization_data_types`.
 
 The registration of new authorization data types with the AS is out of scope of this draft. 
-
-# Further Examples
-
-TBD
-
-* self contained (account information, claims, signing)
-* external reference (payment)
-* multiple payments
-* access to e-mail
-* access to files/directories
 
 # Implementation Considerations
 
@@ -402,15 +390,21 @@ Authorization details are sent through the user agent in case of an OAuth author
 
 # Privacy Considerations
 
-Implementers MUST design and use authorization details in a privacy preserving manner. Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@I-D.ietf-oauth-jwsreq] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq].
+Implementers MUST design and use authorization details in a privacy preserving manner. 
+
+Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@I-D.ietf-oauth-jwsreq] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq].
+
+Even if the request data are encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attacker vector and implement appropriate counter measures, e.g. by only showing portions of the data or, if possible, determing whether the assumed user context is still the same (after user authentication). 
 
 # Acknowledgements {#Acknowledgements}
       
 We would would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
 
-We would also like to thank Dave Tonge and Aaron Parecki for their valuable feedback to this draft.
+We would also like to thank Daniel Fett, Dave Tonge and Aaron Parecki for their valuable feedback to this draft.
 
 # IANA Considerations {#iana_considerations}
+
+TBD
 
 * `authorization_details` as JWT claim
 * `authorization_details_supported` and `authorization_data_types_supported` as metadata parameters
@@ -475,7 +469,7 @@ We would also like to thank Dave Tonge and Aaron Parecki for their valuable feed
    * Added notes on URI size and authorization details
    * Added requirement to return the effective authorization details granted by the resource owner in the token response 
    * changed `authorization_details` structure from object to array
-   * added Justin Richer & Brian Campbell as Co-Author
+   * added Justin Richer & Brian Campbell as Co-Authors
 
    -00 / -01
 
