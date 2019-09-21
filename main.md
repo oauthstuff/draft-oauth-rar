@@ -286,7 +286,7 @@ In the context of a request object as specified in [@I-D.ietf-oauth-jwsreq], `au
 } 
 ```
 
-Note: Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider using the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq], potentially in combination with the pushed request object mechanism as defined in [@PRO] to pass authorization details in a reliable and secure manner.
+Note: Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider using the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq], potentially in combination with the pushed request object mechanism as defined in [@I-D.lodderstedt-oauth-par] to pass authorization details in a reliable and secure manner.
 
 ## Authorization Request Processing 
 
