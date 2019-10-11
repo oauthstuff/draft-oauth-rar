@@ -170,7 +170,7 @@ locations:
 actions:
 :   An array of strings representing the kinds of actions to be taken at the resource. The values of the strings are determined by the API being protected.
 
-data:
+datatype:
 :   An array of strings representing the kinds of data being requested from the resource. 
 
 identifier:
