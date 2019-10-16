@@ -138,7 +138,6 @@ This example shows a combined request asking for access to account information a
       "type": "account_information",
       "actions":
         ["list_accounts", "read_balances", "read_transactions"],
-      "identifier": "abc-123565",
       "locations": [
         "https://example.com/accounts"
       ]
@@ -236,21 +235,17 @@ GET /authorize?response_type=code&client_id=s6BhdRkqt3
     &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb 
     &code_challenge_method=S256
     &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U
-    &authorization_details=%5B%7B%22type%22%3A%22https%3A%2F%2F
-    www.someorg.com%2Fpayment_initiation%22%2C%22actions%22%3A%5
-    B%22initiate%22%2C%22status%22%2C%22cancel%22%5D%2C%22locat
-    ions%22%3A%5B%22https%3A%2F%2Fexample.com%2Fpayments%22%5D%
-    2C%22instructedAmount%22%3A%7B%22currency%22%3A%22EUR%22%2C
-    %22amount%22%3A%22123.50%22%7D%2C%22debtorAccount%22%3A%7B%
-    22iban%22%3A%22DE40100100103307118608%22%7D%2C%22creditorNa
-    me%22%3A%22Merchant123%22%2C%22creditorAccount%22%3A%7B%22i
-    ban%22%3A%22DE02100100109307118603%22%7D%2C%22remittanceInf
-    ormationUnstructured%22%3A%22Ref%20Number%20Merchant%22%7D%
-    5D%0A%20%20%20 HTTP/1.1
+    &authorization_details=%5B%7B%22type%22:%22account_information
+    %22,%22actions%22:%5B%22list_accounts%22,%22read_balances%22,%
+    22read_transactions%22%5D,%22locations%22:%5B%22https://exampl
+    e.com/accounts%22%5D%7D%5D HTTP/1.1
 Host: server.example.com
 ``` 
 
-In the context of a request object as specified in [@I-D.ietf-oauth-jwsreq], `authorization_details` is added as another top level JSON element.
+Implementors MUST ensure to protect personal identifiable information
+in transit. One way is to utilize encrypted request objects as defined
+in [@I-D.ietf-oauth-jwsreq]. In the context of a request object, 
+`authorization_details` is added as another top level JSON element.
 
 ```JSON
 {  
@@ -288,7 +283,30 @@ In the context of a request object as specified in [@I-D.ietf-oauth-jwsreq], `au
 
 Note: Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider using the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq], potentially in combination with the pushed request object mechanism as defined in [@I-D.lodderstedt-oauth-par] to pass authorization details in a reliable and secure manner.
 
-## Authorization Request Processing 
+Here is an example of a pushed authorization request that sends the authorization request data directly to the AS via a HTTPS-protected connection: 
+
+```
+  POST /as/par HTTP/1.1
+  Host: as.example.com
+  Content-Type: application/x-www-form-urlencoded
+  Authorization: Basic czZCaGRSa3F0Mzo3RmpmcDBaQnIxS3REUmJuZlZkbUl3
+
+  response_type=code&
+  client_id=s6BhdRkqt3
+  &state=af0ifjsldkj
+  &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb 
+  &code_challenge_method=S256
+  &code_challenge=%5B%7B%22type%22:%22https://www.someorg.compayment_ini
+  tiation%22,%22actions%22:%5B%22initiate%22,%22status%22,%22cancel%22%5
+  D,%22locations%22:%5B%22https://example.com/payments%22%5D,%22instruct
+  edAmount%22:%7B%22currency%22:%22EUR%22,%22amount%22:%22123.50%22%7D,%
+  22debtorAccount%22:%7B%22iban%22:%22DE40100100103307118608%22%7D%22cre
+  ditorName%22:%22Merchant123%22,%22creditorAccount%22:%7B%22iban%22:%22
+  DE02100100109307118603%22%7D,%22remittanceInformationUnstructured%22:%
+  22Ref%20Number%20Merchant%22%7D%5D
+```
+
+## Authorization Request Processing
 
 Based on the data provided in the `authorization_details` parameter the AS will ask the user for consent to the requested access permissions. 
 
@@ -400,7 +418,7 @@ Even if the request data are encrypted, an attacker could use the authorization 
       
 We would would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
 
-We would also like to thank Daniel Fett, Dave Tonge and Aaron Parecki for their valuable feedback to this draft.
+We would also like to thank Daniel Fett, Dave Tonge, and Aaron Parecki for their valuable feedback to this draft.
 
 # IANA Considerations {#iana_considerations}
 
@@ -448,6 +466,10 @@ TBD
 # Document History
 
    [[ To be removed from the final specification ]]
+   
+   -03
+   
+   * Rework examples to be privacy preserving
    
    -02
    
