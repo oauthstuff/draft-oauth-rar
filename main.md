@@ -363,7 +363,7 @@ The `locations` and the `identifier` elements together allow the AS to determine
          "read"
       ]
    }
-}
+]
 ```
 The AS MUST respect those values when deciding whether a certain element is placed into a (structured) access token or token introspection response.
 
