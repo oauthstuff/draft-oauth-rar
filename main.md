@@ -172,7 +172,7 @@ The JSON objects with `type` fields of `account_information` and `payment_initia
 This draft defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. Unless otherwise noted, all data elements are OPTIONAL.
 
 type:
-:   The type of resource request as a string. This field MAY define which other elements are allowed in the request. This element is REQUIRED.
+:   The type of resource request as a string. Implementations MAY use the value of this field to determine other elements permitted in the request. This element is REQUIRED.
 
 locations:
 :   An array of strings representing the location of the resource or resource server. This is typically composed of URIs.
