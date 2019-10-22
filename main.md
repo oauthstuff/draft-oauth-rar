@@ -282,13 +282,14 @@ Authorization request URIs containing authorization details in a request paramet
   &state=af0ifjsldkj
   &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb 
   &code_challenge_method=S256
-  &code_challenge=%5B%7B%22type%22%3A%22https%3A%2F%2Fwww%2Esomeorg%2Ecom%2Fpayment
-  %5Finitiation%22%2C%22actions%22%3A%5B%22initiate%22%2C%22status%22%2C%22cancel%2
-  2%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fpayments%22%5D%2C%22
-  instructedAmount%22%3A%7B%22currency%22%3A%22EUR%22%2C%22amount%22%3A%22123%2E50%
-  22%7D%2C%22creditorName%22%3A%22Merchant123%22%2C%22creditorAccount%22%3A%7B%22ib
-  an%22%3A%22DE02100100109307118603%22%7D%2C%22remittanceInformationUnstructured%22
-  %3A%22Ref%20Number%20Merchant%22%7D%5D
+  &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U
+  &authorization_details=%5B%7B%22type%22%3A%22https%3A%2F%2Fwww%2Esomeorg%2Ecom%2F
+  payment%5Finitiation%22%2C%22actions%22%3A%5B%22initiate%22%2C%22status%22%2C%22c
+  ancel%22%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fpayments%22%5
+  D%2C%22instructedAmount%22%3A%7B%22currency%22%3A%22EUR%22%2C%22amount%22%3A%2212
+  3%2E50%22%7D%2C%22creditorName%22%3A%22Merchant123%22%2C%22creditorAccount%22%3A%
+  7B%22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittanceInformationUnstruct
+  ured%22%3A%22Ref%20Number%20Merchant%22%7D%5D
 ```
 
 ## Authorization Request Processing
