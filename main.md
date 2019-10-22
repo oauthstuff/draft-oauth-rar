@@ -243,6 +243,56 @@ Given the example in (#authz_details), a client could request an access token us
    }  
 ]
 ```
+## Relationship to "claims" Parameter
+
+OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that can be used to specify the claims a client (acting as OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy preserving way as well as assign those claims to a certain delivery mechanisms, i.e. ID Token or userinfo response. 
+
+The JSON structure defined for the `claims` parameter can be used with `authorization_details`. This specification registers the authorization details type `openid_claims` that is for that purpose. 
+
+The following example shows how a client could ask for OpenID Connect claims and access to account information in the same authorization request. 
+
+```json
+[
+    {
+        "type": "openid_claims",
+        "userinfo": {
+            "given_name": {
+                "essential": true
+            },
+            "nickname": null,
+            "email": {
+                "essential": true
+            },
+            "email_verified": {
+                "essential": true
+            },
+            "picture": null,
+            "http://example.info/claims/groups": null
+        },
+        "id_token": {
+            "auth_time": {
+                "essential": true
+            },
+            "acr": {
+                "values": [
+                    "urn:mace:incommon:iap:silver"
+                ]
+            }
+        }
+    },
+    {
+        "type": "account_information",
+        "actions": [
+            "list_accounts",
+            "read_balances",
+            "read_transactions"
+        ],
+        "locations": [
+            "https://example.com/accounts"
+        ]
+    }
+]
+```
 
 # Using "authorization_details"
 
@@ -528,8 +578,9 @@ TBD
 * `authorization_details_supported` and `authorization_data_types_supported` as metadata parameters
 * `authorization_data_types` as dynamic client registration parameter
 * establish authorization data type registry
+* register type `openid_claims`
 
-<reference anchor="OpenID" target="http://openid.net/specs/openid-connect-core-1_0.html">
+<reference anchor="OIDC" target="http://openid.net/specs/openid-connect-core-1_0.html">
   <front>
     <title>OpenID Connect Core 1.0 incorporating errata set 1</title>
     <author initials="N." surname="Sakimura" fullname="Nat Sakimura">
@@ -574,6 +625,7 @@ TBD
    * Added description of relationship between `scope` and `authorization_details`
    * Added text on token request & response and `authorization_details`
    * Added text on how authorization details are conveyed to RSs by JWTs or token endpoint response
+   * Added description of relationship between `claims` and `authorization_details`
    
    -02
    
