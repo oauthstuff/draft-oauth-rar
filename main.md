@@ -63,24 +63,21 @@ This draft introduces a new parameter `authorization_details` that allows client
 For example, a request for payment authorization can be represented using a JSON object like this:
 
 ```JSON
-[
- {  
-   "type": "payment_initiation",
-   "instructedAmount":{  
+{ 
+   "type":"payment_initiation",
+   "instructedAmount":{ 
       "currency":"EUR",
       "amount":"123.50"
    },
-   "debtorAccount":{  
-      "iban":"DE40100100103307118608"
-   },
    "creditorName":"Merchant123",
-   "creditorAccount":{  
+   "creditorAccount":{ 
       "iban":"DE02100100109307118603"
    },
    "remittanceInformationUnstructured":"Ref Number Merchant"
- }
-]
+}
 ```
+
+This object contains detailed information about the intended payment, such as amount, currency, and creditor, that are required to inform the user and obtain her consent. The AS and the respective RS (providing the payment initation API) will together enforce this consent.
 
 In addition to facilitating custom authorization requests, this draft also introduces a set of common data type fields for use across different APIs.
 
@@ -104,7 +101,7 @@ This specification uses the terms "access token", "refresh token",
 
 The request parameter `authorization_details` contains a JSON array of JSON objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field. 
 
-This example shows the specification of authorization details for a payment initiation transaction: 
+This example shows the specification of authorization details using the payment authorization object shown above: 
 
 ```JSON
 [  
@@ -117,9 +114,6 @@ This example shows the specification of authorization details for a payment init
       "instructedAmount":{  
          "currency":"EUR",
          "amount":"123.50"
-      },
-      "debtorAccount":{  
-         "iban":"DE40100100103307118608"
       },
       "creditorName":"Merchant123",
       "creditorAccount":{  
@@ -151,9 +145,6 @@ This example shows a combined request asking for access to account information a
       "instructedAmount":{  
          "currency":"EUR",
          "amount":"123.50"
-      },
-      "debtorAccount":{  
-         "iban":"DE40100100103307118608"
       },
       "creditorName":"Merchant123",
       "creditorAccount":{  
@@ -227,7 +218,7 @@ The request parameter can be used anywhere where the `scope` parameter is used, 
 
 Parameter encoding is determined by the respective context. 
 
-In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format as shown in the following example (JSON string trimmed for brevity):
+In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format as shown in the following example:
 
 ```
 GET /authorize?response_type=code&client_id=s6BhdRkqt3
@@ -235,10 +226,10 @@ GET /authorize?response_type=code&client_id=s6BhdRkqt3
     &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb 
     &code_challenge_method=S256
     &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U
-    &authorization_details=%5B%7B%22type%22:%22account_information
-    %22,%22actions%22:%5B%22list_accounts%22,%22read_balances%22,%
-    22read_transactions%22%5D,%22locations%22:%5B%22https://exampl
-    e.com/accounts%22%5D%7D%5D HTTP/1.1
+    &authorization_details=%5B%7B%22type%22%3A%22account%5Finformation%22%2C%22
+    actions%22%3A%5B%22list%5Faccounts%22%2C%22read%5Fbalances%22%2C%22read%5Ft
+    ransactions%22%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fa
+    ccounts%22%5D%7D%5D HTTP/1.1
 Host: server.example.com
 ``` 
 
@@ -268,9 +259,6 @@ in [@I-D.ietf-oauth-jwsreq]. In the context of a request object,
            "currency":"EUR",
            "amount":"123.50"
         },
-        "debtorAccount":{  
-           "iban":"DE40100100103307118608"
-        },
         "creditorName":"Merchant123",
         "creditorAccount":{  
            "iban":"DE02100100109307118603"
@@ -281,9 +269,7 @@ in [@I-D.ietf-oauth-jwsreq]. In the context of a request object,
 } 
 ```
 
-Note: Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider using the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq], potentially in combination with the pushed request object mechanism as defined in [@I-D.lodderstedt-oauth-par] to pass authorization details in a reliable and secure manner.
-
-Here is an example of a pushed authorization request that sends the authorization request data directly to the AS via a HTTPS-protected connection: 
+Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider using the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq] in combination with the pushed request object mechanism as defined in [@I-D.lodderstedt-oauth-par] to pass authorization details in a reliable and secure manner. Here is an example of such a pushed authorization request that sends the authorization request data directly to the AS via a HTTPS-protected connection: 
 
 ```
   POST /as/par HTTP/1.1
@@ -296,14 +282,13 @@ Here is an example of a pushed authorization request that sends the authorizatio
   &state=af0ifjsldkj
   &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb 
   &code_challenge_method=S256
-  &code_challenge=%5B%7B%22type%22:%22https://www.someorg.compayment_ini
-  tiation%22,%22actions%22:%5B%22initiate%22,%22status%22,%22cancel%22%5
-  D,%22locations%22:%5B%22https://example.com/payments%22%5D,%22instruct
-  edAmount%22:%7B%22currency%22:%22EUR%22,%22amount%22:%22123.50%22%7D,%
-  22debtorAccount%22:%7B%22iban%22:%22DE40100100103307118608%22%7D%22cre
-  ditorName%22:%22Merchant123%22,%22creditorAccount%22:%7B%22iban%22:%22
-  DE02100100109307118603%22%7D,%22remittanceInformationUnstructured%22:%
-  22Ref%20Number%20Merchant%22%7D%5D
+  &code_challenge=%5B%7B%22type%22%3A%22https%3A%2F%2Fwww%2Esomeorg%2Ecom%2Fpayment
+  %5Finitiation%22%2C%22actions%22%3A%5B%22initiate%22%2C%22status%22%2C%22cancel%2
+  2%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fpayments%22%5D%2C%22
+  instructedAmount%22%3A%7B%22currency%22%3A%22EUR%22%2C%22amount%22%3A%22123%2E50%
+  22%7D%2C%22creditorName%22%3A%22Merchant123%22%2C%22creditorAccount%22%3A%7B%22ib
+  an%22%3A%22DE02100100109307118603%22%7D%2C%22remittanceInformationUnstructured%22
+  %3A%22Ref%20Number%20Merchant%22%7D%5D
 ```
 
 ## Authorization Request Processing
@@ -345,9 +330,6 @@ This is shown in the following example:
             "instructedAmount":{  
                "currency":"EUR",
                "amount":"123.50"
-            },
-            "debtorAccount":{  
-               "iban":"DE40100100103307118608"
             },
             "creditorName":"Merchant123",
             "creditorAccount":{  
@@ -469,7 +451,7 @@ TBD
    
    -03
    
-   * Rework examples to be privacy preserving
+   * Reworked examples to illustrate privacy preserving use of `authorization_details`
    
    -02
    
