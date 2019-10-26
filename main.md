@@ -207,9 +207,17 @@ The following example shows how an implementation could utilize the namespace `h
    ]
 }
 ```
-## Relationship to "scope" parameter
+## Relationship to "scope" parameter {#scope}
 
 `authorization_details` can be used besides the `scope` request parameter or as a replacement. If both parameters are used in the same request, the authorization a client asks for is determined by the combination of both parameter values.
+
+### Scope value "openid" and "claims" parameter
+
+OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that can be used to specify the claims a client (acting as OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy preserving way as well as assign those claims to a certain delivery mechanisms, i.e. ID Token or userinfo response. 
+
+The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same as every other scope value and, potentially, further parameter providing additional data for the respective scope to the authorization process. 
+
+Alternatively, there could be an authorization data type for OpenID Connect. (#openid) gives an example of how such an authorization data type could look like.
 
 ## Relationship to "resource" parameter
 
@@ -241,56 +249,6 @@ Given the example in (#authz_details), a client could request an access token us
       },
       "remittanceInformationUnstructured":"Ref Number Merchant"
    }  
-]
-```
-## Relationship to "claims" Parameter
-
-OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that can be used to specify the claims a client (acting as OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy preserving way as well as assign those claims to a certain delivery mechanisms, i.e. ID Token or userinfo response. 
-
-The JSON structure defined for the `claims` parameter can be used with `authorization_details`. This specification registers the authorization details type `openid_claims` that is for that purpose. 
-
-The following example shows how a client could ask for OpenID Connect claims and access to account information in the same authorization request. 
-
-```json
-[
-    {
-        "type": "openid_claims",
-        "userinfo": {
-            "given_name": {
-                "essential": true
-            },
-            "nickname": null,
-            "email": {
-                "essential": true
-            },
-            "email_verified": {
-                "essential": true
-            },
-            "picture": null,
-            "http://example.info/claims/groups": null
-        },
-        "id_token": {
-            "auth_time": {
-                "essential": true
-            },
-            "acr": {
-                "values": [
-                    "urn:mace:incommon:iap:silver"
-                ]
-            }
-        }
-    },
-    {
-        "type": "account_information",
-        "actions": [
-            "list_accounts",
-            "read_balances",
-            "read_transactions"
-        ],
-        "locations": [
-            "https://example.com/accounts"
-        ]
-    }
 ]
 ```
 
@@ -612,7 +570,139 @@ TBD
   </front>
 </reference>
 
+<reference anchor="etsi" target="https://www.etsi.org/deliver/etsi_ts/119400_119499/119432/01.01.01_60/ts_119432v010101p.pdf">
+  <front>
+    <title>ETSI TS 119 432, Electronic Signatures and Infrastructures (ESI); Protocols for remote digital signature creation </title>
+     <author fullname="ETSI">
+	    <organization abbrev="ETSI">ETSI</organization>
+	  </author>
+   <date day="20" month="Mar" year="2019"/>
+  </front>
+</reference>
+
+<reference anchor="csc" target="https://cloudsignatureconsortium.org/wp-content/uploads/2019/07/CSC_API_V1_1.0.4.0.pdf">
+  <front>
+    <title>Architectures and protocols for remote signature applications</title>
+    <author fullname="Cloud Signature Consortium">
+	    <organization abbrev="CSC">Cloud Signature Consortium</organization>
+	  </author>	
+   <date day="01" month="Jun" year="2019"/>
+  </front>
+</reference>
+
 {backmatter}
+
+# Additional Examples
+
+## OpenID Connect {#openid}
+
+This examples tries to encapsulate all details specific to the OpenID Connect part of an authorization process into a JSON structure.
+
+The top-level elements are based on the definitions given in [@OIDC]:
+
+* `claim_sets`: names of predefined claim sets, replacement for respective scope values, such as `profile`
+* `max_age`: Maximum Authentication Age 
+* `acr_values`: array of ACR values
+* `claims`: the `claims` JSON structure as defined in [@OIDC]
+
+The following example shows how a client could ask for OpenID Connect claims and access to account information in the same authorization request. 
+
+```json
+[
+    {
+        "type": "openid",
+        "claim_sets": [
+            "email",
+            "profile"
+        ]
+    }
+]
+```
+
+A more sophisticated example is shown in the following
+
+```json
+[
+    {
+        "type": "openid",
+        "max_age": 86400,
+        "acr_values": "urn:mace:incommon:iap:silver",
+        "claims": {
+            "userinfo": {
+                "given_name": {
+                    "essential": true
+                },
+                "nickname": null,
+                "email": {
+                    "essential": true
+                },
+                "email_verified": {
+                    "essential": true
+                },
+                "picture": null,
+                "http://example.info/claims/groups": null
+            },
+            "id_token": {
+                "auth_time": {
+                    "essential": true
+                }
+            }
+        }
+    }
+]
+```
+
+## Remote Electronic Signing {#signing}
+
+The following example is based on the concept layed out for remote electronic signing in [@etsi] and [@csc].
+
+```json
+[
+    {
+        "type": "sign",
+        "locations":"https://signing.example.com/signdoc"
+        "credentialID": "60916d31-932e-4820-ba82-1fcead1c9ea3",
+        "documentDigests": [
+            {
+                "hash": "sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=",
+                "label": "Credit Contract"
+            },
+            {
+                "hash": "HZQzZmMAIWekfGH0/ZKW1nsdt0xg3H6bZYztgsMTLw0=",
+                "label": "Contract Payment Protection Insurance"
+            }
+        ],
+        "hashAlgorithmOID": "2.16.840.1.101.3.4.2.1"
+    }
+]
+```
+
+The top-level elements have the following meaning:
+
+* `credentialID`: identifier of the certificate to be used for signing
+* `documentDigests`: array containing the hash of every document to be signed (`hash` elements). Additionally, the corresponding `label` element identifies the respective document to the user, e.g. to be used in user consent.
+* `hashAlgorithm`: algomrithm that was used to calculate the hash values. 
+
+The AS is supposed to ask the user for consent for the creation of the documents listed in the structure. The client uses the access token issued as result of the process to call the sign doc endpoint at the respective signing service to actually create the signature. 
+
+## Access to Tax Data {#tax}
+
+This example is inspired by an API allowing third party to access citizen's tax declarations, for example to determine their credit score.
+
+```json
+[
+    {
+        "type": "tax_data",
+        "locations": [
+            "https://taxservice.govehub.no"
+        ],
+        "actions":"read_tax_statement",
+        "period": "2018",
+        "duration_of_access": 30,
+        "tax_payer_id": "23674185438934"
+    }
+]
+```
 
 # Document History
 
@@ -626,6 +716,7 @@ TBD
    * Added text on token request & response and `authorization_details`
    * Added text on how authorization details are conveyed to RSs by JWTs or token endpoint response
    * Added description of relationship between `claims` and `authorization_details`
+   * Added more example from different sectors
    
    -02
    
