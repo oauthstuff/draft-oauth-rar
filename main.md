@@ -215,7 +215,7 @@ The following example shows how an implementation could utilize the namespace `h
 
 OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that can be used to specify the claims a client (acting as OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy preserving way as well as assign those claims to a certain delivery mechanisms, i.e. ID Token or userinfo response. 
 
-The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same as every other scope value and, potentially, further parameter providing additional data for the respective scope to the authorization process. 
+The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every other scope value and, potentially, further parameter providing additional data for the respective scope to the authorization process. 
 
 Alternatively, there could be an authorization data type for OpenID Connect. (#openid) gives an example of how such an authorization data type could look like.
 
@@ -261,7 +261,8 @@ The request parameter can be used to specify authorization requirements in all p
 * Authorization requests as specified in [@!RFC6749], 
 * Access token requests as specified in [@!RFC6749], if also used as authorization requests, e.g. in the case of assertion grant types [@!RFC7521],
 * Request objects as specified in [@I-D.ietf-oauth-jwsreq], 
-* Device Authorization Request as specified in [@!RFC8628].
+* Device Authorization Request as specified in [@!RFC8628],
+* Backchannel Authentication Requests as defined in [@OpenID.CIBA].
 
 Parameter encoding is determined by the respective context. 
 
@@ -570,7 +571,7 @@ TBD
   </front>
 </reference>
 
-<reference anchor="etsi" target="https://www.etsi.org/deliver/etsi_ts/119400_119499/119432/01.01.01_60/ts_119432v010101p.pdf">
+<reference anchor="ETSI" target="https://www.etsi.org/deliver/etsi_ts/119400_119499/119432/01.01.01_60/ts_119432v010101p.pdf">
   <front>
     <title>ETSI TS 119 432, Electronic Signatures and Infrastructures (ESI); Protocols for remote digital signature creation </title>
      <author fullname="ETSI">
@@ -580,7 +581,7 @@ TBD
   </front>
 </reference>
 
-<reference anchor="csc" target="https://cloudsignatureconsortium.org/wp-content/uploads/2019/07/CSC_API_V1_1.0.4.0.pdf">
+<reference anchor="CSC" target="https://cloudsignatureconsortium.org/wp-content/uploads/2019/07/CSC_API_V1_1.0.4.0.pdf">
   <front>
     <title>Architectures and protocols for remote signature applications</title>
     <author fullname="Cloud Signature Consortium">
@@ -590,13 +591,36 @@ TBD
   </front>
 </reference>
 
+<reference anchor="OpenID.CIBA"
+           target="https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0.html">
+        <front>
+          <title abbrev="CIBA">OpenID Connect Client Initiated Backchannel Authentication Flow - Core 1.0</title>
+          <author fullname="Gonzalo Fernandez Rodriguez" initials="G." surname="Fernandez">
+            <organization abbrev="Telefonica">Telefonica I+D</organization>
+          </author>
+          <author fullname="Florian Walter" initials="F." surname="Walter">
+            <organization abbrev="">Deutsche Telekom AG</organization>
+          </author>
+          <author fullname="Axel Nennker" initials="A." surname="Nennker">
+            <organization abbrev="">Deutsche Telekom AG</organization>
+          </author>
+          <author fullname="Dave Tonge" initials="D." surname="Tonge">
+            <organization abbrev="Moneyhub">Moneyhub</organization>
+          </author>
+          <author fullname="Brian Campbell" initials="B." surname="Campbell">
+            <organization abbrev="Ping Identity">Ping Identity</organization>
+          </author>
+          <date day="16" month="January" year="2019"/>
+        </front>
+      </reference>
+
 {backmatter}
 
 # Additional Examples
 
 ## OpenID Connect {#openid}
 
-This examples tries to encapsulate all details specific to the OpenID Connect part of an authorization process into a JSON structure.
+This examples tries to encapsulate all details specific to the OpenID Connect part of an authorization process into an authorization JSON object.
 
 The top-level elements are based on the definitions given in [@OIDC]:
 
@@ -605,12 +629,13 @@ The top-level elements are based on the definitions given in [@OIDC]:
 * `acr_values`: array of ACR values
 * `claims`: the `claims` JSON structure as defined in [@OIDC]
 
-The following example shows how a client could ask for OpenID Connect claims and access to account information in the same authorization request. 
+This is a simple request for some claim sets. 
 
 ```json
 [
     {
         "type": "openid",
+        "locations":["https://op.example.com/userinfo"]
         "claim_sets": [
             "email",
             "profile"
@@ -619,12 +644,15 @@ The following example shows how a client could ask for OpenID Connect claims and
 ]
 ```
 
+Note: `locations` specifies the location of the userinfo endpoint since this is the only place where an access token is used by a client (RP) in OpenID Connect to obtain claims.
+
 A more sophisticated example is shown in the following
 
 ```json
 [
     {
         "type": "openid",
+        "locations":["https://op.example.com/userinfo"]
         "max_age": 86400,
         "acr_values": "urn:mace:incommon:iap:silver",
         "claims": {
@@ -654,7 +682,7 @@ A more sophisticated example is shown in the following
 
 ## Remote Electronic Signing {#signing}
 
-The following example is based on the concept layed out for remote electronic signing in [@etsi] and [@csc].
+The following example is based on the concept layed out for remote electronic signing in ETSI TS 119 432 [@ETSI] and the CSC API for remote signature creation [@CSC].
 
 ```json
 [
@@ -683,11 +711,11 @@ The top-level elements have the following meaning:
 * `documentDigests`: array containing the hash of every document to be signed (`hash` elements). Additionally, the corresponding `label` element identifies the respective document to the user, e.g. to be used in user consent.
 * `hashAlgorithm`: algomrithm that was used to calculate the hash values. 
 
-The AS is supposed to ask the user for consent for the creation of the documents listed in the structure. The client uses the access token issued as result of the process to call the sign doc endpoint at the respective signing service to actually create the signature. 
+The AS is supposed to ask the user for consent for the creation of signatues for the documents listed in the structure. The client uses the access token issued as result of the process to call the sign doc endpoint at the respective signing service to actually create the signature. This access token is bound to the client, the user id and the hashes (and signature algorithm) as consented by the user.
 
 ## Access to Tax Data {#tax}
 
-This example is inspired by an API allowing third party to access citizen's tax declarations, for example to determine their credit score.
+This example is inspired by an API allowing third parties to access citizen's tax declarations and statements, for example to determine their credit worthiness.
 
 ```json
 [
@@ -697,12 +725,19 @@ This example is inspired by an API allowing third party to access citizen's tax 
             "https://taxservice.govehub.no"
         ],
         "actions":"read_tax_statement",
-        "period": "2018",
+        "periods": ["2018"],
         "duration_of_access": 30,
         "tax_payer_id": "23674185438934"
     }
 ]
 ```
+
+The top-level elements have the following meaning:
+
+* `periods`: determines the periods the client wants to access
+* `duration_of_access`: how long does the client intend to access the data in days
+* `tax_payer_id`: identifier of the tax payer (if known to the client)
+
 
 # Document History
 
