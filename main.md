@@ -307,7 +307,7 @@ Host: server.example.com
 Implementors MUST ensure to protect personal identifiable information
 in transit. One way is to utilize encrypted request objects as defined
 in [@I-D.ietf-oauth-jwsreq]. In the context of a request object, 
-`authorization_details` is added as another top level JSON element.
+`authorization_details` is added as a top level JSON element, just as any other authorization request parameter.
 
 ```JSON
 {
