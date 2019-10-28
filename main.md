@@ -130,8 +130,8 @@ This example shows a combined request asking for access to account information a
 [
    {  
       "type": "account_information",
-      "actions":
-        ["list_accounts", "read_balances", "read_transactions"],
+      "actions": ["list", "read"],
+      "datatypes": ["accounts", "balance", "transactions"],
       "locations": [
         "https://example.com/accounts"
       ]
@@ -170,7 +170,7 @@ locations:
 actions:
 :   An array of strings representing the kinds of actions to be taken at the resource. The values of the strings are determined by the API being protected.
 
-datatype:
+datatypes:
 :   An array of strings representing the kinds of data being requested from the resource. 
 
 identifier:
