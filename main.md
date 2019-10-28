@@ -104,7 +104,7 @@ This specification uses the terms "access token", "refresh token",
 
 # Request parameter "authorization_details" {#authz_details}
 
-The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field. 
+The request parameter `authorization_details` is a JSON array that contains JSON objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field. 
 
 This example shows the specification of authorization details using the payment authorization object shown above: 
 
