@@ -756,7 +756,7 @@ This example is inspired by an API allowing third parties to access citizen's ta
         "locations": [
             "https://taxservice.govehub.no"
         ],
-        "actions":"read_tax_statement",
+        "actions":["read_tax_statement"],
         "periods": ["2018"],
         "duration_of_access": 30,
         "tax_payer_id": "23674185438934"
