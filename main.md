@@ -432,7 +432,7 @@ If the access token is a JWT [@!RFC7519], the AS is RECOMMENDED to add the `auth
 
 The AS will typically also add further claims to the JWT the RS requires for request processing, e.g., user id, roles, and transaction specific data. What claims the particular RS requires is defined by the RS-specific policy with the AS.
 
-The following shows the contents of an example JWT for the payment initation example above: 
+The following shows the contents of an example JWT payload for the payment initation example above: 
 
 ```JSON
 {
