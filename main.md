@@ -232,9 +232,9 @@ The request parameter `resource` [@I-D.ietf-oauth-resource-indicators] indicates
 
 If a client uses `authorization_details` with `locations` elements in an authorization request, it MAY omit the `resource` parameter since the information conveyed in the `authorization_details` object are a superset of what can be conveyed in the `resource` parameter.
 
-Clients requiring audience restricted access tokens are RECOMMENDED to use the `resource` parameter in token requests to allow the AS to narrow down the privileges of the access token to specific permissions for individual operations on specific resource servers (see [@I-D.ietf-oauth-security-topics], section-3.3). 
+Clients requiring audience restricted access tokens are RECOMMENDED to use the `resource` parameter in token requests to allow the AS to narrow down the privileges of the access token to specific permissions for individual operations on specific resource servers (see [@I-D.ietf-oauth-security-topics], Section 3.3). 
 
-If the client used `authorization_details` with `locations` elements in the authorization request, the AS MUST utilize this data to filter the authorization data objects applicable to the respective `resource`. This process will use the `resource` string as prefix to filter the `location` elements of the authorization details elements.
+If the client used `authorization_details` with `locations` elements in the authorization request, the AS MUST utilize this data to filter the authorization data objects applicable to the respective `resource`. This process will use the `resource` string as prefix to filter the `locations` elements of the authorization details elements.
 
 Given the example in (#authz_details), a client could request an access token using a `resource` value of `https://example.com/payments`, which would produce an access token containing the `payment_initation` but not the `account_information` authorization details as shown in the following example:
 
@@ -351,7 +351,7 @@ Authorization request URIs containing authorization details in a request paramet
 
 Based on the data provided in the `authorization_details` parameter the AS will ask the user for consent to the requested access permissions. 
 
-The AS MUST refuse to process any unknown authorization data type. If the `authorization_details` contains any unknown authorization data type, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client.
+The AS MUST refuse to process any unknown authorization data type. If the `authorization_details` contain any unknown authorization data type, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client.
 
 Note: If the authorization request also contained the `scope` parameter, the AS MUST also ask for user consent for the scope values.  
 
@@ -361,7 +361,7 @@ Note: The AS MUST make the `authorization_details` available to the respective r
 
 ## Token Request
 
-As noted above, the client is RECOMMENDED to indicate the recource server where it will use the access token using the `resource` parameter. 
+As noted above, the client is RECOMMENDED to indicate the resource server where it will use the access token using the `resource` parameter. 
 
 ## Token Response
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
