@@ -479,7 +479,7 @@ In case of opaque access tokens, the data provided to a certain RS is determined
 
 ## Token Introspection Response
 
-The token endpoint response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. 
+The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. 
 
 Here is an example for the payment initation example RS:
 
