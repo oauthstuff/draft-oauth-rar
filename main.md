@@ -233,7 +233,7 @@ For user convenience, the AS is supposed to merge the requirements when asking t
 
 OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that can be used to specify the claims a client (acting as OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy preserving way as well as assign those claims to a certain delivery mechanisms, i.e. ID Token or userinfo response. 
 
-The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every other scope value and, potentially, further parameter providing additional data for the respective scope to the authorization process. 
+The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every other non-OIDC scope value. 
 
 Alternatively, there could be an authorization data type for OpenID Connect. (#openid) gives an example of how such an authorization data type could look like.
 
