@@ -65,6 +65,9 @@ For example, a request for payment authorization can be represented using a JSON
 ```JSON
 { 
    "type":"payment_initiation",
+   "locations":[  
+      "https://example.com/payments"
+   ],
    "instructedAmount":{ 
       "currency":"EUR",
       "amount":"123.50"
@@ -83,7 +86,7 @@ For a comprehensive discussion of the challenges arising from new use cases in t
 
 In addition to facilitating custom authorization requests, this draft also introduces a set of common data type fields for use across different APIs. 
 
-Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization. i.e. it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@I-D.ietf-oauth-resource-indicators] it enables the AS to mint RS-specfic structured access tokens that only contain the permissions applicable to the respective RS.
+Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@I-D.ietf-oauth-resource-indicators] it enables the AS to mint RS-specfic structured access tokens that only contain the permissions applicable to the respective RS.
 
 ## Conventions and Terminology
 
@@ -101,7 +104,7 @@ This specification uses the terms "access token", "refresh token",
 
 # Request parameter "authorization_details" {#authz_details}
 
-The request parameter `authorization_details` contains a JSON array of JSON objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field. 
+The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field. 
 
 This example shows the specification of authorization details using the payment authorization object shown above: 
 
@@ -209,7 +212,11 @@ The following example shows how an implementation could utilize the namespace `h
 ```
 ## Relationship to "scope" parameter {#scope}
 
-`authorization_details` can be used besides the `scope` request parameter or as a replacement. If both parameters are used in the same request, the authorization a client asks for is determined by the combination of both parameter values.
+`authorization_details` and `scope` can be used in the same authorization request for carrying independent authorization requirements. 
+
+The AS MUST keep both requirements sets separate when reflecting this data to the client and passing this data through to resource servers.
+
+For user convenience, the AS is supposed to merge the requirements when asking the user for consent.
 
 ### Scope value "openid" and "claims" parameter
 
@@ -223,7 +230,7 @@ Alternatively, there could be an authorization data type for OpenID Connect. (#o
 
 The request parameter `resource` [@I-D.ietf-oauth-resource-indicators] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. 
 
-If a client uses `authorization_details` with `locations` elements in an authorization request, it MAY omit the `resource` parameter since the information conveyed in the `authorization_details` object are a super-set of what can be conveyed in the `resource` parameter.
+If a client uses `authorization_details` with `locations` elements in an authorization request, it MAY omit the `resource` parameter since the information conveyed in the `authorization_details` object are a superset of what can be conveyed in the `resource` parameter.
 
 Clients requiring audience restricted access tokens are RECOMMENDED to use the `resource` parameter in token requests to allow the AS to narrow down the privileges of the access token to specific permissions for individual operations on specific resource servers (see [@I-D.ietf-oauth-security-topics], section-3.3). 
 
@@ -344,11 +351,11 @@ Authorization request URIs containing authorization details in a request paramet
 
 Based on the data provided in the `authorization_details` parameter the AS will ask the user for consent to the requested access permissions. 
 
-Note: The AS MUST merge the authorization requirements given in the `scope` parameter and the `authorization_details` parameter if both are present in the authorization request.  
-
 The AS MUST refuse to process any unknown authorization data type. If the `authorization_details` contains any unknown authorization data type, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client.
 
-If the resource owner grants the client the requested access, the AS will issue tokens to the client that are associated with the respective `authorization_details`.
+Note: If the authorization request also contained the `scope` parameter, the AS MUST also ask for user consent for the scope values.  
+
+If the resource owner grants the client the requested access, the AS will issue tokens to the client that are associated with the respective `authorization_details` (and scope values, if applicable).
 
 Note: The AS MUST make the `authorization_details` available to the respective resource servers. The AS MAY add the `authorization_details` element to access tokens in JWT format and to Token Introspection responses (see below). 
 
@@ -396,11 +403,11 @@ This is shown in the following example:
 
 In order to enable the RS to enforce the authorization details as approved in the authorization process, the AS MUST make this data available to the RS. 
 
-In case of a JWT [@!RFC7519], the AS is RECOMMENDED to add the `authorization_details` object, filtered to the specific audience, as top-level claim. 
+If the access token is a JWT [@!RFC7519], the AS is RECOMMENDED to add the `authorization_details` object, filtered to the specific audience, as top-level claim. 
 
-The AS will typically also add further claims to the JWT the RS requires for request processing, e.g. user id, roles and transaction specific data. What claims the particular RS requires is defined by the RS-specific policy with the AS.
+The AS will typically also add further claims to the JWT the RS requires for request processing, e.g., user id, roles, and transaction specific data. What claims the particular RS requires is defined by the RS-specific policy with the AS.
 
-The following shows an example JWT for the payment initation example above: 
+The following shows the contents of an example JWT for the payment initation example above: 
 
 ```JSON
 {
@@ -431,11 +438,7 @@ The following shows an example JWT for the payment initation example above:
             },
             "remittanceInformationUnstructured": "Ref Number Merchant"
         }
-    ],
-    "debtorAccount": {
-        "iban": "DE40100100103307118608",
-        "user_role": "owner"
-    }
+    ]
 }
 ```
 
@@ -491,7 +494,7 @@ Here is an example for the payment initation example RS:
     }
 }
 ```
-The differences to the example given in (#token_content) lay in the difference between JWTs and token introspection responses.
+The differences to the example given in (#token_content) lay in the difference between JWT-encoded access tokens and token introspection responses.
 
 # Metadata
 
