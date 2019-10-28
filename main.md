@@ -63,20 +63,20 @@ This draft introduces a new parameter `authorization_details` that allows client
 For example, a request for payment authorization can be represented using a JSON object like this:
 
 ```JSON
-{ 
-   "type":"payment_initiation",
-   "locations":[  
+{
+   "type": "payment_initiation",
+   "locations": [
       "https://example.com/payments"
    ],
-   "instructedAmount":{ 
-      "currency":"EUR",
-      "amount":"123.50"
+   "instructedAmount": {
+      "currency": "EUR",
+      "amount": "123.50"
    },
-   "creditorName":"Merchant123",
-   "creditorAccount":{ 
-      "iban":"DE02100100109307118603"
+   "creditorName": "Merchant123",
+   "creditorAccount": {
+      "iban": "DE02100100109307118603"
    },
-   "remittanceInformationUnstructured":"Ref Number Merchant"
+   "remittanceInformationUnstructured": "Ref Number Merchant"
 }
 ```
 
@@ -109,23 +109,27 @@ The request parameter `authorization_details` contains, in JSON notation, an arr
 This example shows the specification of authorization details using the payment authorization object shown above: 
 
 ```JSON
-[  
-   {  
+[
+   {
       "type": "payment_initiation",
-      "actions": ["initiate", "status", "cancel"],
-      "locations":[  
-        "https://example.com/payments"
+      "actions": [
+         "initiate",
+         "status",
+         "cancel"
       ],
-      "instructedAmount":{  
-         "currency":"EUR",
-         "amount":"123.50"
+      "locations": [
+         "https://example.com/payments"
+      ],
+      "instructedAmount": {
+         "currency": "EUR",
+         "amount": "123.50"
       },
-      "creditorName":"Merchant123",
-      "creditorAccount":{  
-         "iban":"DE02100100109307118603"
+      "creditorName": "Merchant123",
+      "creditorAccount": {
+         "iban": "DE02100100109307118603"
       },
-      "remittanceInformationUnstructured":"Ref Number Merchant"
-   }  
+      "remittanceInformationUnstructured": "Ref Number Merchant"
+   }
 ]
 ```
 
@@ -133,30 +137,37 @@ This example shows a combined request asking for access to account information a
 
 ```JSON
 [
-   {  
+   {
       "type": "account_information",
-      "actions":
-        ["list_accounts", "read_balances", "read_transactions"],
+      "actions": [
+         "list_accounts",
+         "read_balances",
+         "read_transactions"
+      ],
       "locations": [
-        "https://example.com/accounts"
+         "https://example.com/accounts"
       ]
    },
-   {  
+   {
       "type": "payment_initiation",
-      "actions": ["initiate", "status", "cancel"],
-      "locations":[  
-        "https://example.com/payments"
+      "actions": [
+         "initiate",
+         "status",
+         "cancel"
       ],
-      "instructedAmount":{  
-         "currency":"EUR",
-         "amount":"123.50"
+      "locations": [
+         "https://example.com/payments"
+      ],
+      "instructedAmount": {
+         "currency": "EUR",
+         "amount": "123.50"
       },
-      "creditorName":"Merchant123",
-      "creditorAccount":{  
-         "iban":"DE02100100109307118603"
+      "creditorName": "Merchant123",
+      "creditorAccount": {
+         "iban": "DE02100100109307118603"
       },
-      "remittanceInformationUnstructured":"Ref Number Merchant"
-   }  
+      "remittanceInformationUnstructured": "Ref Number Merchant"
+   }
 ]
 ```
 
@@ -188,21 +199,21 @@ Note: Applications MUST ensure that their authorization data types do not collid
 The following example shows how an implementation could utilize the namespace `https://scheme.example.org/` to ensure collision resistant element names.
 
 ```JSON
-{ 
-   "type":"https://scheme.example.org/files",
-   "locations":[ 
+{
+   "type": "https://scheme.example.org/files",
+   "locations": [
       "https://example.com/files"
    ],
-   "permissions":[ 
-      { 
-         "path":"/myfiles/A",
-         "access":[ 
+   "permissions": [
+      {
+         "path": "/myfiles/A",
+         "access": [
             "read"
          ]
       },
-      { 
-         "path":"/myfiles/A/X",
-         "access":[ 
+      {
+         "path": "/myfiles/A/X",
+         "access": [
             "read",
             "write"
          ]
@@ -240,22 +251,26 @@ Given the example in (#authz_details), a client could request an access token us
 
 ```JSON
 [
-   {  
+   {
       "type": "payment_initiation",
-      "actions": ["initiate", "status", "cancel"],
-      "locations":[  
-        "https://example.com/payments"
+      "actions": [
+         "initiate",
+         "status",
+         "cancel"
       ],
-      "instructedAmount":{  
-         "currency":"EUR",
-         "amount":"123.50"
+      "locations": [
+         "https://example.com/payments"
+      ],
+      "instructedAmount": {
+         "currency": "EUR",
+         "amount": "123.50"
       },
-      "creditorName":"Merchant123",
-      "creditorAccount":{  
-         "iban":"DE02100100109307118603"
+      "creditorName": "Merchant123",
+      "creditorAccount": {
+         "iban": "DE02100100109307118603"
       },
-      "remittanceInformationUnstructured":"Ref Number Merchant"
-   }  
+      "remittanceInformationUnstructured": "Ref Number Merchant"
+   }
 ]
 ```
 
@@ -276,15 +291,16 @@ Parameter encoding is determined by the respective context.
 In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format as shown in the following example:
 
 ```
-GET /authorize?response_type=code&client_id=s6BhdRkqt3
-    &state=af0ifjsldkj
-    &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb 
-    &code_challenge_method=S256
-    &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U
-    &authorization_details=%5B%7B%22type%22%3A%22account%5Finformation%22%2C%22
-    actions%22%3A%5B%22list%5Faccounts%22%2C%22read%5Fbalances%22%2C%22read%5Ft
-    ransactions%22%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fa
-    ccounts%22%5D%7D%5D HTTP/1.1
+GET /authorize?response_type=code
+   &client_id=s6BhdRkqt3
+   &state=af0ifjsldkj
+   &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
+   &code_challenge_method=S256
+   &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U
+   &authorization_details=%5B%7B%22type%22%3A%22account%5Finformati
+   on%22%2C%22actions%22%3A%5B%22list%5Faccounts%22%2C%22read%5Fbal
+   ances%22%2C%22read%5Ftransactions%22%5D%2C%22locations%22%3A%5B%
+   22https%3A%2F%2Fexample%2Ecom%2Faccounts%22%5D%7D%5D HTTP/1.1
 Host: server.example.com
 ``` 
 
@@ -294,34 +310,38 @@ in [@I-D.ietf-oauth-jwsreq]. In the context of a request object,
 `authorization_details` is added as another top level JSON element.
 
 ```JSON
-{  
-   "iss":"s6BhdRkqt3",
-   "aud":"https://server.example.com",
-   "response_type":"code",
-   "client_id":"s6BhdRkqt3",
-   "redirect_uri":"https://client.example.com/cb",
-   "state":"af0ifjsldkj",
-   "code_challenge_method":"S256",
-   "code_challenge":"K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U",
-   "authorization_details":[  
-     {  
-        "type": "https://www.someorg.com/payment_initiation",
-        "actions": ["initiate", "status", "cancel"],
-        "locations":[  
-          "https://example.com/payments"
-        ],
-        "instructedAmount":{  
-           "currency":"EUR",
-           "amount":"123.50"
-        },
-        "creditorName":"Merchant123",
-        "creditorAccount":{  
-           "iban":"DE02100100109307118603"
-        },
-        "remittanceInformationUnstructured":"Ref Number Merchant"
-     }  
-  ]
-} 
+{
+   "iss": "s6BhdRkqt3",
+   "aud": "https://server.example.com",
+   "response_type": "code",
+   "client_id": "s6BhdRkqt3",
+   "redirect_uri": "https://client.example.com/cb",
+   "state": "af0ifjsldkj",
+   "code_challenge_method": "S256",
+   "code_challenge": "K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U",
+   "authorization_details": [
+      {
+         "type": "https://www.someorg.com/payment_initiation",
+         "actions": [
+            "initiate",
+            "status",
+            "cancel"
+         ],
+         "locations": [
+            "https://example.com/payments"
+         ],
+         "instructedAmount": {
+            "currency": "EUR",
+            "amount": "123.50"
+         },
+         "creditorName": "Merchant123",
+         "creditorAccount": {
+            "iban": "DE02100100109307118603"
+         },
+         "remittanceInformationUnstructured": "Ref Number Merchant"
+      }
+   ]
+}
 ```
 
 Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider using the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq] in combination with the pushed request object mechanism as defined in [@I-D.lodderstedt-oauth-par] to pass authorization details in a reliable and secure manner. Here is an example of such a pushed authorization request that sends the authorization request data directly to the AS via a HTTPS-protected connection: 
@@ -338,13 +358,14 @@ Authorization request URIs containing authorization details in a request paramet
   &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb 
   &code_challenge_method=S256
   &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U
-  &authorization_details=%5B%7B%22type%22%3A%22https%3A%2F%2Fwww%2Esomeorg%2Ecom%2F
-  payment%5Finitiation%22%2C%22actions%22%3A%5B%22initiate%22%2C%22status%22%2C%22c
-  ancel%22%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fpayments%22%5
-  D%2C%22instructedAmount%22%3A%7B%22currency%22%3A%22EUR%22%2C%22amount%22%3A%2212
-  3%2E50%22%7D%2C%22creditorName%22%3A%22Merchant123%22%2C%22creditorAccount%22%3A%
-  7B%22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittanceInformationUnstruct
-  ured%22%3A%22Ref%20Number%20Merchant%22%7D%5D
+  &authorization_details=%5B%7B%22type%22%3A%22https%3A%2F%2Fwww%2Eso
+  meorg%2Ecom%2Fpayment%5Finitiation%22%2C%22actions%22%3A%5B%22initi
+  ate%22%2C%22status%22%2C%22cancel%22%5D%2C%22locations%22%3A%5B%22h
+  ttps%3A%2F%2Fexample%2Ecom%2Fpayments%22%5D%2C%22instructedAmount%2
+  2%3A%7B%22currency%22%3A%22EUR%22%2C%22amount%22%3A%22123%2E50%22%7
+  D%2C%22creditorName%22%3A%22Merchant123%22%2C%22creditorAccount%22%
+  3A%7B%22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittanceIn
+  formationUnstructured%22%3A%22Ref%20Number%20Merchant%22%7D%5D
 ```
 
 ## Authorization Request Processing
@@ -369,34 +390,38 @@ In addition to the token response parameters as defined in [@!RFC6749], the auth
 This is shown in the following example:
 
 ```JSON
-     HTTP/1.1 200 OK
-     Content-Type: application/json
-     Cache-Control: no-cache, no-store
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-cache, no-store
 
-     {
-       "access_token":"2YotnFZFEjr1zCsicMWpAA",
-       "token_type":"example",
-       "expires_in":3600,
-       "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA",
-       "authorization_details":[  
-         {  
-            "type": "https://www.someorg.com/payment_initiation",
-            "actions": ["initiate", "status", "cancel"],
-            "locations":[  
-              "https://example.com/payments"
-            ],
-            "instructedAmount":{  
-               "currency":"EUR",
-               "amount":"123.50"
-            },
-            "creditorName":"Merchant123",
-            "creditorAccount":{  
-               "iban":"DE02100100109307118603"
-            },
-            "remittanceInformationUnstructured":"Ref Number Merchant"
-         }  
-      ]
-    }
+{
+   "access_token": "2YotnFZFEjr1zCsicMWpAA",
+   "token_type": "example",
+   "expires_in": 3600,
+   "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA",
+   "authorization_details": [
+      {
+         "type": "https://www.someorg.com/payment_initiation",
+         "actions": [
+            "initiate",
+            "status",
+            "cancel"
+         ],
+         "locations": [
+            "https://example.com/payments"
+         ],
+         "instructedAmount": {
+            "currency": "EUR",
+            "amount": "123.50"
+         },
+         "creditorName": "Merchant123",
+         "creditorAccount": {
+            "iban": "DE02100100109307118603"
+         },
+         "remittanceInformationUnstructured": "Ref Number Merchant"
+      }
+   ]
+}
 ```
 
 ### Token Content {#token_content}
@@ -411,34 +436,34 @@ The following shows the contents of an example JWT for the payment initation exa
 
 ```JSON
 {
-    "iss": "https://as.example.com",
-    "sub": "24400320",
-    "aud": "s6BhdRkqt3",
-    "exp": 1311281970,
-    "acr": "psd2_sca",
-    "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
-    "authorization_details": [
-        {
-            "type": "https://www.someorg.com/payment_initiation",
-            "actions": [
-                "initiate",
-                "status",
-                "cancel"
-            ],
-            "locations": [
-                "https://example.com/payments"
-            ],
-            "instructedAmount": {
-                "currency": "EUR",
-                "amount": "123.50"
-            },
-            "creditorName": "Merchant123",
-            "creditorAccount": {
-                "iban": "DE02100100109307118603"
-            },
-            "remittanceInformationUnstructured": "Ref Number Merchant"
-        }
-    ]
+   "iss": "https://as.example.com",
+   "sub": "24400320",
+   "aud": "s6BhdRkqt3",
+   "exp": 1311281970,
+   "acr": "psd2_sca",
+   "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
+   "authorization_details": [
+      {
+         "type": "https://www.someorg.com/payment_initiation",
+         "actions": [
+            "initiate",
+            "status",
+            "cancel"
+         ],
+         "locations": [
+            "https://example.com/payments"
+         ],
+         "instructedAmount": {
+            "currency": "EUR",
+            "amount": "123.50"
+         },
+         "creditorName": "Merchant123",
+         "creditorAccount": {
+            "iban": "DE02100100109307118603"
+         },
+         "remittanceInformationUnstructured": "Ref Number Merchant"
+      }
+   ]
 }
 ```
 
@@ -460,38 +485,38 @@ Here is an example for the payment initation example RS:
 
 ```json
 {
-    "active": true,
-    "sub": "24400320",
-    "aud": "s6BhdRkqt3",
-    "exp": 1311281970,
-    "acr": "psd2_sca",
-    "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
-    "authorization_details": [
-        {
-            "type": "https://www.someorg.com/payment_initiation",
-            "actions": [
-                "initiate",
-                "status",
-                "cancel"
-            ],
-            "locations": [
-                "https://example.com/payments"
-            ],
-            "instructedAmount": {
-                "currency": "EUR",
-                "amount": "123.50"
-            },
-            "creditorName": "Merchant123",
-            "creditorAccount": {
-                "iban": "DE02100100109307118603"
-            },
-            "remittanceInformationUnstructured": "Ref Number Merchant"
-        }
-    ],
-    "debtorAccount": {
-        "iban": "DE40100100103307118608",
-        "user_role": "owner"
-    }
+   "active": true,
+   "sub": "24400320",
+   "aud": "s6BhdRkqt3",
+   "exp": 1311281970,
+   "acr": "psd2_sca",
+   "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
+   "authorization_details": [
+      {
+         "type": "https://www.someorg.com/payment_initiation",
+         "actions": [
+            "initiate",
+            "status",
+            "cancel"
+         ],
+         "locations": [
+            "https://example.com/payments"
+         ],
+         "instructedAmount": {
+            "currency": "EUR",
+            "amount": "123.50"
+         },
+         "creditorName": "Merchant123",
+         "creditorAccount": {
+            "iban": "DE02100100109307118603"
+         },
+         "remittanceInformationUnstructured": "Ref Number Merchant"
+      }
+   ],
+   "debtorAccount": {
+      "iban": "DE40100100103307118608",
+      "user_role": "owner"
+   }
 }
 ```
 The differences to the example given in (#token_content) lay in the difference between JWT-encoded access tokens and token introspection responses.
@@ -636,14 +661,16 @@ This is a simple request for some claim sets.
 
 ```json
 [
-    {
-        "type": "openid",
-        "locations":["https://op.example.com/userinfo"]
-        "claim_sets": [
-            "email",
-            "profile"
-        ]
-    }
+   {
+      "type": "openid",
+      "locations": [
+         "https://op.example.com/userinfo"
+      ],
+      "claim_sets": [
+         "email",
+         "profile"
+      ]
+   }
 ]
 ```
 
@@ -653,33 +680,35 @@ A more sophisticated example is shown in the following
 
 ```json
 [
-    {
-        "type": "openid",
-        "locations":["https://op.example.com/userinfo"]
-        "max_age": 86400,
-        "acr_values": "urn:mace:incommon:iap:silver",
-        "claims": {
-            "userinfo": {
-                "given_name": {
-                    "essential": true
-                },
-                "nickname": null,
-                "email": {
-                    "essential": true
-                },
-                "email_verified": {
-                    "essential": true
-                },
-                "picture": null,
-                "http://example.info/claims/groups": null
+   {
+      "type": "openid",
+      "locations": [
+         "https://op.example.com/userinfo"
+      ],
+      "max_age": 86400,
+      "acr_values": "urn:mace:incommon:iap:silver",
+      "claims": {
+         "userinfo": {
+            "given_name": {
+               "essential": true
             },
-            "id_token": {
-                "auth_time": {
-                    "essential": true
-                }
+            "nickname": null,
+            "email": {
+               "essential": true
+            },
+            "email_verified": {
+               "essential": true
+            },
+            "picture": null,
+            "http://example.info/claims/groups": null
+         },
+         "id_token": {
+            "auth_time": {
+               "essential": true
             }
-        }
-    }
+         }
+      }
+   }
 ]
 ```
 
@@ -689,22 +718,22 @@ The following example is based on the concept layed out for remote electronic si
 
 ```json
 [
-    {
-        "type": "sign",
-        "locations":"https://signing.example.com/signdoc"
-        "credentialID": "60916d31-932e-4820-ba82-1fcead1c9ea3",
-        "documentDigests": [
-            {
-                "hash": "sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=",
-                "label": "Credit Contract"
-            },
-            {
-                "hash": "HZQzZmMAIWekfGH0/ZKW1nsdt0xg3H6bZYztgsMTLw0=",
-                "label": "Contract Payment Protection Insurance"
-            }
-        ],
-        "hashAlgorithmOID": "2.16.840.1.101.3.4.2.1"
-    }
+   {
+      "type": "sign",
+      "locations": "https://signing.example.com/signdoc",
+      "credentialID": "60916d31-932e-4820-ba82-1fcead1c9ea3",
+      "documentDigests": [
+         {
+            "hash": "sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=",
+            "label": "Credit Contract"
+         },
+         {
+            "hash": "HZQzZmMAIWekfGH0/ZKW1nsdt0xg3H6bZYztgsMTLw0=",
+            "label": "Contract Payment Protection Insurance"
+         }
+      ],
+      "hashAlgorithmOID": "2.16.840.1.101.3.4.2.1"
+   }
 ]
 ```
 
