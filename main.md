@@ -519,7 +519,6 @@ Here is an example for the payment initation example RS:
    }
 }
 ```
-The differences to the example given in (#token_content) lay in the difference between JWT-encoded access tokens and token introspection responses.
 
 # Metadata
 
