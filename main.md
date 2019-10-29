@@ -737,7 +737,7 @@ TBD
 
 ## OpenID Connect {#openid}
 
-This examples tries to encapsulate all details specific to the OpenID Connect part of an authorization process into an authorization JSON object.
+This hypothetical examples tries to encapsulate all details specific to the OpenID Connect part of an authorization process into an authorization JSON object.
 
 The top-level elements are based on the definitions given in [@OIDC]:
 
