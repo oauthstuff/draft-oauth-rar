@@ -363,47 +363,47 @@ in [@I-D.ietf-oauth-jwsreq]. In the context of a request object,
 
 ```JSON
 {
-    "iss": "s6BhdRkqt3",
-    "aud": "https://server.example.com",
-    "response_type": "code",
-    "client_id": "s6BhdRkqt3",
-    "redirect_uri": "https://client.example.com/cb",
-    "state": "af0ifjsldkj",
-    "code_challenge_method": "S256",
-    "code_challenge": "K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U",
-    "authorization_details": [
-        {
-            "type": "account_information",
-            "actions": [
-                "list_accounts",
-                "read_balances",
-                "read_transactions"
-            ],
-            "locations": [
-                "https://example.com/accounts"
-            ]
-        },
-        {
-            "type": "payment_initiation",
-            "actions": [
-                "initiate",
-                "status",
-                "cancel"
-            ],
-            "locations": [
-                "https://example.com/payments"
-            ],
-            "instructedAmount": {
-                "currency": "EUR",
-                "amount": "123.50"
-            },
-            "creditorName": "Merchant123",
-            "creditorAccount": {
-                "iban": "DE02100100109307118603"
-            },
-            "remittanceInformationUnstructured": "Ref Number Merchant"
-        }
-    ]
+   "iss": "s6BhdRkqt3",
+   "aud": "https://server.example.com",
+   "response_type": "code",
+   "client_id": "s6BhdRkqt3",
+   "redirect_uri": "https://client.example.com/cb",
+   "state": "af0ifjsldkj",
+   "code_challenge_method": "S256",
+   "code_challenge": "K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U",
+   "authorization_details": [
+      {
+         "type": "account_information",
+         "actions": [
+            "list_accounts",
+            "read_balances",
+            "read_transactions"
+         ],
+         "locations": [
+            "https://example.com/accounts"
+         ]
+      },
+      {
+         "type": "payment_initiation",
+         "actions": [
+            "initiate",
+            "status",
+            "cancel"
+         ],
+         "locations": [
+            "https://example.com/payments"
+         ],
+         "instructedAmount": {
+            "currency": "EUR",
+            "amount": "123.50"
+         },
+         "creditorName": "Merchant123",
+         "creditorAccount": {
+            "iban": "DE02100100109307118603"
+         },
+         "remittanceInformationUnstructured": "Ref Number Merchant"
+      }
+   ]
 }
 ```
 
@@ -522,38 +522,38 @@ The following shows the contents of an example JWT for the payment initation exa
 
 ```JSON
 {
-    "iss": "https://as.example.com",
-    "sub": "24400320",
-    "aud": "a7AfcPcsl2",
-    "exp": 1311281970,
-    "acr": "psd2_sca",
-    "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
-    "authorization_details": [
-        {
-            "type": "https://www.someorg.com/payment_initiation",
-            "actions": [
-                "initiate",
-                "status",
-                "cancel"
-            ],
-            "locations": [
-                "https://example.com/payments"
-            ],
-            "instructedAmount": {
-                "currency": "EUR",
-                "amount": "123.50"
-            },
-            "creditorName": "Merchant123",
-            "creditorAccount": {
-                "iban": "DE02100100109307118603"
-            },
-            "remittanceInformationUnstructured": "Ref Number Merchant"
-        }
-    ],
-    "debtorAccount": {
-        "iban": "DE40100100103307118608",
-        "user_role": "owner"
-    }
+   "iss": "https://as.example.com",
+   "sub": "24400320",
+   "aud": "a7AfcPcsl2",
+   "exp": 1311281970,
+   "acr": "psd2_sca",
+   "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
+   "authorization_details": [
+      {
+         "type": "https://www.someorg.com/payment_initiation",
+         "actions": [
+            "initiate",
+            "status",
+            "cancel"
+         ],
+         "locations": [
+            "https://example.com/payments"
+         ],
+         "instructedAmount": {
+            "currency": "EUR",
+            "amount": "123.50"
+         },
+         "creditorName": "Merchant123",
+         "creditorAccount": {
+            "iban": "DE02100100109307118603"
+         },
+         "remittanceInformationUnstructured": "Ref Number Merchant"
+      }
+   ],
+   "debtorAccount": {
+      "iban": "DE40100100103307118608",
+      "user_role": "owner"
+   }
 }
 ```
 
