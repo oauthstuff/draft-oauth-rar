@@ -86,7 +86,7 @@ For a comprehensive discussion of the challenges arising from new use cases in t
 
 In addition to facilitating custom authorization requests, this draft also introduces a set of common data type fields for use across different APIs. 
 
-Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@I-D.ietf-oauth-resource-indicators] it enables the AS to mint RS-specfic structured access tokens that only contain the permissions applicable to the respective RS.
+Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@I-D.ietf-oauth-resource-indicators] it enables the AS to mint RS-specific structured access tokens that only contain the permissions applicable to the respective RS.
 
 ## Conventions and Terminology
 
@@ -104,7 +104,7 @@ This specification uses the terms "access token", "refresh token",
 
 # Request parameter "authorization_details" {#authz_details}
 
-The request parameter `authorization_details` is a JSON array that contains JSON objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field. 
+The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field. 
 
 This example shows the specification of authorization details using the payment authorization object shown above: 
 
@@ -233,21 +233,73 @@ For user convenience, the AS is supposed to merge the requirements when asking t
 
 OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that can be used to specify the claims a client (acting as OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy preserving way as well as assign those claims to a certain delivery mechanisms, i.e. ID Token or userinfo response. 
 
-The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every other non-OIDC scope value. 
+The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every other scope value and, potentially, further parameter providing additional data for the respective scope to the authorization process. 
 
 Alternatively, there could be an authorization data type for OpenID Connect. (#openid) gives an example of how such an authorization data type could look like.
 
 ## Relationship to "resource" parameter
 
-The request parameter `resource` [@I-D.ietf-oauth-resource-indicators] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. 
+The request parameter `resource` as defined in [@I-D.ietf-oauth-resource-indicators] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. 
 
-If a client uses `authorization_details` with `locations` elements in an authorization request, it MAY omit the `resource` parameter since the information conveyed in the `authorization_details` object are a superset of what can be conveyed in the `resource` parameter.
+If a client uses `authorization_details` with `locations` elements and the `resource` parameter in the same authorization request, the `locations` data take precedence over the data conveyed in the `resource` parameter for that particular authorization details object.
 
-Clients requiring audience restricted access tokens are RECOMMENDED to use the `resource` parameter in token requests to allow the AS to narrow down the privileges of the access token to specific permissions for individual operations on specific resource servers (see [@I-D.ietf-oauth-security-topics], Section 3.3). 
+If such a client uses the `resource` parameter in a subsequent token requests, the AS MUST utilize the data provided in the `locations` elements to filter the authorization data objects applicable to the respective resource server. The AS will select all authorization details object where the `resource` string matches as prefix of one of the URLs provided in the respective `locations` element.
 
-If the client used `authorization_details` with `locations` elements in the authorization request, the AS MUST utilize this data to filter the authorization data objects applicable to the respective `resource`. This process will use the `resource` string as prefix to filter the `locations` elements of the authorization details elements.
+This shall be illustrated using an example. 
 
-Given the example in (#authz_details), a client could request an access token using a `resource` value of `https://example.com/payments`, which would produce an access token containing the `payment_initation` but not the `account_information` authorization details as shown in the following example:
+The client has sent an authorization request using the following example authorization details. 
+
+```JSON
+[
+   {
+      "type": "account_information",
+      "actions": [
+         "list_accounts",
+         "read_balances",
+         "read_transactions"
+      ],
+      "locations": [
+         "https://example.com/accounts"
+      ]
+   },
+   {
+      "type": "payment_initiation",
+      "actions": [
+         "initiate",
+         "status",
+         "cancel"
+      ],
+      "locations": [
+         "https://example.com/payments"
+      ],
+      "instructedAmount": {
+         "currency": "EUR",
+         "amount": "123.50"
+      },
+      "creditorName": "Merchant123",
+      "creditorAccount": {
+         "iban": "DE02100100109307118603"
+      },
+      "remittanceInformationUnstructured": "Ref Number Merchant"
+   }
+]
+```
+
+If this client then sends the following token request to the AS, 
+
+```http
+POST /token HTTP/1.1
+Host: as.example.com
+Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA
+&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+&resource=https%3A%2F%2Fexample%2Ecom%2Fpayments
+```
+
+that contains a resource parameter with the value of `https://example.com/payments`, this value will be matched against the locations elements (`https://example.com/accounts` and  `https://example.com/payments`) and will select the element 
+of type "payment_initiation" for inclusion in the access token. 
 
 ```JSON
 [
@@ -307,40 +359,51 @@ Host: server.example.com
 Implementors MUST ensure to protect personal identifiable information
 in transit. One way is to utilize encrypted request objects as defined
 in [@I-D.ietf-oauth-jwsreq]. In the context of a request object, 
-`authorization_details` is added as a top level JSON element, just as any other authorization request parameter.
+`authorization_details` is added as another top level JSON element.
 
 ```JSON
 {
-   "iss": "s6BhdRkqt3",
-   "aud": "https://server.example.com",
-   "response_type": "code",
-   "client_id": "s6BhdRkqt3",
-   "redirect_uri": "https://client.example.com/cb",
-   "state": "af0ifjsldkj",
-   "code_challenge_method": "S256",
-   "code_challenge": "K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U",
-   "authorization_details": [
-      {
-         "type": "https://www.someorg.com/payment_initiation",
-         "actions": [
-            "initiate",
-            "status",
-            "cancel"
-         ],
-         "locations": [
-            "https://example.com/payments"
-         ],
-         "instructedAmount": {
-            "currency": "EUR",
-            "amount": "123.50"
-         },
-         "creditorName": "Merchant123",
-         "creditorAccount": {
-            "iban": "DE02100100109307118603"
-         },
-         "remittanceInformationUnstructured": "Ref Number Merchant"
-      }
-   ]
+    "iss": "s6BhdRkqt3",
+    "aud": "https://server.example.com",
+    "response_type": "code",
+    "client_id": "s6BhdRkqt3",
+    "redirect_uri": "https://client.example.com/cb",
+    "state": "af0ifjsldkj",
+    "code_challenge_method": "S256",
+    "code_challenge": "K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U",
+    "authorization_details": [
+        {
+            "type": "account_information",
+            "actions": [
+                "list_accounts",
+                "read_balances",
+                "read_transactions"
+            ],
+            "locations": [
+                "https://example.com/accounts"
+            ]
+        },
+        {
+            "type": "payment_initiation",
+            "actions": [
+                "initiate",
+                "status",
+                "cancel"
+            ],
+            "locations": [
+                "https://example.com/payments"
+            ],
+            "instructedAmount": {
+                "currency": "EUR",
+                "amount": "123.50"
+            },
+            "creditorName": "Merchant123",
+            "creditorAccount": {
+                "iban": "DE02100100109307118603"
+            },
+            "remittanceInformationUnstructured": "Ref Number Merchant"
+        }
+    ]
 }
 ```
 
@@ -358,14 +421,24 @@ Authorization request URIs containing authorization details in a request paramet
   &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb 
   &code_challenge_method=S256
   &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U
-  &authorization_details=%5B%7B%22type%22%3A%22https%3A%2F%2Fwww%2Eso
-  meorg%2Ecom%2Fpayment%5Finitiation%22%2C%22actions%22%3A%5B%22initi
-  ate%22%2C%22status%22%2C%22cancel%22%5D%2C%22locations%22%3A%5B%22h
-  ttps%3A%2F%2Fexample%2Ecom%2Fpayments%22%5D%2C%22instructedAmount%2
-  2%3A%7B%22currency%22%3A%22EUR%22%2C%22amount%22%3A%22123%2E50%22%7
-  D%2C%22creditorName%22%3A%22Merchant123%22%2C%22creditorAccount%22%
-  3A%7B%22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittanceIn
-  formationUnstructured%22%3A%22Ref%20Number%20Merchant%22%7D%5D
+  &authorization_details=%7B%22iss%22%3A%22s6BhdRkqt3%22%2C%22aud%22%
+  3A%22https%3A%2F%2Fserver%2Eexample%2Ecom%22%2C%22response%5Ftype%2
+  2%3A%22code%22%2C%22client%5Fid%22%3A%22s6BhdRkqt3%22%2C%22redirect
+  %5Furi%22%3A%22https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb%22%2C%22st
+  ate%22%3A%22af0ifjsldkj%22%2C%22code%5Fchallenge%5Fmethod%22%3A%22S
+  256%22%2C%22code%5Fchallenge%22%3A%22K2%2Dltc83acc4h0c9w6ESC%5FrEMT
+  J3bww%2DuCHaoeK1t8U%22%2C%22authorization%5Fdetails%22%3A%5B%7B%22t
+  ype%22%3A%22account%5Finformation%22%2C%22actions%22%3A%5B%22list%5
+  Faccounts%22%2C%22read%5Fbalances%22%2C%22read%5Ftransactions%22%5D
+  %2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Faccounts%2
+  2%5D%7D%2C%7B%22type%22%3A%22payment%5Finitiation%22%2C%22actions%2
+  2%3A%5B%22initiate%22%2C%22status%22%2C%22cancel%22%5D%2C%22locatio
+  ns%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fpayments%22%5D%2C%22ins
+  tructedAmount%22%3A%7B%22currency%22%3A%22EUR%22%2C%22amount%22%3A%
+  22123%2E50%22%7D%2C%22creditorName%22%3A%22Merchant123%22%2C%22cred
+  itorAccount%22%3A%7B%22iban%22%3A%22DE02100100109307118603%22%7D%2C
+  %22remittanceInformationUnstructured%22%3A%22Ref%20Number%20Merchan
+  t%22%7D%5D%7D
 ```
 
 ## Authorization Request Processing
@@ -382,7 +455,20 @@ Note: The AS MUST make the `authorization_details` available to the respective r
 
 ## Token Request
 
-As noted above, the client is RECOMMENDED to indicate the resource server where it will use the access token using the `resource` parameter. 
+Clients utilizing authorization details are RECOMMENDED to use the `resource` token request parameter to allow the AS issue audience restricted access tokens. 
+
+For example the following token request selects authorization details applicable for the resource server represented by the URI `https://example.com/payments`.
+
+```http
+POST /token HTTP/1.1
+Host: as.example.com
+Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA
+&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+&resource=https%3A%2F%2Fexample%2Ecom%2Fpayments
+```
 
 ## Token Response
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
@@ -432,38 +518,42 @@ If the access token is a JWT [@!RFC7519], the AS is RECOMMENDED to add the `auth
 
 The AS will typically also add further claims to the JWT the RS requires for request processing, e.g., user id, roles, and transaction specific data. What claims the particular RS requires is defined by the RS-specific policy with the AS.
 
-The following shows the contents of an example JWT payload for the payment initation example above: 
+The following shows the contents of an example JWT for the payment initation example above: 
 
 ```JSON
 {
-   "iss": "https://as.example.com",
-   "sub": "24400320",
-   "aud": "s6BhdRkqt3",
-   "exp": 1311281970,
-   "acr": "psd2_sca",
-   "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
-   "authorization_details": [
-      {
-         "type": "https://www.someorg.com/payment_initiation",
-         "actions": [
-            "initiate",
-            "status",
-            "cancel"
-         ],
-         "locations": [
-            "https://example.com/payments"
-         ],
-         "instructedAmount": {
-            "currency": "EUR",
-            "amount": "123.50"
-         },
-         "creditorName": "Merchant123",
-         "creditorAccount": {
-            "iban": "DE02100100109307118603"
-         },
-         "remittanceInformationUnstructured": "Ref Number Merchant"
-      }
-   ]
+    "iss": "https://as.example.com",
+    "sub": "24400320",
+    "aud": "a7AfcPcsl2",
+    "exp": 1311281970,
+    "acr": "psd2_sca",
+    "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
+    "authorization_details": [
+        {
+            "type": "https://www.someorg.com/payment_initiation",
+            "actions": [
+                "initiate",
+                "status",
+                "cancel"
+            ],
+            "locations": [
+                "https://example.com/payments"
+            ],
+            "instructedAmount": {
+                "currency": "EUR",
+                "amount": "123.50"
+            },
+            "creditorName": "Merchant123",
+            "creditorAccount": {
+                "iban": "DE02100100109307118603"
+            },
+            "remittanceInformationUnstructured": "Ref Number Merchant"
+        }
+    ],
+    "debtorAccount": {
+        "iban": "DE40100100103307118608",
+        "user_role": "owner"
+    }
 }
 ```
 
@@ -471,7 +561,7 @@ In this case, the AS added the following example claims:
 
 * `sub`: conveys the user on which behalf the client is asking for payment initation
 * `txn`: transaction id used to trace the transaction across the services of provider `example.com`
-* `debtorAccount`: API-specific element containing the debtor account as selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particuar account. In this case, she is the owner. This data is used for access control at the payment API (the RS).
+* `debtorAccount`: API-specific element containing the debtor account. In the example, this account was not passed in the authorization details but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particuar account. In this case, she is the owner. This data is used for access control at the payment API (the RS).
 
 ## Token Introspection Request
 
@@ -479,7 +569,7 @@ In case of opaque access tokens, the data provided to a certain RS is determined
 
 ## Token Introspection Response
 
-The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. 
+The token endpoint response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. 
 
 Here is an example for the payment initation example RS:
 
@@ -719,7 +809,9 @@ The following example is based on the concept layed out for remote electronic si
 [
    {
       "type": "sign",
-      "locations": "https://signing.example.com/signdoc",
+      "locations": [
+         "https://signing.example.com/signdoc"
+      ],
       "credentialID": "60916d31-932e-4820-ba82-1fcead1c9ea3",
       "documentDigests": [
          {
@@ -755,7 +847,7 @@ This example is inspired by an API allowing third parties to access citizen's ta
         "locations": [
             "https://taxservice.govehub.no"
         ],
-        "actions":["read_tax_statement"],
+        "actions":"read_tax_statement",
         "periods": ["2018"],
         "duration_of_access": 30,
         "tax_payer_id": "23674185438934"
