@@ -186,7 +186,7 @@ locations:
 actions:
 :   An array of strings representing the kinds of actions to be taken at the resource. The values of the strings are determined by the API being protected.
 
-data:
+datatypes:
 :   An array of strings representing the kinds of data being requested from the resource. 
 
 identifier:
@@ -564,7 +564,7 @@ The following shows the contents of an example JWT for the payment initation exa
       "iban": "DE40100100103307118608",
       "user_role": "owner"
    }
-}
+]
 ```
 
 In this case, the AS added the following example claims:
