@@ -301,31 +301,39 @@ grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA
 ```
 
 that contains a resource parameter with the value of `https://example.com/payments`, this value will be matched against the locations elements (`https://example.com/accounts` and  `https://example.com/payments`) and will select the element 
-of type "payment_initiation" for inclusion in the access token. 
+of type `payment_initiation` for inclusion in the access token as illustrated by the following example JWT content. 
 
 ```JSON
-[
-   {
-      "type": "payment_initiation",
-      "actions": [
-         "initiate",
-         "status",
-         "cancel"
-      ],
-      "locations": [
-         "https://example.com/payments"
-      ],
-      "instructedAmount": {
-         "currency": "EUR",
-         "amount": "123.50"
-      },
-      "creditorName": "Merchant123",
-      "creditorAccount": {
-         "iban": "DE02100100109307118603"
-      },
-      "remittanceInformationUnstructured": "Ref Number Merchant"
-   }
-]
+{
+   "iss": "https://as.example.com",
+   "sub": "24400320",
+   "aud": "a7AfcPcsl2",
+   "exp": 1311281970,
+   ...
+   "authorization_details": [
+      {
+         "type": "https://www.someorg.com/payment_initiation",
+         "actions": [
+            "initiate",
+            "status",
+            "cancel"
+         ],
+         "locations": [
+            "https://example.com/payments"
+         ],
+         "instructedAmount": {
+            "currency": "EUR",
+            "amount": "123.50"
+         },
+         "creditorName": "Merchant123",
+         "creditorAccount": {
+            "iban": "DE02100100109307118603"
+         },
+         "remittanceInformationUnstructured": "Ref Number Merchant"
+      }
+   ],
+   ...
+}
 ```
 
 # Using "authorization_details"
@@ -449,7 +457,7 @@ Based on the data provided in the `authorization_details` parameter the AS will 
 
 The AS MUST refuse to process any unknown authorization data type. If the `authorization_details` contain any unknown authorization data type, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client.
 
-Note: If the authorization request also contained the `scope` parameter, the AS MUST also ask for user consent for the scope values.  
+Note: If the authorization request also contained the `scope` parameter, the AS MUST present the merged set of requirements represented by the authorization request in the user consent.  
 
 If the resource owner grants the client the requested access, the AS will issue tokens to the client that are associated with the respective `authorization_details` (and scope values, if applicable).
 
@@ -457,7 +465,7 @@ Note: The AS MUST make the `authorization_details` available to the respective r
 
 ## Token Request
 
-Clients utilizing authorization details are RECOMMENDED to use the `resource` token request parameter to allow the AS issue audience restricted access tokens. 
+Clients utilizing authorization details are RECOMMENDED to use the `resource` token request parameter to allow the AS to issue audience restricted access tokens as recommended in [@I-D.ietf-oauth-security-topics]. 
 
 For example the following token request selects authorization details applicable for the resource server represented by the URI `https://example.com/payments`.
 
@@ -646,7 +654,7 @@ The AS MUST take into consideration the privacy implications when sharing author
       
 We would would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
 
-We would also like to thank Daniel Fett, Dave Tonge, Travis Spencer, and Aaron Parecki for their valuable feedback to this draft.
+We would also like to thank Daniel Fett, Dave Tonge, Travis Spencer, Jørgen Binningsbø, Aamund Bremer, and Aaron Parecki for their valuable feedback to this draft.
 
 # IANA Considerations {#iana_considerations}
 
@@ -840,7 +848,7 @@ The AS is supposed to ask the user for consent for the creation of signatues for
 
 ## Access to Tax Data {#tax}
 
-This example is inspired by an API allowing third parties to access citizen's tax declarations and statements, for example to determine their credit worthiness.
+This example is inspired by an API allowing third parties to access citizen's tax declarations and income statements, for example to determine their credit worthiness.
 
 ```json
 [
@@ -849,7 +857,7 @@ This example is inspired by an API allowing third parties to access citizen's ta
         "locations": [
             "https://taxservice.govehub.no"
         ],
-        "actions":"read_tax_statement",
+        "actions":"read_tax_declaration",
         "periods": ["2018"],
         "duration_of_access": 30,
         "tax_payer_id": "23674185438934"
