@@ -229,7 +229,7 @@ The AS MUST consider both sets of requirements in combination with each other fo
 
 It is RECOMMENDED that a given API use only one form of requirement specification. 
 
-For user convenience, the AS is supposed to merge the requirements when asking the user for consent.
+When gathering user consent, the AS MUST present the merged set of requirements represented by the authorization request. 
 
 ### Scope value "openid" and "claims" parameter
 
@@ -342,7 +342,7 @@ The request parameter can be used to specify authorization requirements in all p
 
 Parameter encoding is determined by the respective context. 
 
-In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format as shown in the following example:
+In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format of the serialized JSON as shown in the following example:
 
 ```
 GET /authorize?response_type=code
@@ -739,7 +739,7 @@ TBD
 
 ## OpenID Connect {#openid}
 
-This hypothetical examples tries to encapsulate all details specific to the OpenID Connect part of an authorization process into an authorization JSON object.
+These hypothetical examples try to encapsulate all details specific to the OpenID Connect part of an authorization process into an authorization JSON object.
 
 The top-level elements are based on the definitions given in [@OIDC]:
 
