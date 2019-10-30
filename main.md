@@ -225,7 +225,9 @@ The following example shows how an implementation could utilize the namespace `h
 
 `authorization_details` and `scope` can be used in the same authorization request for carrying independent authorization requirements. 
 
-The AS MUST keep both requirements sets separate when reflecting this data to the client and passing this data through to resource servers.
+The AS MUST consider both sets of requirements in combination with each other for the given authorization request. The details of how the AS combines these parameters are specific to the APIs being protected and outside the scope of this specification.
+
+It is RECOMMENDED that a given API use only one form of requirement specification. 
 
 For user convenience, the AS is supposed to merge the requirements when asking the user for consent.
 
