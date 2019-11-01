@@ -177,19 +177,39 @@ The JSON objects with `type` fields of `account_information` and `payment_initia
 
 This draft defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. Unless otherwise noted, all data elements are OPTIONAL.
 
-type:
+`type`:
 :   The type of resource request as a string. This field MAY define which other elements are allowed in the request. This element is REQUIRED.
 
-locations:
+`locations`:
 :   An array of strings representing the location of the resource or resource server. This is typically composed of URIs.
 
-actions:
+`actions`:
 :   An array of strings representing the kinds of actions to be taken at the resource. The values of the strings are determined by the API being protected.
 
-datatypes:
+`datatypes`:
 :   An array of strings representing the kinds of data being requested from the resource. 
 
-identifier:
+Using `datatypes` and `actions` in combination, a client can request request permission for certain actions on sub resources in a concise way. This is shown in the following example:
+
+```JSON
+[
+   {
+      "type": "account_information",
+      "locations": [
+         "https://example.com/accounts",
+      ]
+      "actions": [
+         "read"
+      ],
+      "datatypes": [
+         "balances",
+         "transactions"
+      ]
+   }
+]
+```
+
+`identifier`:
 :   A string identifier indicating a specific resource available at the API. 
 
 An API MAY define its own extensions, subject to the `type` of the request. It is assumed that the full structure of each of the authorization data elements is tailored to the needs of a certain application, API, or resource type. The example structures shown above are based on certain kinds of APIs that can be found in the Open Banking space. 
@@ -235,7 +255,7 @@ When gathering user consent, the AS MUST present the merged set of requirements 
 
 OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that can be used to specify the claims a client (acting as OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy preserving way as well as assign those claims to a certain delivery mechanisms, i.e. ID Token or userinfo response. 
 
-The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every other scope value and, potentially, further parameter providing additional data for the respective scope to the authorization process. 
+The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every non-OIDC scope value. 
 
 Alternatively, there could be an authorization data type for OpenID Connect. (#openid) gives an example of how such an authorization data type could look like.
 
