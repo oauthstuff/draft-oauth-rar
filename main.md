@@ -189,25 +189,27 @@ This draft defines a set of common data elements that are designed to be usable 
 `datatypes`:
 :   An array of strings representing the kinds of data being requested from the resource. 
 
-Using `datatypes` and `actions` in combination, a client can request request permission for certain actions on sub resources in a concise way. This is shown in the following example:
+If `datatypes` and `actions` are used in combination, the permissions the client requests is the cartesian product of both arrays. In the following example
 
 ```JSON
 [
    {
-      "type": "account_information",
+      "type": "customer_information",
       "locations": [
-         "https://example.com/accounts",
+         "https://example.com/customers",
       ]
       "actions": [
-         "read"
+         "read",
+         "write"
       ],
       "datatypes": [
-         "balances",
-         "transactions"
+         "contacts",
+         "contracts"
       ]
    }
 ]
 ```
+the client is requesting read and write access to the contacts and contracts belonging to customers in a customer information API.
 
 `identifier`:
 :   A string identifier indicating a specific resource available at the API. 
