@@ -909,6 +909,7 @@ The top-level elements have the following meaning:
    * Added text on how authorization details are conveyed to RSs by JWTs or token endpoint response
    * Added description of relationship between `claims` and `authorization_details`
    * Added more example from different sectors
+   * Clarified string comparison to be byte-exact without collation
    
    -02
    
