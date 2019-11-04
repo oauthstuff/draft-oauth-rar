@@ -232,7 +232,7 @@ the client is requesting read and write access to both the contacts and photos b
    {
       "type": "customer_information",
       "locations": [
-         "https://example.com/customers",
+         "https://example.com/customers"
       ]
       "actions": [
          "write"
