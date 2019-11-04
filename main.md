@@ -190,9 +190,7 @@ This draft defines a set of common data elements that are designed to be usable 
 :   An array of strings representing the kinds of data being requested from the resource. 
 
 `identifier`:
-:   A string identifier indicating a specific resource available at the API. 
-
-An API MAY define its own extensions, subject to the `type` of the request. It is assumed that the full structure of each of the authorization data elements is tailored to the needs of a certain application, API, or resource type. The example structures shown above are based on certain kinds of APIs that can be found in the Open Banking space. 
+:   A string identifier indicating a specific resource available at the API.  
 
 When different element types are used in combination, the permissions the client requests is the cartesian product of the values. In the following example
 
@@ -244,6 +242,8 @@ the client is requesting read and write access to both the contacts and photos b
 ]
 ```
 The client is asking for read access to the contacts and write access to the photos in the same API endpoint.
+
+An API MAY define its own extensions, subject to the `type` of the respective authorization object. It is assumed that the full structure of each of the authorization objects is tailored to the needs of a certain application, API, or resource type. The example structures shown above are based on certain kinds of APIs that can be found in the Open Banking space.
 
 Note: Applications MUST ensure that their authorization data types do not collide. This is either achieved by using a namespace under the control of the entity defining the type name or by registering the type with the new `OAuth Authorization Data Type Registry` (see (#iana_considerations)). 
 
