@@ -707,7 +707,14 @@ The AS MUST take into consideration the privacy implications when sharing author
       
 We would would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
 
-We would also like to thank Daniel Fett, Dave Tonge, Travis Spencer, Jørgen Binningsbø, Aamund Bremer, and Aaron Parecki for their valuable feedback to this draft.
+We would also like to thank 
+Daniel Fett, 
+Dave Tonge, 
+Travis Spencer, 
+Jørgen Binningsbø, 
+Aamund Bremer, 
+Steinar Noem,
+and Aaron Parecki for their valuable feedback to this draft.
 
 # IANA Considerations {#iana_considerations}
 
@@ -924,6 +931,81 @@ The top-level elements have the following meaning:
 * `duration_of_access`: how long does the client intend to access the data in days
 * `tax_payer_id`: identifier of the tax payer (if known to the client)
 
+## eHealth
+
+This example is inspired by an API used in the Norwegian eHealth system. 
+
+In this use case the physical therapist sits in front of her computer using a local Electronic Health Records (EHR) system. She wants to look at the electronic patient records of a certain patient and she also wants to fetch the patients journal entries in another system, perhaps at another institution or a national service. Access to this data is provided by an API.
+
+The information necessary to authorize the request at the API is only known by the EHR system, and must be presented to the API.
+
+Here is an example authorization details object:
+
+```JSON
+[
+   {
+      "type": "patient_record",
+      "location": "https://fhir.example.com/patient",
+      "actions": [
+         "read"
+      ],
+      "patient_identifier": [
+         {
+            "system": "urn:oid:2.16.578.1.12.4.1.4.1",
+            "value": "12345678901"
+         }
+      ],
+      "reason_for_request": "Clinical treatment",
+      "requesting_entity": {
+         "type": "Practitioner",
+         "practicioner_identifier": [
+            {
+               "system": " urn:oid:2.16.578.1.12.4.1.4.4",
+               "value": "1234567"
+            }
+         ],
+         "practitioner_role": {
+            "organization": {
+               "organization_identifier": [
+                  {
+                     "system": "urn:oid:2.16.578.1.12.4.1.2.101",
+                     "value": "<organizational number>"
+                  }
+               ],
+               "organization_type": {
+                  "coding": [
+                     {
+                        "system": 
+                           "http://hl7.org/fhir/organization-type",
+                        "code": "dept",
+                        "display": "Hospital Department"
+                     }
+                  ]
+               },
+               "name": "Akuttmottak"
+            },
+            "role": {
+               "coding": [
+                  {
+                     "system": "http://snomed.info/sct",
+                     "code": "36682004",
+                     "display": "Physical therapist"
+                  }
+               ]
+            }
+         }
+      }
+   }
+]
+```
+
+Description of the elements:
+
+* `patient_identifier`: the identifier of the patient composed of a system identifier in OID format (namespace) and the acutal value within this namespace. 
+* `reason_for_request`: the reason why the user wants to access a certain API
+* `requesting_entity`: specification of the requester by means of identity, role and organizational context. This data is provided to facilitate authorization and for auditing purposes. 
+
+In this use case, the AS authenticates the requester, who is not the patient, and approves access based on policies.
 
 # Document History
 
