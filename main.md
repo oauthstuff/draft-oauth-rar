@@ -482,24 +482,17 @@ Authorization request URIs containing authorization details in a request paramet
   &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb 
   &code_challenge_method=S256
   &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U
-  &authorization_details=%7B%22iss%22%3A%22s6BhdRkqt3%22%2C%22aud%22%
-  3A%22https%3A%2F%2Fserver%2Eexample%2Ecom%22%2C%22response%5Ftype%2
-  2%3A%22code%22%2C%22client%5Fid%22%3A%22s6BhdRkqt3%22%2C%22redirect
-  %5Furi%22%3A%22https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb%22%2C%22st
-  ate%22%3A%22af0ifjsldkj%22%2C%22code%5Fchallenge%5Fmethod%22%3A%22S
-  256%22%2C%22code%5Fchallenge%22%3A%22K2%2Dltc83acc4h0c9w6ESC%5FrEMT
-  J3bww%2DuCHaoeK1t8U%22%2C%22authorization%5Fdetails%22%3A%5B%7B%22t
-  ype%22%3A%22account%5Finformation%22%2C%22actions%22%3A%5B%22list%5
-  Faccounts%22%2C%22read%5Fbalances%22%2C%22read%5Ftransactions%22%5D
-  %2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Faccounts%2
-  2%5D%7D%2C%7B%22type%22%3A%22payment%5Finitiation%22%2C%22actions%2
-  2%3A%5B%22initiate%22%2C%22status%22%2C%22cancel%22%5D%2C%22locatio
-  ns%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fpayments%22%5D%2C%22ins
-  tructedAmount%22%3A%7B%22currency%22%3A%22EUR%22%2C%22amount%22%3A%
-  22123%2E50%22%7D%2C%22creditorName%22%3A%22Merchant123%22%2C%22cred
-  itorAccount%22%3A%7B%22iban%22%3A%22DE02100100109307118603%22%7D%2C
-  %22remittanceInformationUnstructured%22%3A%22Ref%20Number%20Merchan
-  t%22%7D%5D%7D
+  &authorization_details=%5B%7B%22type%22%3A%22account_information%22
+  %2C%22actions%22%3A%5B%22list_accounts%22%2C%22read_balances%22%2C%
+  22read_transactions%22%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fe
+  xample.com%2Faccounts%22%5D%7D%2C%7B%22type%22%3A%22payment_initiat
+  ion%22%2C%22actions%22%3A%5B%22initiate%22%2C%22status%22%2C%22canc
+  el%22%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample.com%2Fpaym
+  ents%22%5D%2C%22instructedAmount%22%3A%7B%22currency%22%3A%22EUR%22
+  %2C%22amount%22%3A%22123.50%22%7D%2C%22creditorName%22%3A%22Merchan
+  t123%22%2C%22creditorAccount%22%3A%7B%22iban%22%3A%22DE021001001093
+  07118603%22%7D%2C%22remittanceInformationUnstructured%22%3A%22Ref%2
+  0Number%20Merchant%22%7D%5D
 ```
 
 ## Authorization Request Processing
