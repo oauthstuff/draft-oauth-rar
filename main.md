@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-lodderstedt-oauth-rar-04"
+value = "draft-ietf-oauth-rar-00"
 stream = "IETF"
 status = "standard"
 
@@ -1003,6 +1003,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+   
+   -00 (WG draft)
+   
+   * inital WG revision
    
    -03
    
