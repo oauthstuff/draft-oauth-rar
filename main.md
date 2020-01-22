@@ -926,13 +926,37 @@ The top-level elements have the following meaning:
 
 ## eHealth
 
-This example is inspired by an API used in the Norwegian eHealth system. 
+These two examples are inspired by requirements for APIs used in the Norwegian eHealth system. 
 
 In this use case the physical therapist sits in front of her computer using a local Electronic Health Records (EHR) system. She wants to look at the electronic patient records of a certain patient and she also wants to fetch the patients journal entries in another system, perhaps at another institution or a national service. Access to this data is provided by an API.
 
 The information necessary to authorize the request at the API is only known by the EHR system, and must be presented to the API.
 
-Here is an example authorization details object:
+In the first example the authorization details object contains the identifier of an organization. In this case the API needs to know if the given organization has the lawful basis for processing personal health information to give access to sensitive data.
+
+```JSON
+"authorization_details":{ 
+    "type":"patient_record",
+    "requesting_entity": {
+        "type": "Practitioner",
+        "identifier": [
+        {
+            "system": " urn:oid:2.16.578.1.12.4.1.4.4",
+            "value": "1234567"
+        }],
+        "practitioner_role":{ 
+            "organization":{ 
+                "identifier": {
+                    "system":"urn:oid:2.16.578.1.12.4.1.2.101",
+                    "type":"ENH",
+                    "value":"[organizational number]"
+                }
+            }
+        }
+    }
+}
+```
+In the second example the API requires more information to authorize the request. In this case the authorization details object contains additional information about the health institution and the current profession the user has at the time of the request. The additional level of detail could be used for both authorization and data minimization.
 
 ```JSON
 [
@@ -951,7 +975,7 @@ Here is an example authorization details object:
       "reason_for_request": "Clinical treatment",
       "requesting_entity": {
          "type": "Practitioner",
-         "practicioner_identifier": [
+         "identifier": [
             {
                "system": " urn:oid:2.16.578.1.12.4.1.4.4",
                "value": "1234567"
@@ -959,13 +983,14 @@ Here is an example authorization details object:
          ],
          "practitioner_role": {
             "organization": {
-               "organization_identifier": [
+               "identifier": [
                   {
                      "system": "urn:oid:2.16.578.1.12.4.1.2.101",
+                     "type": "ENH",
                      "value": "<organizational number>"
                   }
                ],
-               "organization_type": {
+               "type": {
                   "coding": [
                      {
                         "system": 
@@ -977,7 +1002,7 @@ Here is an example authorization details object:
                },
                "name": "Akuttmottak"
             },
-            "role": {
+            "profession": {
                "coding": [
                   {
                      "system": "http://snomed.info/sct",
