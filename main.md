@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-00"
+value = "draft-ietf-oauth-rar-01"
 stream = "IETF"
 status = "standard"
 
@@ -409,7 +409,7 @@ GET /authorize?response_type=code
    &state=af0ifjsldkj
    &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
    &code_challenge_method=S256
-   &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U
+   &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bwc-uCHaoeK1t8U
    &authorization_details=%5B%7B%22type%22%3A%22account%5Finformati
    on%22%2C%22actions%22%3A%5B%22list%5Faccounts%22%2C%22read%5Fbal
    ances%22%2C%22read%5Ftransactions%22%5D%2C%22locations%22%3A%5B%
@@ -431,7 +431,7 @@ in [@I-D.ietf-oauth-jwsreq]. In the context of a request object,
    "redirect_uri": "https://client.example.com/cb",
    "state": "af0ifjsldkj",
    "code_challenge_method": "S256",
-   "code_challenge": "K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U",
+   "code_challenge": "K2-ltc83acc4h0c9w6ESC_rEMTJ3bwc-uCHaoeK1t8U",
    "authorization_details": [
       {
          "type": "account_information",
@@ -481,7 +481,7 @@ Authorization request URIs containing authorization details in a request paramet
   &state=af0ifjsldkj
   &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb 
   &code_challenge_method=S256
-  &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bww-uCHaoeK1t8U
+  &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bwc-uCHaoeK1t8U
   &authorization_details=%5B%7B%22type%22%3A%22account_information%22
   %2C%22actions%22%3A%5B%22list_accounts%22%2C%22read_balances%22%2C%
   22read_transactions%22%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fe
@@ -608,7 +608,7 @@ The following shows the contents of an example JWT for the payment initation exa
       "iban": "DE40100100103307118608",
       "user_role": "owner"
    }
-]
+}
 ```
 
 In this case, the AS added the following example claims:
@@ -1004,9 +1004,13 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    [[ To be removed from the final specification ]]
    
+   -01 
+
+   * Minor fix-up in a few examples 
+
    -00 (WG draft)
    
-   * inital WG revision
+   * initial WG revision
    
    -03
    
