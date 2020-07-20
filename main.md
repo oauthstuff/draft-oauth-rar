@@ -175,10 +175,14 @@ The JSON objects with `type` fields of `account_information` and `payment_initia
 
 ## Authorization data elements types
 
-This draft defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. Unless otherwise noted, all data elements are OPTIONAL.
+The allowable contents of the authorization details object are determined by the `type` parameter.
 
 `type`:
 :   The type of resource request as a string. This field MAY define which other elements are allowed in the request. This element is REQUIRED.
+
+This field MUST be compared using an exact byte match of the string value against known types by the AS.
+
+This draft defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. All data elements are OPTIONAL. 
 
 `locations`:
 :   An array of strings representing the location of the resource or resource server. This is typically composed of URIs.
@@ -243,9 +247,13 @@ the client is requesting read and write access to both the contacts and photos b
 ```
 The client is asking for read access to the contacts and write access to the photos in the same API endpoint.
 
-An API MAY define its own extensions, subject to the `type` of the respective authorization object. It is assumed that the full structure of each of the authorization objects is tailored to the needs of a certain application, API, or resource type. The example structures shown above are based on certain kinds of APIs that can be found in the Open Banking space.
+An API MAY define its own extensions, subject to the `type` of the respective authorization object. It is RECOMMENDED that general-purpose, reusable extensions be registered `OAuth Authorization Data Type Registry` (see (#iana_considerations)). It is assumed that the full structure of each of the authorization objects is tailored to the needs of a certain application, API, or resource type, and can contain a mix of general-purpose and api-specific elements within the structure. The example structures shown above are based on certain kinds of APIs that can be found in the Open Banking space.
 
-Note: Applications MUST ensure that their authorization data types do not collide. This is either achieved by using a namespace under the control of the entity defining the type name or by registering the type with the new `OAuth Authorization Data Type Registry` (see (#iana_considerations)). 
+## Namespace for Authorization Data Types
+
+Since the value of the `type` parameter is a string that is interpreted by the AS, the AS MUST ensure that there is no collision between authorization data types that it supports.
+
+If an application or API is expected to be deployed across different servers, such as the case in an open standard, the API designer is RECOMMENDED to use a collision-resistant namespace under their control, such as a URI that the API designer controls.
 
 The following example shows how an implementation could utilize the namespace `https://scheme.example.org/` to ensure collision resistant element names.
 
@@ -716,7 +724,7 @@ TBD
 * `authorization_details` as JWT claim
 * `authorization_details_supported` and `authorization_data_types_supported` as metadata parameters
 * `authorization_data_types` as dynamic client registration parameter
-* establish authorization data type registry
+* establish authorization data type registry (and declare: `type`, `actions`, `locations`, `datatypes`, `identifier`, others?)
 * register type `openid_claims`
 
 <reference anchor="OIDC" target="http://openid.net/specs/openid-connect-core-1_0.html">
