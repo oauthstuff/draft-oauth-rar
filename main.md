@@ -178,7 +178,7 @@ The JSON objects with `type` fields of `account_information` and `payment_initia
 The allowable contents of the authorization details object are determined by the `type` parameter.
 
 `type`:
-:   The type of resource request as a string. This field MAY define which other elements are allowed in the request. This element is REQUIRED.
+:   The type of authorization data as a string. This field MAY define which other elements are allowed in the request. This element is REQUIRED.
 
 This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST ensure that there is no collision between different authorization data types that it supports. The AS MUST NOT do any collation or normalization of data types during comparison.
 
