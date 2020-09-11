@@ -300,11 +300,28 @@ Alternatively, there could be an authorization data type for OpenID Connect. (#o
 
 ## Relationship to "resource" parameter
 
-The request parameter `resource` as defined in [@I-D.ietf-oauth-resource-indicators] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. 
+The request parameter `resource` as defined in [@I-D.ietf-oauth-resource-indicators] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. The `authorization_details` parameters also allows to designate the audience of a certain authorization details object in the respective `locations` element. 
 
-If a client uses `authorization_details` with `locations` elements and the `resource` parameter in the same authorization request, the `locations` data take precedence over the data conveyed in the `resource` parameter for that particular authorization details object.
+This specification allows a client to use both parameters can be used together in an authorization request and it defines how the `resource` parameter in the token request can be used to assign authorization details to a certain access token.
 
-If such a client uses the `resource` parameter in a subsequent token requests, the AS MUST utilize the data provided in the `locations` elements to filter the authorization data objects applicable to the respective resource server. The AS will select all authorization details object where the `resource` string matches as prefix of one of the URLs provided in the respective `locations` element.
+### Authorization Request
+
+If a client uses `authorization_details` with `locations` elements and the `resource` parameter in the same authorization request, the meaning is as follows:
+
+* for every authorization details object containing a `locations` element, the intended audience is defined by the `locations` element only. The `resource` parameter value is not applied.
+* for every authorization details object not containing a `locations` element, this authorization details object is bound to the audience(s) defined by the `resource` parameter.
+
+The authorization server will consider this audience restriction in the user consent if needed.
+
+### Token Request
+
+If  a client uses the `resource` parameter in a token requests, the AS MUST utilize the data provided in the `locations` elements to filter the authorization data objects applicable to the respective resource(s). 
+
+The logic is as follows:
+
+* For every authorization details object without a `locations` element: the authorization server treats it as applicable to all resources, i.e. it assigns this authorization details object 
+to the access token. 
+* For every authorization details object with a `locations` element: the authorization server adds this object to the access token, if at least one of one `locations` values excactly matches the `resource` parameter value. The authorization server MUST compare both values using an exact byte match of the string values.
 
 This shall be illustrated using an example. 
 
