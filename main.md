@@ -572,7 +572,76 @@ Cache-Control: no-cache, no-store
 }
 ```
 
-### Token Content {#token_content}
+### Enriched authorization details in Token Response
+
+There are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to 
+account information but leave the decision about the accounts it will be able to access to the user. The user would select the sub set of accounts she 
+wants the client to entitle to access in the course of the authorization process. In order to allow the client to determine the accounts it is 
+entitled to access, the authorization server will add this information to the respective authorization details object. 
+
+As an example, the requested authorization detail parameter could look like this:
+
+```JSON
+"authorization_details": [
+   {
+      "type": "account_information",
+      "access": {
+         "accounts": [],
+         "balances": [],
+         "transactions": []
+      },
+      "recurringIndicator":true
+   }
+]
+```
+
+The authorization server then would expand the authorization details object and add the respective account identifiers.
+
+```JSON
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-cache, no-store
+
+{
+   "access_token":"2YotnFZFEjr1zCsicMWpAA",
+   "token_type":"example",
+   "expires_in":3600,
+   "refresh_token":"tGzv3JokF0XG5Qx2TlKWIA",
+   "authorization_details":[
+      {
+         "type":"account_information",
+         "access":{
+            "accounts":[
+               {
+                  "iban":"DE2310010010123456789"
+               },
+               {
+                  "maskedPan":"123456xxxxxx1234"
+               }
+            ],
+            "balances":[
+               {
+                  "iban":"DE2310010010123456789"
+               }
+            ],
+            "transactions":[
+               {
+                  "iban":"DE2310010010123456789"
+               },
+               {
+                  "maskedPan":"123456xxxxxx1234"
+               }
+            ]
+         },
+         "recurringIndicator":true
+      }
+   ]
+}
+```
+
+Note: the client needs to be aware upfront of the possibility that a certain authorization details object can be enriched. It is assumned that this property is part of the definition of the respective authorization details type. 
+
+## Token Content {#token_content}
 
 In order to enable the RS to enforce the authorization details as approved in the authorization process, the AS MUST make this data available to the RS. 
 
@@ -1039,6 +1108,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    
    -03
    * Updated referenes to current revisions or RFC numbers 
+   * Added section about enrichment of authorization details objects by the AS
    
    -02
    
