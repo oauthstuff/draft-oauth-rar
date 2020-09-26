@@ -86,7 +86,7 @@ For a comprehensive discussion of the challenges arising from new use cases in t
 
 In addition to facilitating custom authorization requests, this draft also introduces a set of common data type fields for use across different APIs. 
 
-Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@I-D.ietf-oauth-resource-indicators] it enables the AS to mint RS-specific structured access tokens that only contain the permissions applicable to the respective RS.
+Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@!RFC8707] it enables the AS to mint RS-specific structured access tokens that only contain the permissions applicable to the respective RS.
 
 ## Conventions and Terminology
 
@@ -178,7 +178,7 @@ The JSON objects with `type` fields of `account_information` and `payment_initia
 The allowable contents of the authorization details object are determined by the `type` parameter.
 
 `type`:
-:   The type of resource request as a string. This field MAY define which other elements are allowed in the request. This element is REQUIRED.
+:   The type of authorization data as a string. This field MAY define which other elements are allowed in the request. This element is REQUIRED.
 
 This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST ensure that there is no collision between different authorization data types that it supports. The AS MUST NOT do any collation or normalization of data types during comparison.
 
@@ -300,7 +300,7 @@ Alternatively, there could be an authorization data type for OpenID Connect. (#o
 
 ## Relationship to "resource" parameter
 
-The request parameter `resource` as defined in [@I-D.ietf-oauth-resource-indicators] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. The `authorization_details` parameter also allows the client to designate the audience of a certain authorization details object in the respective `locations` element. 
+The request parameter `resource` as defined in [@!RFC8707] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. The `authorization_details` parameter also allows the client to designate the audience of a certain authorization details object in the respective `locations` element. 
 
 This specification allows a client to use both parameters together in an authorization request, and it defines how the `resource` parameter in the token request can be used to assign authorization details to a certain access token.
 
@@ -494,7 +494,7 @@ in [@I-D.ietf-oauth-jwsreq]. In the context of a request object,
 }
 ```
 
-Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider using the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq] in combination with the pushed request object mechanism as defined in [@I-D.lodderstedt-oauth-par] to pass authorization details in a reliable and secure manner. Here is an example of such a pushed authorization request that sends the authorization request data directly to the AS via a HTTPS-protected connection: 
+Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider using the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq] in combination with the pushed request object mechanism as defined in [@I-D.ietf-oauth-par] to pass authorization details in a reliable and secure manner. Here is an example of such a pushed authorization request that sends the authorization request data directly to the AS via a HTTPS-protected connection: 
 
 ```
   POST /as/par HTTP/1.1
@@ -719,7 +719,7 @@ Implementers MUST design and use authorization details in a privacy preserving m
 
 Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@I-D.ietf-oauth-jwsreq] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq].
 
-Even if the request data are encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attacker vector and implement appropriate counter measures, e.g. by only showing portions of the data or, if possible, determing whether the assumed user context is still the same (after user authentication). 
+Even if the request data is encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attacker vector and implement appropriate counter measures, e.g. by only showing portions of the data or, if possible, determing whether the assumed user context is still the same (after user authentication). 
 
 The AS MUST take into consideration the privacy implications when sharing authorization details with the resource servers. The AS SHOULD share this data with the resource servers on a "need to know" basis.
 
@@ -1060,6 +1060,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    [[ To be removed from the final specification ]]
    
    -03
+   * Updated referenes to current revisions or RFC numbers 
    * Clarified processing of unknown authorization details parameters
    * clarified dependencies between `resource` and `authorization_details` parameters
    
