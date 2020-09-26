@@ -574,7 +574,9 @@ Cache-Control: no-cache, no-store
 
 ### Enriched authorization details in Token Response
 
-There are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to 
+The authorization details attached to the access token MAY differ from what the client requests. In addition
+to the user authorizing less than what the client requested, 
+there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to 
 account information but leave the decision about the accounts it will be able to access to the user. The user would select the sub set of accounts she 
 wants the client to entitle to access in the course of the authorization process. In order to allow the client to determine the accounts it is 
 entitled to access, the authorization server will add this information to the respective authorization details object. 
@@ -1146,4 +1148,3 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    *  first draft
    
-
