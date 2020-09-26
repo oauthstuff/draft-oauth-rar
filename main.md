@@ -641,6 +641,43 @@ Cache-Control: no-cache, no-store
 }
 ```
 
+For another example, the client is asking for access to a medical record but does not know the record number
+at request time. In this example, the client specifies the type of access it wants but doesn't specify the location
+or identifier of that access. 
+
+```JSON
+{
+"authorization_details": [
+   {
+      "type": "medical_record",
+      "sens": [ "HIV", "ETH", "MART" ],
+      "actions": [ "read" ],
+      "datatypes": [ "Patient", "Observation", "Appointment" ]
+   }
+]
+```
+
+When the user interacts with the AS, they select which of the medical records they are responsible for to give to the client. This information gets returned with the access token.
+
+```JSON
+{
+   "access_token":"2YotnFZFEjr1zCsicMWpAA",
+   "token_type":"example",
+   "expires_in":3600,
+   "refresh_token":"tGzv3JokF0XG5Qx2TlKWIA",
+   "authorization_details":[
+    {
+      "type": "medical_record",
+      "sens": [ "HIV", "ETH", "MART" ],
+      "actions": [ "read" ],
+      "datatypes": [ "Patient", "Observation", "Appointment" ]
+      "identifier": "patient-541235",
+      "locations": [ "https://records.example.com/" ]
+     }
+  ]
+}
+```
+
 Note: the client needs to be aware upfront of the possibility that a certain authorization details object can be enriched. It is assumned that this property is part of the definition of the respective authorization details type. 
 
 ## Token Content {#token_content}
