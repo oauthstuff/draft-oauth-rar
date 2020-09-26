@@ -322,7 +322,7 @@ The logic is as follows:
 
 * For every authorization details object without a `locations` element: the authorization server treats it as applicable to all resources, i.e. it assigns this authorization details object 
 to the access token. 
-* For every authorization details object with a `locations` element: the authorization server adds this object to the access token, if at least one of one `locations` values excactly matches the `resource` parameter value. The authorization server MUST compare both values using an exact byte match of the string values.
+* For every authorization details object with a `locations` element: the authorization server adds this object to the access token, if at least one of the `locations` values exactly matches the `resource` parameter value. The authorization server MUST compare both values using an exact byte match of the string values.
 
 This shall be illustrated using an example. 
 
