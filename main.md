@@ -305,6 +305,7 @@ The request parameter `resource` as defined in [@I-D.ietf-oauth-resource-indicat
 This specification allows a client to use both parameters together in an authorization request, and it defines how the `resource` parameter in the token request can be used to assign authorization details to a certain access token.
 
 If used together, the `locations` element within objects of the `authorization_details` parameter overrides the value of the `resources` parameter. In the absence of a `locations` element, the value of the `resources` parameter is applied to the object.
+
 ### Authorization Request
 
 If a client uses `authorization_details` with `locations` elements and the `resource` parameter in the same authorization request, the meaning is as follows:
@@ -320,8 +321,7 @@ If  a client uses the `resource` parameter in a token requests, the AS MUST util
 
 The logic is as follows:
 
-* For every authorization details object without a `locations` element: the authorization server treats it as applicable to all resources, i.e. it assigns this authorization details object 
-to the access token. 
+* For every authorization details object without a `locations` element: the authorization server treats it as applicable to all resources, i.e. it assigns this authorization details object to the access token. 
 * For every authorization details object with a `locations` element: the authorization server adds this object to the access token, if at least one of the `locations` values exactly matches the `resource` parameter value. The authorization server MUST compare both values using an exact byte match of the string values.
 
 This shall be illustrated using an example. 
