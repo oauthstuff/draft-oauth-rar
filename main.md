@@ -727,6 +727,7 @@ The AS MUST take into consideration the privacy implications when sharing author
 We would would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
 
 We would also like to thank 
+Takahiko Kawasaki,
 Daniel Fett, 
 Dave Tonge, 
 Travis Spencer, 
@@ -1056,7 +1057,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    [[ To be removed from the final specification ]]
    
    -03
-   
+   * clarified dependencies between `resource` and `authorization_details` parameters
    
    -02
    
