@@ -300,11 +300,29 @@ Alternatively, there could be an authorization data type for OpenID Connect. (#o
 
 ## Relationship to "resource" parameter
 
-The request parameter `resource` as defined in [@!RFC8707] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. 
+The request parameter `resource` as defined in [@!RFC8707] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. The `authorization_details` parameter also allows the client to designate the audience of a certain authorization details object in the respective `locations` element. 
 
-If a client uses `authorization_details` with `locations` elements and the `resource` parameter in the same authorization request, the `locations` data take precedence over the data conveyed in the `resource` parameter for that particular authorization details object.
+This specification allows a client to use both parameters together in an authorization request, and it defines how the `resource` parameter in the token request can be used to assign authorization details to a certain access token.
 
-If such a client uses the `resource` parameter in a subsequent token requests, the AS MUST utilize the data provided in the `locations` elements to filter the authorization data objects applicable to the respective resource server. The AS will select all authorization details object where the `resource` string matches as prefix of one of the URLs provided in the respective `locations` element.
+If used together, the `locations` element within objects of the `authorization_details` parameter overrides the value of the `resources` parameter. In the absence of a `locations` element, the value of the `resources` parameter is applied to the object.
+
+### Authorization Request
+
+If a client uses `authorization_details` with `locations` elements and the `resource` parameter in the same authorization request, the meaning is as follows:
+
+* for every authorization details object containing a `locations` element, the intended audience is defined by the `locations` element only. The `resource` parameter value is not applied.
+* for every authorization details object not containing a `locations` element, this authorization details object is bound to the audience(s) defined by the `resource` parameter.
+
+The authorization server will consider this audience restriction in the user consent if needed.
+
+### Token Request
+
+If  a client uses the `resource` parameter in a token requests, the AS MUST utilize the data provided in the `locations` elements to filter the authorization data objects applicable to the respective resource(s). 
+
+The logic is as follows:
+
+* For every authorization details object without a `locations` element: the authorization server treats it as applicable to all resources, i.e. it assigns this authorization details object to the access token. 
+* For every authorization details object with a `locations` element: the authorization server adds this object to the access token, if at least one of the `locations` values exactly matches the `resource` parameter value. The authorization server MUST compare both values using an exact byte match of the string values.
 
 This shall be illustrated using an example. 
 
@@ -507,7 +525,8 @@ Authorization request URIs containing authorization details in a request paramet
 
 Based on the data provided in the `authorization_details` parameter the AS will ask the user for consent to the requested access permissions. 
 
-The AS MUST refuse to process any unknown authorization data type. If the `authorization_details` contain any unknown authorization data type, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client.
+The AS MUST refuse to process any unknown authorization data type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization data type or an object of 
+known type but containing unknown elements or elements of the wrong type, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 Note: If the authorization request also contained the `scope` parameter, the AS MUST present the merged set of requirements represented by the authorization request in the user consent.  
 
@@ -816,7 +835,9 @@ The AS MUST take into consideration the privacy implications when sharing author
       
 We would would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
 
-We would also like to thank
+We would also like to thank 
+Vladimir Dzhuvinov,
+Takahiko Kawasaki,
 Daniel Fett, 
 Dave Tonge, 
 Travis Spencer, 
@@ -834,6 +855,7 @@ TBD
 * `authorization_data_types` as dynamic client registration parameter
 * [[ possibly establish authorization data type registry (and declare: `type`, `actions`, `locations`, `datatypes`, `identifier`, others?) ]]
 * [[ register type `openid_claims` on a URL by the OpenID foundation? ]]
+* register invalid_authorization_details to OAuth Extensions Error Registry
 
 <reference anchor="OIDC" target="http://openid.net/specs/openid-connect-core-1_0.html">
   <front>
@@ -1148,6 +1170,8 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    -03
    * Updated referenes to current revisions or RFC numbers 
    * Added section about enrichment of authorization details objects by the AS
+   * Clarified processing of unknown authorization details parameters
+   * clarified dependencies between `resource` and `authorization_details` parameters
    
    -02
    
