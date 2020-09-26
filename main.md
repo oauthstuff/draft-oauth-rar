@@ -300,7 +300,7 @@ Alternatively, there could be an authorization data type for OpenID Connect. (#o
 
 ## Relationship to "resource" parameter
 
-The request parameter `resource` as defined in [@I-D.ietf-oauth-resource-indicators] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. The `authorization_details` parameters also allows to designate the audience of a certain authorization details object in the respective `locations` element. 
+The request parameter `resource` as defined in [@I-D.ietf-oauth-resource-indicators] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. The `authorization_details` parameter also allows the client to designate the audience of a certain authorization details object in the respective `locations` element. 
 
 This specification allows a client to use both parameters can be used together in an authorization request and it defines how the `resource` parameter in the token request can be used to assign authorization details to a certain access token.
 
@@ -1093,4 +1093,3 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    *  first draft
    
-
