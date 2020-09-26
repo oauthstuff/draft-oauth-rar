@@ -300,11 +300,29 @@ Alternatively, there could be an authorization data type for OpenID Connect. (#o
 
 ## Relationship to "resource" parameter
 
-The request parameter `resource` as defined in [@I-D.ietf-oauth-resource-indicators] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. 
+The request parameter `resource` as defined in [@I-D.ietf-oauth-resource-indicators] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. The `authorization_details` parameter also allows the client to designate the audience of a certain authorization details object in the respective `locations` element. 
 
-If a client uses `authorization_details` with `locations` elements and the `resource` parameter in the same authorization request, the `locations` data take precedence over the data conveyed in the `resource` parameter for that particular authorization details object.
+This specification allows a client to use both parameters together in an authorization request, and it defines how the `resource` parameter in the token request can be used to assign authorization details to a certain access token.
 
-If such a client uses the `resource` parameter in a subsequent token requests, the AS MUST utilize the data provided in the `locations` elements to filter the authorization data objects applicable to the respective resource server. The AS will select all authorization details object where the `resource` string matches as prefix of one of the URLs provided in the respective `locations` element.
+If used together, the `locations` element within objects of the `authorization_details` parameter overrides the value of the `resources` parameter. In the absence of a `locations` element, the value of the `resources` parameter is applied to the object.
+
+### Authorization Request
+
+If a client uses `authorization_details` with `locations` elements and the `resource` parameter in the same authorization request, the meaning is as follows:
+
+* for every authorization details object containing a `locations` element, the intended audience is defined by the `locations` element only. The `resource` parameter value is not applied.
+* for every authorization details object not containing a `locations` element, this authorization details object is bound to the audience(s) defined by the `resource` parameter.
+
+The authorization server will consider this audience restriction in the user consent if needed.
+
+### Token Request
+
+If  a client uses the `resource` parameter in a token requests, the AS MUST utilize the data provided in the `locations` elements to filter the authorization data objects applicable to the respective resource(s). 
+
+The logic is as follows:
+
+* For every authorization details object without a `locations` element: the authorization server treats it as applicable to all resources, i.e. it assigns this authorization details object to the access token. 
+* For every authorization details object with a `locations` element: the authorization server adds this object to the access token, if at least one of the `locations` values exactly matches the `resource` parameter value. The authorization server MUST compare both values using an exact byte match of the string values.
 
 This shall be illustrated using an example. 
 
@@ -709,6 +727,7 @@ The AS MUST take into consideration the privacy implications when sharing author
 We would would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
 
 We would also like to thank 
+Takahiko Kawasaki,
 Daniel Fett, 
 Dave Tonge, 
 Travis Spencer, 
@@ -1038,7 +1057,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    [[ To be removed from the final specification ]]
    
    -03
-   
+   * clarified dependencies between `resource` and `authorization_details` parameters
    
    -02
    
@@ -1076,4 +1095,3 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    *  first draft
    
-
