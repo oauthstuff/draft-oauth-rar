@@ -302,7 +302,7 @@ Alternatively, there could be an authorization data type for OpenID Connect. (#o
 
 The request parameter `resource` as defined in [@I-D.ietf-oauth-resource-indicators] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. The `authorization_details` parameter also allows the client to designate the audience of a certain authorization details object in the respective `locations` element. 
 
-This specification allows a client to use both parameters can be used together in an authorization request and it defines how the `resource` parameter in the token request can be used to assign authorization details to a certain access token.
+This specification allows a client to use both parameters together in an authorization request, and it defines how the `resource` parameter in the token request can be used to assign authorization details to a certain access token.
 
 ### Authorization Request
 
