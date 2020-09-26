@@ -304,6 +304,7 @@ The request parameter `resource` as defined in [@I-D.ietf-oauth-resource-indicat
 
 This specification allows a client to use both parameters together in an authorization request, and it defines how the `resource` parameter in the token request can be used to assign authorization details to a certain access token.
 
+If used together, the `locations` element within objects of the `authorization_details` parameter overrides the value of the `resources` parameter. In the absence of a `locations` element, the value of the `resources` parameter is applied to the object.
 ### Authorization Request
 
 If a client uses `authorization_details` with `locations` elements and the `resource` parameter in the same authorization request, the meaning is as follows:
