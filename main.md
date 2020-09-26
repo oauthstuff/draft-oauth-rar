@@ -525,7 +525,8 @@ Authorization request URIs containing authorization details in a request paramet
 
 Based on the data provided in the `authorization_details` parameter the AS will ask the user for consent to the requested access permissions. 
 
-The AS MUST refuse to process any unknown authorization data type. If the `authorization_details` contain any unknown authorization data type, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client.
+The AS MUST refuse to process any unknown authorization data type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization data type or an object of 
+known type but containing unknown elements or elements of the wrong type, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 Note: If the authorization request also contained the `scope` parameter, the AS MUST present the merged set of requirements represented by the authorization request in the user consent.  
 
@@ -727,6 +728,7 @@ The AS MUST take into consideration the privacy implications when sharing author
 We would would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
 
 We would also like to thank 
+Vladimir Dzhuvinov,
 Takahiko Kawasaki,
 Daniel Fett, 
 Dave Tonge, 
@@ -745,6 +747,7 @@ TBD
 * `authorization_data_types` as dynamic client registration parameter
 * [[ possibly establish authorization data type registry (and declare: `type`, `actions`, `locations`, `datatypes`, `identifier`, others?) ]]
 * [[ register type `openid_claims` on a URL by the OpenID foundation? ]]
+* register invalid_authorization_details to OAuth Extensions Error Registry
 
 <reference anchor="OIDC" target="http://openid.net/specs/openid-connect-core-1_0.html">
   <front>
@@ -1057,6 +1060,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    [[ To be removed from the final specification ]]
    
    -03
+   * Clarified processing of unknown authorization details parameters
    * clarified dependencies between `resource` and `authorization_details` parameters
    
    -02
