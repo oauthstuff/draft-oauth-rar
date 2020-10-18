@@ -1168,6 +1168,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    [[ To be removed from the final specification ]]
    
    -03
+   
    * Updated referenes to current revisions or RFC numbers 
    * Added section about enrichment of authorization details objects by the AS
    * Clarified processing of unknown authorization details parameters
