@@ -490,7 +490,7 @@ TBD: response does not indicate access token audience "https://example.com/payme
 
 ## Enriched authorization details in Token Response
 
-The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to account information but leave the decision about the accounts it will be able to access to the user. The user would select the sub set of accounts she wants the client to entitle to access in the course of the authorization process. In order to allow the client to determine the accounts it is entitled to access, the authorization server will add this information to the respective authorization details object. 
+The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to account information but leave the decision about the accounts it will be able to access to the user. The user would select the sub set of accounts they want the client to entitle to access in the course of the authorization process. In order to allow the client to determine the accounts it is entitled to access, the authorization server will add this information to the respective authorization details object. 
 
 As an example, the requested authorization detail parameter could look like this:
 
