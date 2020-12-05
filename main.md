@@ -425,7 +425,7 @@ to the permission for obtaining the list of accounts.
 
 The way authorization details in the token request are matched against authorization details attached to the grant being processed is application specific and out of scope for this specification. 
 
-The `resource` parameter MAY be used in the token request to request the creation of an audience restriected access token. If the client uses this parameter, the AS MUST consider the audience restriction defined by the `locations` elements of the `authorization_details` and the value(s) of `resource` authorization request parameters to filter the authorization data objects applicable to the respective resource(s). 
+The `resource` parameter MAY be used in the token request to request the creation of an audience restricted access token. If the client uses this parameter, the AS MUST consider the audience restriction defined by the `locations` elements of the `authorization_details` and the value(s) of `resource` authorization request parameters to filter the authorization data objects applicable to the respective resource(s). 
 
 The logic is as follows:
 
@@ -705,7 +705,7 @@ OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that 
 
 The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every non-OIDC scope value. 
 
-Alternatively, there could be an authorization data type for OpenID Connect. (#openid) gives an example of how such an authorization data type could look like.
+Alternatively, there could be an authorization data type for OpenID Connect. (#openid) gives an example of what such an authorization data type could look like.
 
 # Implementation Considerations
 
