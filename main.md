@@ -490,7 +490,7 @@ TBD: response does not indicate access token audience "https://example.com/payme
 
 ## Enriched authorization details in Token Response
 
-The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to account information but leave the decision about the accounts it will be able to access to the user. The user would select the sub set of accounts she wants the client to entitle to access in the course of the authorization process. In order to allow the client to determine the accounts it is entitled to access, the authorization server will add this information to the respective authorization details object. 
+The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to account information but leave the decision about the accounts it will be able to access to the user. The user would select the sub set of accounts they wants the client to entitle to access in the course of the authorization process. In order to allow the client to determine the accounts it is entitled to access, the authorization server will add this information to the respective authorization details object. 
 
 As an example, the requested authorization detail parameter could look like this:
 
@@ -642,7 +642,7 @@ In this case, the AS added the following example claims:
 
 * `sub`: conveys the user on which behalf the client is asking for payment initation
 * `txn`: transaction id used to trace the transaction across the services of provider `example.com`
-* `debtorAccount`: API-specific element containing the debtor account. In the example, this account was not passed in the authorization details but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particuar account. In this case, she is the owner. This data is used for access control at the payment API (the RS).
+* `debtorAccount`: API-specific element containing the debtor account. In the example, this account was not passed in the authorization details but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particuar account. In this case, they is the owner. This data is used for access control at the payment API (the RS).
 
 ## Token Introspection 
 
@@ -995,7 +995,7 @@ The top-level elements have the following meaning:
 
 These two examples are inspired by requirements for APIs used in the Norwegian eHealth system. 
 
-In this use case the physical therapist sits in front of her computer using a local Electronic Health Records (EHR) system. She wants to look at the electronic patient records of a certain patient and she also wants to fetch the patients journal entries in another system, perhaps at another institution or a national service. Access to this data is provided by an API.
+In this use case the physical therapist sits in front of her computer using a local Electronic Health Records (EHR) system. They wants to look at the electronic patient records of a certain patient and they also wants to fetch the patients journal entries in another system, perhaps at another institution or a national service. Access to this data is provided by an API.
 
 The information necessary to authorize the request at the API is only known by the EHR system, and must be presented to the API.
 
