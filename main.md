@@ -344,14 +344,15 @@ GET /authorize?response_type=code
    &code_challenge_method=S256
    &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bwc-uCHaoeK1t8U
    &resource=https%3A%2F%2Fexample%2Ecom%2Fpayments
-   &authorization_details=%5B%7B%22type%22%3A%22account%5Finformation%22%2C%22actions
-   %22%3A%5B%22list%5Faccounts%22%2C%22read%5Fbalances%22%2C%22read%5Ftransactions%22
-   %5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Faccounts%22%5D%7D%2C%7
-   B%22type%22%3A%22payment%5Finitiation%22%2C%22actions%22%3A%5B%22initiate%22%2C%22
-   status%22%2C%22cancel%22%5D%2C%22instructedAmount%22%3A%7B%22currency%22%3A%22EUR%
-   22%2C%22amount%22%3A%22123%2E50%22%7D%2C%22creditorName%22%3A%22Merchant123%22%2C%
-   2creditorAccount%22%3A%7B%22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remitta
-   nceInformationUnstructured%22%3A%22RefNumberMerchant%22%7D%5D HTTP/1.1
+   &authorization_details=%5B%7B%22type%22%3A%22account%5Finformation%22%2C%
+   22actions%22%3A%5B%22list%5Faccounts%22%2C%22read%5Fbalances%22%2C%22read
+   %5Ftransactions%22%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ec
+   om%2Faccounts%22%5D%7D%2C%7B%22type%22%3A%22payment%5Finitiation%22%2C%22
+   actions%22%3A%5B%22initiate%22%2C%22status%22%2C%22cancel%22%5D%2C%22inst
+   ructedAmount%22%3A%7B%22currency%22%3A%22EUR%22%2C%22amount%22%3A%22123%2
+   E50%22%7D%2C%22creditorName%22%3A%22Merchant123%22%2C%22reditorAccount%22
+   %3A%7B%22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittanceInforma
+   tionUnstructured%22%3A%22RefNumberMerchant%22%7D%5D HTTP/1.1
 Host: server.example.com
 ``` 
 
