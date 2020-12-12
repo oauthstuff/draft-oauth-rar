@@ -291,7 +291,7 @@ The `authorization_details` request parameter can be used to specify authorizati
 * Device Authorization Request as specified in [@!RFC8628],
 * Backchannel Authentication Requests as defined in [@OpenID.CIBA].
 
-Parameter encoding is determined by the respective context. In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format of the serialized JSON as shown in the following example:
+Parameter encoding is determined by the respective context. In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format of the serialized JSON as shown in the following using the example from (#authz_details) (line breaks for display purposes only):
 
 ```
 GET /authorize?response_type=code
@@ -300,10 +300,18 @@ GET /authorize?response_type=code
    &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
    &code_challenge_method=S256
    &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bwc-uCHaoeK1t8U
-   &authorization_details=%5B%7B%22type%22%3A%22account%5Finformati
-   on%22%2C%22actions%22%3A%5B%22list%5Faccounts%22%2C%22read%5Fbal
-   ances%22%2C%22read%5Ftransactions%22%5D%2C%22locations%22%3A%5B%
-   22https%3A%2F%2Fexample%2Ecom%2Faccounts%22%5D%7D%5D HTTP/1.1
+   &authorization_details=%5B%7B%22type%22%3A%22account%5Finfo
+   rmation%22%2C%22actions%22%3A%5B%22list%5Faccounts%22%2C%22
+   read%5Fbalances%22%2C%22read%5Ftransactions%22%5D%2C%22loca
+   tions%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Faccounts%22%
+   5D%7D%2C%7B%22type%22%3A%22payment%5Finitiation%22%2C%22act
+   ions%22%3A%5B%22initiate%22%2C%22status%22%2C%22cancel%22%5
+   D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fp
+   ayments%22%5D%2C%22instructedAmount%22%3A%7B%22currency%22%
+   3A%22EUR%22%2C%22amount%22%3A%22123%2E50%22%7D%2C%22credito
+   rName%22%3A%22Merchant123%22%2C%22creditorAccount%22%3A%7B%
+   22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittance
+   InformationUnstructured%22%3A%22RefNumberMerchant%22%7D%5D HTTP/1.1
 Host: server.example.com
 ``` 
 
@@ -323,77 +331,7 @@ If the resource owner grants the client the requested access, the AS will issue 
 
 ## Relationship to "resource" parameter
 
-The request parameter `resource` as defined in [@!RFC8707] indicates to the AS the resource(s) where the client intends to use the access tokens issued based on a certain grant. This mechanism is a way to audience-restrict access tokens and to allow the AS to create resource server specific access tokens. The `authorization_details` parameter also allows the client to designate the audience of a certain authorization details object in the respective `locations` element. 
-
-This specification allows a client to use both parameters together in an authorization request.
-
-If a client uses `authorization_details` with `locations` elements and the `resource` parameter in the same authorization request, the meaning is as follows:
-
-* for every authorization details object containing a `locations` element, the intended audience is defined by the `locations` element only. The `resource` parameter value is not applied.
-* for every authorization details object not containing a `locations` element, this authorization details object is bound to the audience(s) defined by the `resource` parameter.
-
-The authorization server will consider this audience restriction in the user consent if needed.
-
-In the following example (line breaks for illustrative purposes only), 
-
-```
-GET /authorize?response_type=code
-   &client_id=s6BhdRkqt3
-   &state=af0ifjsldkj
-   &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
-   &code_challenge_method=S256
-   &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bwc-uCHaoeK1t8U
-   &resource=https%3A%2F%2Fexample%2Ecom%2Fpayments
-   &authorization_details=%5B%7B%22type%22%3A%22account%5Finformation%22%2C%
-   22actions%22%3A%5B%22list%5Faccounts%22%2C%22read%5Fbalances%22%2C%22read
-   %5Ftransactions%22%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ec
-   om%2Faccounts%22%5D%7D%2C%7B%22type%22%3A%22payment%5Finitiation%22%2C%22
-   actions%22%3A%5B%22initiate%22%2C%22status%22%2C%22cancel%22%5D%2C%22inst
-   ructedAmount%22%3A%7B%22currency%22%3A%22EUR%22%2C%22amount%22%3A%22123%2
-   E50%22%7D%2C%22creditorName%22%3A%22Merchant123%22%2C%22reditorAccount%22
-   %3A%7B%22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittanceInforma
-   tionUnstructured%22%3A%22RefNumberMerchant%22%7D%5D HTTP/1.1
-Host: server.example.com
-``` 
-
-the client sends the `authorization_details` parameter value 
-
-```JSON
-[
-   {
-      "type": "account_information",
-      "actions": [
-         "list_accounts",
-         "read_balances",
-         "read_transactions"
-      ],
-      "locations": [
-         "https://example.com/accounts"
-      ]
-   },
-   {
-      "type": "payment_initiation",
-      "actions": [
-         "initiate",
-         "status",
-         "cancel"
-      ],
-      "instructedAmount": {
-         "currency": "EUR",
-         "amount": "123.50"
-      },
-      "creditorName": "Merchant123",
-      "creditorAccount": {
-         "iban": "DE02100100109307118603"
-      },
-      "remittanceInformationUnstructured": "Ref Number Merchant"
-   }
-]
-```
-
-along with a `resource` parameter value "https://example.com/payments". 
-
-Application of the rules given above will assign the URI "https://example.com/payments" as audience to the object of type "payment_initiation". 
+The `resource` authorization request parameter as defined in [@!RFC8707] can be used to further determine the resources where the requested scope can be applied. The  `resource` parameter does not have any impact on the way the AS processes the `authorization_details` parameter. 
 
 # Authorization Response
 
@@ -426,14 +364,12 @@ to the permission for obtaining the list of accounts.
 
 The way authorization details in the token request are matched against authorization details attached to the grant being processed is application specific and out of scope for this specification. 
 
-The `resource` parameter MAY be used in the token request to request the creation of an audience restricted access token. If the client uses this parameter, the AS MUST consider the audience restriction defined by the `locations` elements of the `authorization_details` and the value(s) of `resource` authorization request parameters to filter the authorization data objects applicable to the respective resource(s). 
+The `resource` token request parameter as defined in [@!RFC8707] MAY be used in the token request to request the creation of an audience restricted access token (as recommended in [@I-D.ietf-oauth-security-topics]). If the client uses this parameter, the AS MUST consider the audience restriction defined by the `locations` elements of the `authorization_details` to filter the authorization data objects applicable to the respective resource(s). 
 
 The logic is as follows:
 
-* For every authorization details object without a `locations` element and without any audience assigned by way of a `resource` authorization request parameter value: the authorization server treats it as applicable to all resources, i.e. it assigns this authorization details object to the access token. 
-* For every authorization details object with a `locations` element or audience assigned by way of a `resource` authorization request parameter value: the authorization server adds this object to the access token, if at least one of the `locations` values or audiences defined by a `resource` authorization request parameter exactly matches the `resource` token request parameter value. The authorization server MUST compare both values using an exact byte match of the string values.
-
-Clients utilizing authorization details are RECOMMENDED to use the `resource` token request parameter to allow the AS to issue audience restricted access tokens as recommended in [@I-D.ietf-oauth-security-topics]. 
+* For every authorization details object without a `locations` element: the authorization server treats it as applicable to all resources, i.e. it assigns this authorization details object to the access token. 
+* For every authorization details object with a `locations` element: the authorization server adds this object to the access token, if at least one of the `locations` values exactly matches the `resource` token request parameter value. The authorization server MUST compare both values using an exact byte match of the string values.
 
 For example the following token request selects authorization details applicable for the resource server represented by the URI `https://example.com/payments`.
 
@@ -448,7 +384,7 @@ grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA
 &resource=https%3A%2F%2Fexample%2Ecom%2Fpayments
 ```
 
-Using the example given above, this request would result in the assignment of the "payment_initiation" authorization details object to the access token to be issued.
+Using the example given above, this request would result in the assignment of the "payment_initiation" authorization details object from (#authz_details) to the access token to be issued (see below).
 
 # Token Response
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
@@ -473,6 +409,9 @@ Cache-Control: no-cache, no-store
             "status",
             "cancel"
          ],
+         "locations": [
+            "https://example.com/payments"
+         ],
          "instructedAmount": {
             "currency": "EUR",
             "amount": "123.50"
@@ -486,8 +425,6 @@ Cache-Control: no-cache, no-store
    ]
 }
 ```
-
-TBD: response does not indicate access token audience "https://example.com/payments" (no resource response parameter or locations element)
 
 ## Enriched authorization details in Token Response
 
