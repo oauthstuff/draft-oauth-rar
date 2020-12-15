@@ -344,26 +344,6 @@ known type but containing unknown elements or elements of the wrong type, the AS
 
 # Token Request
 
-The `authorization_details` request parameter MAY be used in a token request to further restrict the permissions assigned to an access token. As an example, the grant approved in the running example above could be restricted as follows
-
-```JSON
-[
-   {
-      "type": "account_information",
-      "actions": [
-         "list_accounts"
-      ],
-      "locations": [
-         "https://example.com/accounts"
-      ]
-   }
-]
-```
-
-to the permission for obtaining the list of accounts. 
-
-The way authorization details in the token request are matched against authorization details attached to the grant being processed is application specific and out of scope for this specification. 
-
 The `resource` token request parameter as defined in [@!RFC8707] MAY be used in the token request to request the creation of an audience restricted access token (as recommended in [@I-D.ietf-oauth-security-topics]). If the client uses this parameter, the AS MUST consider the audience restriction defined by the `locations` elements of the `authorization_details` to filter the authorization data objects applicable to the respective resource(s). 
 
 The logic is as follows:
