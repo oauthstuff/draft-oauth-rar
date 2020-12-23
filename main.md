@@ -1017,7 +1017,6 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    -04 
 
    * restructured draft for better readability
-   * added product implementation considerations 
    
    -03
 
