@@ -645,7 +645,8 @@ Products supporting this specification should provide the following basic functi
 * Support advertisement of supported authorization details types in OAuth server metadata
 * Accept `authorization_details` parameter in authorization requests including basic syntax check for compliance with this specification 
 * Support storage of consented authorization_details as part of a grant
-* Implement default behavior for carrying authorization details to resource servers access token content and introspection responses. If the product supports resource indicators, this should also include assignment of authorization details to access tokens based on `resource` token request parameter
+* Implement default behavior for adding authorization details to access tokens and token introspection responses in order to make them available to resource servers (similar to scope values). This should work with any grant type, espceially `authorization_code` and `refresh_token`. 
+* If the product supports resource indicators, it should also support filtering of the authorization details to be assigned to access tokens using the `resource` token request parameter.
 
 Processing and presentation of authorization details will vary significantly among different authorization data types. Products should therefore support customization of the respective behavior. In particular products should 
   
