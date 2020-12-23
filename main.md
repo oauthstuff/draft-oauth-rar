@@ -627,31 +627,9 @@ Alternatively, there could be an authorization data type for OpenID Connect. (#o
 
 # Implementation Considerations
 
-## Using authorization details in a certain deployment
+## AS Customization
 
-Using authorization details in a certain deployment will require the follwowing steps:
-
-* Define authorization details types (might include definition and publication of JSON schemas)
-* Publish authorization details types in the OAuth server metadata
-* Determine how authorization details are shown to the user in the user consent 
-* (if needed) Enrich authorization details in the user consent process (e.g. add selected accounts or set expirations)
-* (if needed) Determine how authorization details are reflected in access token content or introspection responses
-* Determine how the resource server(s) process(s) the authorization details or token data derived from authorization details
-
-## Minimal product support
-
-Products supporting this specification should provide the following basic functions:
-
-* Support advertisement of supported authorization details types in OAuth server metadata
-* Accept `authorization_details` parameter in authorization requests including basic syntax check for compliance with this specification 
-* Support storage of consented authorization_details as part of a grant
-* Implement default behavior for carrying authorization details to resource servers access token content and introspection responses. If the product supports resource indicators, this should also include assignment of authorization details to access tokens based on `resource` token request parameter
-
-Processing and presentation of authorization details will vary significantly among different authorization data types. Products should therefore support customization of the respective behavior. In particular products should: 
-  
-* allow deployments to determine presentation of the authorization_details
-* allow deployments to modify requested authorization_details in the user consent process, e.g. adding fields 
-* allow deployments to merge requested and pre-existing authorization_details
+The scheme and processing will vary significantly among different authorization data types. Any implementation of this draft is therefore supposed to allow the customization of the user consent and the handling of access token data. 
 
 One option would be to have a mechanism allowing the registration of extension modules, each of them responsible for rendering the respective user consent and any transformation needed to provide the data needed to the resource server by way of structured access tokens or token introspection responses. 
 
