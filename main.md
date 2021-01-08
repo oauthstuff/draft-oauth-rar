@@ -196,7 +196,14 @@ This draft defines a set of common data elements that are designed to be usable 
 `identifier`:
 :   A string identifier indicating a specific resource available at the API.  
 
-When different element types are used in combination, the permissions the client requests is the cartesian product of the values. In the following example
+When different element types are used in combination, the permissions the client requests is the cartesian product of the values. That is to 
+say, the object represents a request for all `action` values listed within the object
+to be used at all `locations` values listed within the object for all `datatype`
+values listed within the object. In the following example, the client is requesting `read` and `write` 
+access to both the `contacts` and `photos` belonging to customers in a `customer_information` API. If
+this request is granted, the client would assume it would be able to use any combination of rights
+defined by the API, such as reading the photos and writing the contacts.
+
 
 ```JSON
 [
@@ -216,7 +223,12 @@ When different element types are used in combination, the permissions the client
    }
 ]
 ```
-the client is requesting read and write access to both the contacts and photos belonging to customers in a customer information API. If the client wishes to have finer control over its access, it can send multiple objects. For example:
+
+
+If the client wishes to have finer control over its access, it can send multiple objects. In this example, 
+the client is asking for `read` access to the `contacts` and `write` access to the `photos` in the same API endpoint.
+If this request is granted, the client would not be able to write to the contacts.
+
 ```JSON
 [
    {
@@ -245,9 +257,54 @@ the client is requesting read and write access to both the contacts and photos b
    }
 ]
 ```
-The client is asking for read access to the contacts and write access to the photos in the same API endpoint.
 
-An API MAY define its own extensions, subject to the `type` of the respective authorization object. It is assumed that the full structure of each of the authorization objects is tailored to the needs of a certain application, API, or resource type, and can contain a mix of general-purpose and api-specific elements within the structure. The example structures shown above are based on certain kinds of APIs that can be found in the Open Banking space.
+
+An API MAY define its own extensions, subject to the `type` of the respective authorization object.
+It is anticipated that API designers will use a combination
+of common fields defined in this specification as well as
+fields specific to the API itself. The following non-normative 
+example shows the use of both common and API-specific fields as 
+part of two different fictitious API `type` values. The first
+access request includes the `actions`, `locations`, and `datatypes` 
+fields specified here as well as the API-specific `geolocation`
+field. The second access request includes the `actions` and
+`identifier` fields specified here as well as the API-specific
+`currency` field.
+
+~~~
+    "resources": [
+        {
+            "type": "photo-api",
+            "actions": [
+                "read",
+                "write"
+            ],
+            "locations": [
+                "https://server.example.net/",
+                "https://resource.local/other"
+            ],
+            "datatypes": [
+                "metadata",
+                "images"
+            ],
+            "geolocation": [
+                { lat: -32.364, lng: 153.207 },
+                { lat: -35.364, lng: 158.207 }
+            ]
+        },
+        {
+            "type": "financial-transaction",
+            "actions": [
+                "withdraw"
+            ],
+            "identifier": "account-14-32-32-3", 
+            "currency": "USD"
+        }
+    ]
+~~~
+
+If this request is approved, the resulting access token's access rights will be
+the union of the requested types of access for each of the two APIs, just as above.
 
 ## Authorization Data Types
 
@@ -506,6 +563,21 @@ When the user interacts with the AS, they select which of the medical records th
 ```
 
 Note: the client needs to be aware upfront of the possibility that a certain authorization details object can be enriched. It is assumned that this property is part of the definition of the respective authorization details type. 
+
+## Comparing authorization details
+
+Many actions in the OAuth protocol allow the AS and RS to make security decisions based on whether or not the request
+is asking for "more" or "less" than a previous, existing request. For example, upon refreshing a token, the client can
+ask for a new access token with "fewer permissions" than had been previously authorized by the resource owner.
+Since the nature of an authorization details request is based solely on the API or APIs that it is describing, there is not
+a simple means of comparing any two arbitrary authorization details requests. 
+Authorization servers should not rely on simple object comparison in most cases, as the intersection of some elements
+within a request could have side effects in the access rights granted, depending on how the API
+has been designed and deployed. This is a similar effect to the scope values used with some APIs.
+
+However, when comparing a new request to an existing request, authorization servers can use the same 
+processing techniques as used in granting the request in the first place to determine if a resource
+owner needs to authorize the request. 
 
 # Resource Servers
 
