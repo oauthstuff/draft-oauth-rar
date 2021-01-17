@@ -1098,6 +1098,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    * restructured draft for better readability
    * added implemnentation considerations for deployments and products
+   * added type union language from GNAP
    
    -03
 
