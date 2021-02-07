@@ -744,7 +744,7 @@ Authorization request URIs containing authorization details in a request paramet
 
 # Security Considerations
 
-Authorization details are sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. In order to ensure their integrity, the client SHOULD send authorization details in a signed request object as defined in [@I-D.ietf-oauth-jwsreq] or use the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq] to pass the URI of the request object to the authorization server.
+Authorization details are sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. In order to ensure their integrity, the client SHOULD send authorization details in a signed request object as defined in [@I-D.ietf-oauth-jwsreq] or use the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq] in conjunction with [@I-D.ietf-oauth-par] to pass the URI of the request object to the authorization server.
 
 All strings MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values. 
 
