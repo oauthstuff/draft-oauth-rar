@@ -1097,7 +1097,8 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    -04 
 
    * restructured draft for better readability
-   * added implemnentation considerations for deployments and products
+   * simplified normative text about use of the resource parameter with authorization_details
+   * added implementation considerations for deployments and products
    * added type union language from GNAP
    * added recommendation to use PAR to cope with large requests and for request protection
    
