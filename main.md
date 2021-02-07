@@ -701,15 +701,15 @@ Products supporting this specification should provide the following basic functi
 
 * Support advertisement of supported authorization details types in OAuth server metadata
 * Accept `authorization_details` parameter in authorization requests including basic syntax check for compliance with this specification 
-* Support storage of consented authorization_details as part of a grant
-* Implement default behavior for adding authorization details to access tokens and token introspection responses in order to make them available to resource servers (similar to scope values). This should work with any grant type, espceially `authorization_code` and `refresh_token`. 
+* Support storage of consented authorization details as part of a grant
+* Implement default behavior for adding authorization details to access tokens and token introspection responses in order to make them available to resource servers (similar to scope values). This should work with any grant type, especially `authorization_code` and `refresh_token`. 
 * If the product supports resource indicators, it should also support filtering of the authorization details to be assigned to access tokens using the `resource` token request parameter.
 
 Processing and presentation of authorization details will vary significantly among different authorization data types. Products should therefore support customization of the respective behavior. In particular products should 
   
-* allow deployments to determine presentation of the authorization_details
-* allow deployments to modify requested authorization_details in the user consent process, e.g. adding fields 
-* allow deployments to merge requested and pre-existing authorization_details
+* allow deployments to determine presentation of the authorization details
+* allow deployments to modify requested authorization details in the user consent process, e.g. adding fields 
+* allow deployments to merge requested and pre-existing authorization details
 
 One option would be to have a mechanism allowing the registration of extension modules, each of them responsible for rendering the respective user consent and any transformation needed to provide the data needed to the resource server by way of structured access tokens or token introspection responses.
 
