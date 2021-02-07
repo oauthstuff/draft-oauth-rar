@@ -338,13 +338,11 @@ The following example shows how an implementation could utilize the namespace `h
 }
 ```
 
-# Authorization Request
+# Authorization Request {#authz_request}
 
 The `authorization_details` request parameter can be used to specify authorization requirements in all places where the `scope` parameter is used for the same purpose, examples include:  
 
 * Authorization requests as specified in [@!RFC6749], 
-* Access token requests as specified in [@!RFC6749], if also used as authorization requests, e.g. in the case of assertion grant types [@!RFC7521],
-* Request objects as specified in [@I-D.ietf-oauth-jwsreq], 
 * Device Authorization Request as specified in [@!RFC8628],
 * Backchannel Authentication Requests as defined in [@OpenID.CIBA].
 
@@ -372,7 +370,43 @@ GET /authorize?response_type=code
 Host: server.example.com
 ``` 
 
-Based on the data provided in the `authorization_details` parameter the AS will ask the user for consent to the requested access permissions. 
+Based on the data provided in the `authorization_details` parameter the AS will ask the user for consent to the requested access permissions. In this example, the client wants to get access to account information and intiate a payment:
+
+```JSON
+[
+   {
+      "type": "account_information",
+      "actions": [
+         "list_accounts",
+         "read_balances",
+         "read_transactions"
+      ],
+      "locations": [
+         "https://example.com/accounts"
+      ]
+   },
+   {
+      "type": "payment_initiation",
+      "actions": [
+         "initiate",
+         "status",
+         "cancel"
+      ],
+      "locations": [
+         "https://example.com/payments"
+      ],
+      "instructedAmount": {
+         "currency": "EUR",
+         "amount": "123.50"
+      },
+      "creditorName": "Merchant123",
+      "creditorAccount": {
+         "iban": "DE02100100109307118603"
+      },
+      "remittanceInformationUnstructured": "Ref Number Merchant"
+   }
+]
+```
 
 ## Relationship to "scope" parameter {#scope}
 
@@ -400,6 +434,56 @@ The AS MUST refuse to process any unknown authorization data type or authorizati
 known type but containing unknown elements or elements of the wrong type, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 # Token Request
+
+The `authorization_details` request parameter can be used to specify the authorization details a client wants the AS to assign to an access token. The AS checks whether the underlying grant (in case of grant types `authorization_code`, `refresh_token`, ...) or the client's policy (in case of grant type `client_credential`) allows the issuance of an access token with the requested authorization details. Otherwise, the AS refuses the request with error code `invalid_authorization_details` (similar to `invalid_scope`).
+
+## Comparing authorization details
+
+Many actions in the OAuth protocol allow the AS and RS to make security decisions based on whether or not the request
+is asking for "more" or "less" than a previous, existing request. For example, upon refreshing a token, the client can
+ask for a new access token with "fewer permissions" than had been previously authorized by the resource owner.
+Since the nature of an authorization details request is based solely on the API or APIs that it is describing, there is not
+a simple means of comparing any two arbitrary authorization details requests. 
+Authorization servers should not rely on simple object comparison in most cases, as the intersection of some elements
+within a request could have side effects in the access rights granted, depending on how the API
+has been designed and deployed. This is a similar effect to the scope values used with some APIs.
+
+However, when comparing a new request to an existing request, authorization servers can use the same 
+processing techniques as used in granting the request in the first place to determine if a resource
+owner needs to authorize the request. 
+
+This shall be illustrated using our running example. The example authorization request in (#authz_request), if approved by the user, resulted in the issuance of an authorization code associated with the privileges to 
+
+* list accounts 
+* access the balance of one or more accounts,
+* access the transactions of one or more accounts, and 
+* to initiate a payment. 
+
+The client could now request the AS to issue an access token assigned with the privilege to just access a list of account as follows:
+
+```JSON
+[
+   {
+      "type":"account_information",
+      "actions":[
+         "list_accounts"
+      ],
+      "locations":[
+         "https://example.com/accounts"
+      ]
+   }
+]
+```
+
+The AS would 
+
+* compare that the authorization code issued in the previous step contains an authorization details object of type `account_information`
+* compare whether the approved list of actions contains `list_account`, and 
+* whether the `locations` value matches.  
+
+If all checks succeed, the AS would issue the requested access token. 
+
+## resource parameter
 
 The `resource` token request parameter as defined in [@!RFC8707] MAY be used in the token request to request the creation of an audience restricted access token (as recommended in [@I-D.ietf-oauth-security-topics]). If the client uses this parameter, the AS MUST consider the audience restriction defined by the `locations` elements of the `authorization_details` to filter the authorization data objects applicable to the respective resource(s). 
 
@@ -563,21 +647,6 @@ When the user interacts with the AS, they select which of the medical records th
 ```
 
 Note: the client needs to be aware upfront of the possibility that a certain authorization details object can be enriched. It is assumned that this property is part of the definition of the respective authorization details type. 
-
-## Comparing authorization details
-
-Many actions in the OAuth protocol allow the AS and RS to make security decisions based on whether or not the request
-is asking for "more" or "less" than a previous, existing request. For example, upon refreshing a token, the client can
-ask for a new access token with "fewer permissions" than had been previously authorized by the resource owner.
-Since the nature of an authorization details request is based solely on the API or APIs that it is describing, there is not
-a simple means of comparing any two arbitrary authorization details requests. 
-Authorization servers should not rely on simple object comparison in most cases, as the intersection of some elements
-within a request could have side effects in the access rights granted, depending on how the API
-has been designed and deployed. This is a similar effect to the scope values used with some APIs.
-
-However, when comparing a new request to an existing request, authorization servers can use the same 
-processing techniques as used in granting the request in the first place to determine if a resource
-owner needs to authorize the request. 
 
 # Resource Servers
 
