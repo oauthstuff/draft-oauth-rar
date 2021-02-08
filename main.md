@@ -450,7 +450,9 @@ has been designed and deployed. This is a similar effect to the scope values use
 
 However, when comparing a new request to an existing request, authorization servers can use the same 
 processing techniques as used in granting the request in the first place to determine if a resource
-owner needs to authorize the request. 
+owner needs to authorize the request. The details of this comparison are dependent on the definition
+of the `type` of authorization request and outside the scope of this specification, but common patterns
+can be applied.
 
 This shall be illustrated using our running example. The example authorization request in (#authz_request), if approved by the user, resulted in the issuance of an authorization code associated with the privileges to 
 
@@ -459,7 +461,7 @@ This shall be illustrated using our running example. The example authorization r
 * access the transactions of one or more accounts, and 
 * to initiate a payment. 
 
-The client could now request the AS to issue an access token assigned with the privilege to just access a list of account as follows:
+The client could now request the AS to issue an access token assigned with the privilege to just access a list of accounts as follows:
 
 ```JSON
 [
@@ -475,15 +477,48 @@ The client could now request the AS to issue an access token assigned with the p
 ]
 ```
 
-The AS would 
+The example API is designed such that each field used by the `account_information` type contains additive rights, 
+with each value within the `actions` and `locations` arrays specifying a different element of access. To make a comparison in this
+instance, the AS would perform the following steps:
 
 * compare that the authorization code issued in the previous step contains an authorization details object of type `account_information`
 * compare whether the approved list of actions contains `list_account`, and 
-* whether the `locations` value matches.  
+* whether the `locations` value includes only previously-approved locations.
 
-If all checks succeed, the AS would issue the requested access token. 
+If all checks succeed, the AS would issue the requested access token with the reduced set of access. 
 
-## resource parameter
+Note that this comparison is relevant A different API type definition could have different processing rules. For example, the
+value of an `action` could subsume the rights associated with another `action` value. For example, if a client initially asks for
+a token with `write` access, which implies both read and write access to this API:
+
+```JSON
+[
+    {
+        "type": "example_api",
+        "actions": [
+            "write"
+        ]
+    }
+]
+```
+
+Later that same client makes a refresh request for `read` access:
+
+```JSON
+[
+    {
+        "type": "example_api",
+        "actions": [
+            "read"
+        ]
+    }
+]
+```
+
+The AS would compare the `type` value and the `action` value to determine that the `read` access is
+already covered by the `write` access previously granted to the client.
+
+## Interaction with the resource parameter
 
 The `resource` token request parameter as defined in [@!RFC8707] MAY be used in the token request to request the creation of an audience restricted access token (as recommended in [@I-D.ietf-oauth-security-topics]). If the client uses this parameter, the AS MUST consider the audience restriction defined by the `locations` elements of the `authorization_details` to filter the authorization data objects applicable to the respective resource(s). 
 
