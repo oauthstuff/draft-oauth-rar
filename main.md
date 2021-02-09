@@ -487,7 +487,7 @@ instance, the AS would perform the following steps:
 
 If all checks succeed, the AS would issue the requested access token with the reduced set of access. 
 
-Note that this comparison is relevant A different API type definition could have different processing rules. For example, the
+Note that this comparison is relevant to this specific API type definition. A different API type definition could have different processing rules. For example, the
 value of an `action` could subsume the rights associated with another `action` value. For example, if a client initially asks for
 a token with `write` access, which implies both read and write access to this API:
 
