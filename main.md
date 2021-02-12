@@ -668,7 +668,7 @@ Here is an example for the payment initation example RS:
 
 The AS advertises support for `authorization_details` using the metadata parameter `authorization_details_supported` of type boolean.
 
-The authorization data types supported can be determined using the metadata parameter `authorization_data_types_supported`, which is an JSON array.
+The authorization data types supported can be determined using the metadata parameter `authorization_data_types_supported`, which is a JSON array.
 
 Clients announce the authorization data types they use in the new dynamic client registration parameter `authorization_data_types`.
 
@@ -771,6 +771,7 @@ Travis Spencer,
 Jørgen Binningsbø, 
 Aamund Bremer, 
 Steinar Noem,
+Francis Pouatcha,
 and Aaron Parecki for their valuable feedback to this draft.
 
 # IANA Considerations {#iana_considerations}
