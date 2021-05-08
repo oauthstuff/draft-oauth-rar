@@ -435,7 +435,7 @@ with invalid values, the AS MUST abort processing and respond with an error `inv
 
 # Token Request
 
-The `authorization_details` request parameter can be used to specify the authorization details a client wants the AS to assign to an access token. The AS checks whether the underlying grant (in case of grant types `authorization_code`, `refresh_token`, ...) or the client's policy (in case of grant type `client_credential`) allows the issuance of an access token with the requested authorization details. Otherwise, the AS refuses the request with error code `invalid_authorization_details` (similar to `invalid_scope`).
+The `authorization_details` token request parameter can be used to specify the authorization details a client wants the AS to assign to an access token. The AS checks whether the underlying grant (in case of grant types `authorization_code`, `refresh_token`, ...) or the client's policy (in case of grant type `client_credential`) allows the issuance of an access token with the requested authorization details. Otherwise, the AS refuses the request with error code `invalid_authorization_details` (similar to `invalid_scope`).
 
 ## Comparing authorization details
 
@@ -540,7 +540,7 @@ grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA
 &resource=https%3A%2F%2Fexample%2Ecom%2Fpayments
 ```
 
-Using the example given above, this request would result in the assignment of the "payment_initiation" authorization details object from (#authz_details) to the access token to be issued (see below).
+Using the example given above, this request would result in the assignment of the `payment_initiation` authorization details object from (#authz_details) to the access token to be issued (see below).
 
 # Token Response
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
