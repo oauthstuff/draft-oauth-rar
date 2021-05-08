@@ -431,7 +431,7 @@ This specification does not define extensions to the authorization response.
 # Authorization Error Response
 
 The AS MUST refuse to process any unknown authorization data type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization data type or an object of known type but containing unknown elements or elements of the wrong type or elements 
-with invalid values, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
+with invalid values or if required elements are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 # Token Request
 
@@ -682,6 +682,11 @@ When the user interacts with the AS, they select which of the medical records th
 ```
 
 Note: the client needs to be aware upfront of the possibility that a certain authorization details object can be enriched. It is assumned that this property is part of the definition of the respective authorization details type. 
+
+# Token Error Response
+
+The AS MUST refuse to process any unknown authorization data type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization data type or an object of known type but containing unknown elements or elements of the wrong type or elements 
+with invalid values or if required elements are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 # Resource Servers
 
