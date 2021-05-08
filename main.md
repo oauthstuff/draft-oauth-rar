@@ -430,8 +430,8 @@ This specification does not define extensions to the authorization response.
 
 # Authorization Error Response
 
-The AS MUST refuse to process any unknown authorization data type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization data type or an object of 
-known type but containing unknown elements or elements of the wrong type, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
+The AS MUST refuse to process any unknown authorization data type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization data type or an object of known type but containing unknown elements or elements of the wrong type or elements 
+with invalid values, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 # Token Request
 
