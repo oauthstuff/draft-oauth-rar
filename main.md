@@ -807,7 +807,7 @@ Alternatively, there could be an authorization data type for OpenID Connect. (#o
 
 Using authorization details in a certain deployment will require the follwowing steps:
 
-* Define authorization details types (might include definition and publication of JSON schemas)
+* Define authorization details types
 * Publish authorization details types in the OAuth server metadata
 * Determine how authorization details are shown to the user in the user consent 
 * (if needed) Enrich authorization details in the user consent process (e.g. add selected accounts or set expirations)
@@ -831,6 +831,10 @@ Processing and presentation of authorization details will vary significantly amo
 * allow deployments to merge requested and pre-existing authorization details
 
 One option would be to have a mechanism allowing the registration of extension modules, each of them responsible for rendering the respective user consent and any transformation needed to provide the data needed to the resource server by way of structured access tokens or token introspection responses.
+
+## Use of JSON Schemas
+
+Products might allow deloyments to use JSON Schemas [@JSON.Schema] for defining authorization details types and validating authorization details objects against such schemas. In this case, the JSON schema id could be used as `type` value in the respective authorization details.
 
 ## Large requests
 
@@ -948,11 +952,21 @@ TBD
 
 <reference anchor="CSC" target="https://cloudsignatureconsortium.org/wp-content/uploads/2019/07/CSC_API_V1_1.0.4.0.pdf">
   <front>
-    <title>Architectures and protocols for remote signature applications</title>
+    <title>JSON Schema</title>
     <author fullname="Cloud Signature Consortium">
 	    <organization abbrev="CSC">Cloud Signature Consortium</organization>
 	  </author>	
    <date day="01" month="Jun" year="2019"/>
+  </front>
+</reference>
+
+<reference anchor="JSON.Schema" target="https://json-schema.org/">
+  <front>
+    <title>JSON Schema</title>
+    <author fullname="json-schema.org">
+	    <organization abbrev="json-schema.org">json-schema.org</organization>
+	  </author>	
+
   </front>
 </reference>
 
