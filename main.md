@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-04"
+value = "draft-ietf-oauth-rar-05"
 stream = "IETF"
 status = "standard"
 
@@ -86,7 +86,7 @@ For a comprehensive discussion of the challenges arising from new use cases in t
 
 In addition to facilitating custom authorization requests, this draft also introduces a set of common data type fields for use across different APIs. 
 
-Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@!RFC8707] it enables the AS to mint RS-specific structured access tokens that only contain the permissions applicable to the respective RS.
+Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@!RFC8707] or by specifing authorization details with a single location only in the token request, it enables the AS to mint RS-specific structured access tokens that only contain the permissions applicable to the respective RS.
 
 ## Conventions and Terminology
 
@@ -340,7 +340,7 @@ The following example shows how an implementation could utilize the namespace `h
 
 # Authorization Request {#authz_request}
 
-The `authorization_details` request parameter can be used to specify authorization requirements in all places where the `scope` parameter is used for the same purpose, examples include:  
+The `authorization_details` authorization request parameter can be used to specify authorization requirements in all places where the `scope` parameter is used for the same purpose, examples include:  
 
 * Authorization requests as specified in [@!RFC6749], 
 * Device Authorization Request as specified in [@!RFC8628],
@@ -422,7 +422,7 @@ If the resource owner grants the client the requested access, the AS will issue 
 
 ## Relationship to "resource" parameter
 
-The `resource` authorization request parameter as defined in [@!RFC8707] can be used to further determine the resources where the requested scope can be applied. The  `resource` parameter does not have any impact on the way the AS processes the `authorization_details` parameter. 
+The `resource` authorization request parameter as defined in [@!RFC8707] can be used to further determine the resources where the requested scope can be applied. The  `resource` parameter does not have any impact on the way the AS processes the `authorization_details` authorization request parameter. 
 
 # Authorization Response
 
@@ -1213,6 +1213,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+   
+   -05
+
+   * added `authorization_details` token request parameter and discussion on authorization details comparison
 
    -04 
 
