@@ -197,8 +197,8 @@ The value of the `type` field determines the allowable contents of the object wh
 `identifier`:
 :   A string identifier indicating a specific resource available at the API.
 
-`access`:
-:   An array of strings representing the types or levels of access being requested at the resource.
+`privileges`:
+:   An array of strings representing the types or levels of privilege being requested at the resource.
 
 When different element types are used in combination, the permissions the client requests is the cartesian product of the values. That is to 
 say, the object represents a request for all `action` values listed within the object
@@ -1221,6 +1221,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    -05
 
    * added `authorization_details` token request parameter and discussion on authorization details comparison
+   * added `privileges` field to authorization details
 
    -04 
 
