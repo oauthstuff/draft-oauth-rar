@@ -182,19 +182,23 @@ The allowable contents of the authorization details object are determined by the
 
 This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST ensure that there is no collision between different authorization data types that it supports. The AS MUST NOT do any collation or normalization of data types during comparison.
 
-This draft defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. All data elements are OPTIONAL. 
+The value of the `type` field determines the allowable contents of the object which contains it. This draft defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. All data elements are OPTIONAL for use by a given API definition. The allowable values of all elements are determined by the API being protected.
 
 `locations`:
-:   An array of strings representing the location of the resource or resource server. This is typically composed of URIs.
+:   An array of strings representing the location of the resource or resource server. These strings are typically URIs identifying the
+    location of the RS.
 
 `actions`:
-:   An array of strings representing the kinds of actions to be taken at the resource. The values of the strings are determined by the API being protected.
+:   An array of strings representing the kinds of actions to be taken at the resource.
 
 `datatypes`:
 :   An array of strings representing the kinds of data being requested from the resource. 
 
 `identifier`:
-:   A string identifier indicating a specific resource available at the API.  
+:   A string identifier indicating a specific resource available at the API.
+
+`privileges`:
+:   An array of strings representing the types or levels of privilege being requested at the resource.
 
 When different element types are used in combination, the permissions the client requests is the cartesian product of the values. That is to 
 say, the object represents a request for all `action` values listed within the object
@@ -1305,6 +1309,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    -05
 
    * added `authorization_details` token request parameter and discussion on authorization details comparison
+   * added `privileges` field to authorization details (to align with GNAP)
    * added IANA text and changed metadata parameter names
    * added text about use of machine-readable type schemas, e.g JSON Schema
    * added text on how authorization details are determined for access token issued with token response
