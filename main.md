@@ -432,10 +432,10 @@ The `resource` authorization request parameter as defined in [@!RFC8707] can be 
 
 This specification does not define extensions to the authorization response. 
 
-# Authorization Error Response
+# Authorization Error Response {#authz_details_error}
 
 The AS MUST refuse to process any unknown authorization data type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization data type or an object of known type but containing unknown elements or elements of the wrong type or elements 
-with invalid values, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
+with invalid values or if required elements are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 # Token Request
 
@@ -547,6 +547,8 @@ grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA
 Using the example given above, this request would result in the assignment of the `payment_initiation` authorization details object from (#authz_details) to the access token to be issued (see below).
 
 # Token Response
+The authorization details assigned to the access token issued in a token response are determined by the `authorization_detail` parameter of the corresponding token request as well as any related parameters such as `resource` and `scope`.  If the client does not specify any of those token request parameters, the AS determines the resulting authorization details at its discretion.
+
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
 
 For our running example, this would look like this:
@@ -687,6 +689,11 @@ When the user interacts with the AS, they select which of the medical records th
 
 Note: the client needs to be aware upfront of the possibility that a certain authorization details object can be enriched. It is assumned that this property is part of the definition of the respective authorization details type. 
 
+# Token Error Response
+
+The AS MUST refuse to process any unknown authorization data `type` or authorization details not conforming to the respective `type` definition. If any of the objects in `authorization_details` contains an unknown authorization data `type` or an object of known `type` but containing unknown elements or elements of the wrong `type`,  elements 
+with invalid values, or if required elements are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
+
 # Resource Servers
 
 In order to enable the RS to enforce the authorization details as approved in the authorization process, the AS MUST make this data available to the RS. The AS MAY add the `authorization_details` element to access tokens in JWT format or to Token Introspection responses. 
@@ -787,15 +794,13 @@ Here is an example for the payment initation example RS:
 }
 ```
 
-# Metadata
+# Metadata {#metadata}
 
-The AS advertises support for `authorization_details` using the metadata parameter `authorization_details_supported` of type boolean.
+The AS publishes the list of authorization details types it supports using the metadata parameter `authorization_details_types_supported`, which is a JSON array.
 
-The authorization data types supported can be determined using the metadata parameter `authorization_data_types_supported`, which is a JSON array.
+Clients announce the authorization data types they use in the new dynamic client registration parameter `authorization_details_types`.
 
-Clients announce the authorization data types they use in the new dynamic client registration parameter `authorization_data_types`.
-
-The registration of new authorization data types with the AS is out of scope of this draft. 
+The registration of authorization data types with the AS is out of scope of this draft. 
 
 # Scope value "openid" and "claims" parameter
 
@@ -811,7 +816,7 @@ Alternatively, there could be an authorization data type for OpenID Connect. (#o
 
 Using authorization details in a certain deployment will require the follwowing steps:
 
-* Define authorization details types (might include definition and publication of JSON schemas)
+* Define authorization details types
 * Publish authorization details types in the OAuth server metadata
 * Determine how authorization details are shown to the user in the user consent 
 * (if needed) Enrich authorization details in the user consent process (e.g. add selected accounts or set expirations)
@@ -835,6 +840,12 @@ Processing and presentation of authorization details will vary significantly amo
 * allow deployments to merge requested and pre-existing authorization details
 
 One option would be to have a mechanism allowing the registration of extension modules, each of them responsible for rendering the respective user consent and any transformation needed to provide the data needed to the resource server by way of structured access tokens or token introspection responses.
+
+## Use of Machine-readable Type Schemas
+
+Products might allow deployments to use machine-readable schema languages for defining authorization details types to facilitate creating and validating authorization details objects against such schemas. For example, if an authorization details `type` were defined using JSON Schemas [@JSON.Schema], the JSON schema id could be used as `type` value in the respective authorization details objects.
+
+Note however that `type` values are identifiers understood by the AS and, to the extent necessary, the client and RS. This specification makes no assumption that a `type` value point to a machine-readable schema format, or that any party in the system (such as the client, AS, or RS) dereference or process the contents of the `type` field in any specific way. 
 
 ## Large requests
 
@@ -899,14 +910,73 @@ and Aaron Parecki for their valuable feedback to this draft.
 
 # IANA Considerations {#iana_considerations}
 
-TBD
+## JSON Web Token Claims Registration
 
-* `authorization_details` as JWT claim
-* `authorization_details_supported` and `authorization_data_types_supported` as metadata parameters
-* `authorization_data_types` as dynamic client registration parameter
-* [[ possibly establish authorization data type registry (and declare: `type`, `actions`, `locations`, `datatypes`, `identifier`, others?) ]]
-* [[ register type `openid_claims` on a URL by the OpenID foundation? ]]
-* register invalid_authorization_details to OAuth Extensions Error Registry
+This specification requests registration of the following value in the IANA "JSON Web Token Claims Registry" established by [@!RFC7519]. 
+
+{spacing="compact"}
+Claim Name:
+: `authorization_details`
+
+Claim Description:
+: The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.
+ 
+Change Controller:
+: IESG
+
+Specification Document(s):
+: (#authz_details) of this document
+
+## OAuth Authorization Server Metadata
+
+This specification requests registration of the following values in the IANA "OAuth Authorization Server Metadata" registry of [@IANA.OAuth.Parameters] established by [@!RFC8414]. 
+
+{spacing="compact"}
+Metadata Name:
+: `authorization_details_types_supported`
+
+Metadata Description:
+: JSON array containing the authorization details types the AS supports
+ 
+Change Controller:
+: IESG
+
+Specification Document(s):
+: (#metadata) of [[ this document ]]
+
+## OAuth Dynamic Client Registration Metadata
+
+This specification requests registration of the following value in the IANA "OAuth Dynamic Client Registration Metadata" registry of [@IANA.OAuth.Parameters] established by [@RFC7591].
+
+{spacing="compact"}
+Metadata Name:
+: `authorization_details_types`
+
+Metadata Description:
+: Indicates what authorization details types the client uses.
+
+Change Controller:
+: IESG
+
+Specification Document(s):
+: (#metadata) of [[ this document ]]
+
+## OAuth Extensions Error registry
+
+This specification requests registration of the following value in the IANA "OAuth Extensions Error registry" registry of [@IANA.OAuth.Parameters] established by [@RFC6749].
+
+{spacing="compact"}
+Metadata Name:
+: `invalid_authorization_details`
+
+Metadata Description:
+: indicates invalid `authorization_details_parameter`to the client.
+
+Change Controller:
+: IESG
+
+Specification Document(s):
+: (#authz_details_error) of [[ this document ]]
 
 <reference anchor="OIDC" target="http://openid.net/specs/openid-connect-core-1_0.html">
   <front>
@@ -958,6 +1028,24 @@ TBD
 	  </author>	
    <date day="01" month="Jun" year="2019"/>
   </front>
+</reference>
+
+<reference anchor="JSON.Schema" target="https://json-schema.org/">
+  <front>
+    <title>JSON Schema</title>
+    <author fullname="json-schema.org">
+	    <organization abbrev="json-schema.org">json-schema.org</organization>
+	  </author>	
+
+  </front>
+<reference anchor="IANA.OAuth.Parameters" target="http://www.iana.org/assignments/oauth-parameters">
+ <front>
+  <title>OAuth Parameters</title>
+  <author>
+    <organization>IANA</organization>
+  </author>
+  <date/>
+ </front>
 </reference>
 
 <reference anchor="OpenID.CIBA"
@@ -1221,7 +1309,11 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    -05
 
    * added `authorization_details` token request parameter and discussion on authorization details comparison
-   * added `privileges` field to authorization details
+   * added `privileges` field to authorization details (to align with GNAP)
+   * added IANA text and changed metadata parameter names
+   * added text about use of machine-readable type schemas, e.g JSON Schema
+   * added text on how authorization details are determined for access token issued with token response
+   * added token error response and further error conditions to authorization error response
 
    -04 
 
