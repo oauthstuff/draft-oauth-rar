@@ -1302,6 +1302,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    * added `authorization_details` token request parameter and discussion on authorization details comparison
    * added IANA text and changed metadata parameter names
    * added text about use of machine-readable type schemas, e.g JSON Schema
+   * added text on how authorization details are determined for access token issued with token response
 
    -04 
 
