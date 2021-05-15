@@ -805,7 +805,7 @@ Alternatively, there could be an authorization data type for OpenID Connect. (#o
 
 Using authorization details in a certain deployment will require the follwowing steps:
 
-* Define authorization details types (might include definition and publication of JSON schemas)
+* Define authorization details types
 * Publish authorization details types in the OAuth server metadata
 * Determine how authorization details are shown to the user in the user consent 
 * (if needed) Enrich authorization details in the user consent process (e.g. add selected accounts or set expirations)
@@ -829,6 +829,12 @@ Processing and presentation of authorization details will vary significantly amo
 * allow deployments to merge requested and pre-existing authorization details
 
 One option would be to have a mechanism allowing the registration of extension modules, each of them responsible for rendering the respective user consent and any transformation needed to provide the data needed to the resource server by way of structured access tokens or token introspection responses.
+
+## Use of Machine-readable Type Schemas
+
+Products might allow deployments to use machine-readable schema languages for defining authorization details types to facilitate creating and validating authorization details objects against such schemas. For example, if an authorization details `type` were defined using JSON Schemas [@JSON.Schema], the JSON schema id could be used as `type` value in the respective authorization details objects.
+
+Note however that `type` values are identifiers understood by the AS and, to the extent necessary, the client and RS. This specification makes no assumption that a `type` value point to a machine-readable schema format, or that any party in the system (such as the client, AS, or RS) dereference or process the contents of the `type` field in any specific way. 
 
 ## Large requests
 
@@ -1013,6 +1019,14 @@ Specification Document(s):
   </front>
 </reference>
 
+<reference anchor="JSON.Schema" target="https://json-schema.org/">
+  <front>
+    <title>JSON Schema</title>
+    <author fullname="json-schema.org">
+	    <organization abbrev="json-schema.org">json-schema.org</organization>
+	  </author>	
+
+  </front>
 <reference anchor="IANA.OAuth.Parameters" target="http://www.iana.org/assignments/oauth-parameters">
  <front>
   <title>OAuth Parameters</title>
@@ -1285,6 +1299,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    * added `authorization_details` token request parameter and discussion on authorization details comparison
    * added IANA text and changed metadata parameter names
+   * added text about use of machine-readable type schemas, e.g JSON Schema
 
    -04 
 
