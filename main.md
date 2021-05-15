@@ -1284,6 +1284,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    -05
 
    * added `authorization_details` token request parameter and discussion on authorization details comparison
+   * added IANA text and changed metadata parameter names
 
    -04 
 
