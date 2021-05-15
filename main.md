@@ -543,6 +543,8 @@ grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA
 Using the example given above, this request would result in the assignment of the `payment_initiation` authorization details object from (#authz_details) to the access token to be issued (see below).
 
 # Token Response
+The authorization details assigned to the access token issued in a token response are determined by the `authorization_detail` parameter of the corresponding token request as well as any related parameters such as `resource` and `scope`.  If the client does not specify any of those token request parameters, the AS determines the resulting authorization details at its discretion.
+
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
 
 For our running example, this would look like this:
