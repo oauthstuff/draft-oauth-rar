@@ -686,7 +686,7 @@ Note: the client needs to be aware upfront of the possibility that a certain aut
 # Token Error Response
 
 The AS MUST refuse to process any unknown authorization data `type` or authorization details not conforming to the respective `type` definition. If any of the objects in `authorization_details` contains an unknown authorization data `type` or an object of known `type` but containing unknown elements or elements of the wrong `type`,  elements 
-with invalid values or if required elements are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
+with invalid values, or if required elements are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 # Resource Servers
 
