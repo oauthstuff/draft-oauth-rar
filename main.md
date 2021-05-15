@@ -428,7 +428,7 @@ The `resource` authorization request parameter as defined in [@!RFC8707] can be 
 
 This specification does not define extensions to the authorization response. 
 
-# Authorization Error Response
+# Authorization Error Response {#authz_details_error}
 
 The AS MUST refuse to process any unknown authorization data type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization data type or an object of known type but containing unknown elements or elements of the wrong type or elements 
 with invalid values, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
@@ -783,15 +783,13 @@ Here is an example for the payment initation example RS:
 }
 ```
 
-# Metadata
+# Metadata {#metadata}
 
-The AS advertises support for `authorization_details` using the metadata parameter `authorization_details_supported` of type boolean.
+The AS publishes the list of authorization details types it supports using the metadata parameter `authorization_details_types_supported`, which is a JSON array.
 
-The authorization data types supported can be determined using the metadata parameter `authorization_data_types_supported`, which is a JSON array.
+Clients announce the authorization data types they use in the new dynamic client registration parameter `authorization_details_types`.
 
-Clients announce the authorization data types they use in the new dynamic client registration parameter `authorization_data_types`.
-
-The registration of new authorization data types with the AS is out of scope of this draft. 
+The registration of authorization data types with the AS is out of scope of this draft. 
 
 # Scope value "openid" and "claims" parameter
 
@@ -895,14 +893,73 @@ and Aaron Parecki for their valuable feedback to this draft.
 
 # IANA Considerations {#iana_considerations}
 
-TBD
+## JSON Web Token Claims Registration
 
-* `authorization_details` as JWT claim
-* `authorization_details_supported` and `authorization_data_types_supported` as metadata parameters
-* `authorization_data_types` as dynamic client registration parameter
-* [[ possibly establish authorization data type registry (and declare: `type`, `actions`, `locations`, `datatypes`, `identifier`, others?) ]]
-* [[ register type `openid_claims` on a URL by the OpenID foundation? ]]
-* register invalid_authorization_details to OAuth Extensions Error Registry
+This specification requests registration of the following value in the IANA "JSON Web Token Claims Registry" established by [@!RFC7519]. 
+
+{spacing="compact"}
+Claim Name:
+: `authorization_details`
+
+Claim Description:
+: The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.
+ 
+Change Controller:
+: IESG
+
+Specification Document(s):
+: (#authz_details) of this document
+
+## OAuth Authorization Server Metadata
+
+This specification requests registration of the following values in the IANA "OAuth Authorization Server Metadata" registry of [@IANA.OAuth.Parameters] established by [@!RFC8414]. 
+
+{spacing="compact"}
+Metadata Name:
+: `authorization_details_types_supported`
+
+Metadata Description:
+: JSON array containing the authorization details types the AS supports
+ 
+Change Controller:
+: IESG
+
+Specification Document(s):
+: (#metadata) of [[ this document ]]
+
+## OAuth Dynamic Client Registration Metadata
+
+This specification requests registration of the following value in the IANA "OAuth Dynamic Client Registration Metadata" registry of [@IANA.OAuth.Parameters] established by [@RFC7591].
+
+{spacing="compact"}
+Metadata Name:
+: `authorization_details_types`
+
+Metadata Description:
+: Indicates what authorization details types the client uses.
+
+Change Controller:
+: IESG
+
+Specification Document(s):
+: (#metadata) of [[ this document ]]
+
+## OAuth Extensions Error registry
+
+This specification requests registration of the following value in the IANA "OAuth Extensions Error registry" registry of [@IANA.OAuth.Parameters] established by [@RFC6749].
+
+{spacing="compact"}
+Metadata Name:
+: `invalid_authorization_details`
+
+Metadata Description:
+: indicates invalid `authorization_details_parameter`to the client.
+
+Change Controller:
+: IESG
+
+Specification Document(s):
+: (#authz_details_error) of [[ this document ]]
 
 <reference anchor="OIDC" target="http://openid.net/specs/openid-connect-core-1_0.html">
   <front>
@@ -954,6 +1011,16 @@ TBD
 	  </author>	
    <date day="01" month="Jun" year="2019"/>
   </front>
+</reference>
+
+<reference anchor="IANA.OAuth.Parameters" target="http://www.iana.org/assignments/oauth-parameters">
+ <front>
+  <title>OAuth Parameters</title>
+  <author>
+    <organization>IANA</organization>
+  </author>
+  <date/>
+ </front>
 </reference>
 
 <reference anchor="OpenID.CIBA"
