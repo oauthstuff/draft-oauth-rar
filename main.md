@@ -952,7 +952,7 @@ TBD
 
 <reference anchor="CSC" target="https://cloudsignatureconsortium.org/wp-content/uploads/2019/07/CSC_API_V1_1.0.4.0.pdf">
   <front>
-    <title>JSON Schema</title>
+    <title>Architectures and protocols for remote signature applications</title>
     <author fullname="Cloud Signature Consortium">
 	    <organization abbrev="CSC">Cloud Signature Consortium</organization>
 	  </author>	
