@@ -1036,8 +1036,9 @@ Specification Document(s):
     <author fullname="json-schema.org">
 	    <organization abbrev="json-schema.org">json-schema.org</organization>
 	  </author>	
-
   </front>
+</reference>
+
 <reference anchor="IANA.OAuth.Parameters" target="http://www.iana.org/assignments/oauth-parameters">
  <front>
   <title>OAuth Parameters</title>
