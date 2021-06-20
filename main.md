@@ -123,7 +123,7 @@ This example shows the specification of authorization details using the payment 
          "currency": "EUR",
          "amount": "123.50"
       },
-      "creditorName": "Merchant123",
+      "creditorName": "Merchant A",
       "creditorAccount": {
          "iban": "DE02100100109307118603"
       },
@@ -161,7 +161,7 @@ This example shows a combined request asking for access to account information a
          "currency": "EUR",
          "amount": "123.50"
       },
-      "creditorName": "Merchant123",
+      "creditorName": "Merchant A",
       "creditorAccount": {
          "iban": "DE02100100109307118603"
       },
@@ -375,7 +375,7 @@ GET /authorize?response_type=code
    D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fp
    ayments%22%5D%2C%22instructedAmount%22%3A%7B%22currency%22%
    3A%22EUR%22%2C%22amount%22%3A%22123%2E50%22%7D%2C%22credito
-   rName%22%3A%22Merchant123%22%2C%22creditorAccount%22%3A%7B%
+   rName%22%3A%22Merchant%20A%22%2C%22creditorAccount%22%3A%7B%
    22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittance
    InformationUnstructured%22%3A%22RefNumberMerchant%22%7D%5D HTTP/1.1
 Host: server.example.com
@@ -414,7 +414,7 @@ In this example, the client wants to get access to account information and intia
          "currency": "EUR",
          "amount": "123.50"
       },
-      "creditorName": "Merchant123",
+      "creditorName": "Merchant A",
       "creditorAccount": {
          "iban": "DE02100100109307118603"
       },
@@ -589,7 +589,7 @@ Cache-Control: no-cache, no-store
             "currency": "EUR",
             "amount": "123.50"
          },
-         "creditorName": "Merchant123",
+         "creditorName": "Merchant A",
          "creditorAccount": {
             "iban": "DE02100100109307118603"
          },
@@ -740,7 +740,7 @@ The following shows the contents of an example JWT for the payment initation exa
             "currency": "EUR",
             "amount": "123.50"
          },
-         "creditorName": "Merchant123",
+         "creditorName": "Merchant A",
          "creditorAccount": {
             "iban": "DE02100100109307118603"
          },
