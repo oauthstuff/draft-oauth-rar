@@ -259,7 +259,7 @@ If this request is granted, the client would not be able to write to the contact
       ]
    }
 ]
-```JSON
+```
 
 
 An API MAY define its own extensions, subject to the `type` of the respective authorization object.
@@ -310,7 +310,7 @@ field. The second access request includes the `actions` and
       "currency":"USD"
    }
 ]
-```JSON
+```
 
 If this request is approved, the resulting access token's access rights will be
 the union of the requested types of access for each of the two APIs, just as above.
