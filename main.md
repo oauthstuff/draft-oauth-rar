@@ -54,13 +54,12 @@ specify the requested scope, i.e., the permission, of an access token.
 This mechanism is sufficient to implement static scenarios and
 coarse-grained authorization requests, such as "give me read access to
 the resource owner's profile" but it is not sufficient to specify
-fine-grained authorization requirements, such as "please let me make a
-payment with the amount of 45 Euros" or "please give me read access to
-folder A and write access to file X".
+fine-grained authorization requirements, such as "please let me transfer an amount of 45 Euros to Merchant A" 
+or "please give me read access to folder A and write access to file X".
 
 This draft introduces a new parameter `authorization_details` that allows clients to specify their fine-grained authorization requirements using the expressiveness of JSON data structures. 
 
-For example, a request for payment authorization can be represented using a JSON object like this:
+For example, an authorization request for a credit transfer (designated as "payment initiation" in several open banking initiatives) can be represented using a JSON object like this:
 
 ```JSON
 {
@@ -72,7 +71,7 @@ For example, a request for payment authorization can be represented using a JSON
       "currency": "EUR",
       "amount": "123.50"
    },
-   "creditorName": "Merchant123",
+   "creditorName": "Merchant A",
    "creditorAccount": {
       "iban": "DE02100100109307118603"
    },
