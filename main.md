@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-05"
+value = "draft-ietf-oauth-rar-06"
 stream = "IETF"
 status = "standard"
 
@@ -355,7 +355,7 @@ The `authorization_details` authorization request parameter can be used to speci
 * Device Authorization Request as specified in [@!RFC8628],
 * Backchannel Authentication Requests as defined in [@OpenID.CIBA].
 
-In case of a authorization requests as defined in [@!RFC6749], implementors MAY consider to use pushed authorization requests [@I-D.ietf-oauth-par] to improve to security, privacy, and reliability of the flow. See (#security_considerations), (#privacy_consideratons), and (#large_requests) for details. 
+In case of a authorization requests as defined in [@!RFC6749], implementors MAY consider to use pushed authorization requests [@I-D.ietf-oauth-par] to improve to security, privacy, and reliability of the flow. See (#security_considerations), (#privacy_considerations), and (#large_requests) for details. 
 
 Parameter encoding is determined by the respective context. In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format of the serialized JSON as shown in the following using the example from (#authz_details) (line breaks for display purposes only):
 
@@ -1317,6 +1317,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+   -06
+
+   * incorporated review feedback from WGLC
    
    -05
 
