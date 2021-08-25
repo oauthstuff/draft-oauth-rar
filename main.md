@@ -753,7 +753,7 @@ In this case, the AS added the following example claims:
 
 In the case of opaque access tokens, the data provided to a certain RS is determined using the RS's identifier with the AS (see [@I-D.ietf-oauth-jwt-introspection-response], section 3). 
 
-The token endpoint response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. 
+The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. 
 
 Here is an example for the payment initiation example RS:
 
@@ -1307,6 +1307,8 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    [[ To be removed from the final specification ]]
    
+   * fixed wording in token introspection section
+
    -05
 
    * added `authorization_details` token request parameter and discussion on authorization details comparison
@@ -1349,7 +1351,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    * Added text on audience restriction
    * Added description of relationship between `scope` and `authorization_details`
    * Added text on token request & response and `authorization_details`
-   * Added text on how authorization details are conveyed to RSs by JWTs or token endpoint response
+   * Added text on how authorization details are conveyed to RSs by JWTs or token introspection endpoint response
    * Added description of relationship between `claims` and `authorization_details`
    * Added more example from different sectors
    * Clarified string comparison to be byte-exact without collation
