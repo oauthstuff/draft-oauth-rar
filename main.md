@@ -42,7 +42,7 @@ organization="Ping Identity"
 .# Abstract 
 
 This document specifies a new parameter `authorization_details` that is 
-used to carry fine grained authorization data in the OAuth authorization 
+used to carry fine-grained authorization data in the OAuth authorization 
 request. 
 
 {mainmatter}
@@ -85,7 +85,7 @@ For a comprehensive discussion of the challenges arising from new use cases in t
 
 In addition to facilitating custom authorization requests, this draft also introduces a set of common data type fields for use across different APIs. 
 
-Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@!RFC8707] or by specifing authorization details with a single location only in the token request, it enables the AS to issue RS-specific structured access tokens that only contain the permissions applicable to the respective RS.
+Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@!RFC8707] or by specifying authorization details with a single location only in the token request, it enables the AS to issue RS-specific structured access tokens that only contain the permissions applicable to the respective RS.
 
 ## Conventions and Terminology
 
@@ -213,8 +213,8 @@ defined by the API, such as reading the photos and writing the contacts.
    {
       "type": "customer_information",
       "locations": [
-         "https://example.com/customers",
-      ]
+         "https://example.com/customers"
+      ],
       "actions": [
          "read",
          "write"
@@ -317,11 +317,11 @@ the union of the requested types of access for each of the two APIs, just as abo
 
 ## Authorization Data Types
 
-Interpretation of the value of the `type` parameter, and the object elements that the `type` parameter allows, is under the control of the AS. However, the value of the `type` parameter is also generally documented and intended to be used by developers, it is RECOMMENDED that API designers choose `type` values that are easily copied without ambiguity. For example, some glyphs have multiple unicode code points for the same visual character, and a developer could potentially type a different character depending than what the AS has defined. Possible means of reducing potential confusion are limiting the value to ASCII characters, providing a machine-readable listing of data type values, or instructing developers to copy and paste directly from documentation.
+Interpretation of the value of the `type` parameter, and the object elements that the `type` parameter allows, is under the control of the AS. However, the value of the `type` parameter is also generally documented and intended to be used by developers, it is RECOMMENDED that API designers choose `type` values that are easily copied without ambiguity. For example, some glyphs have multiple Unicode code points for the same visual character, and a developer could potentially type a different character than what the AS has defined. Possible means of reducing potential confusion are limiting the value to ASCII characters, providing a machine-readable listing of data type values, or instructing developers to copy and paste directly from the documentation.
 
 If an application or API is expected to be deployed across different servers, such as the case in an open standard, the API designer is RECOMMENDED to use a collision-resistant namespace under their control, such as a URI that the API designer controls.
 
-The following example shows how an implementation could utilize the namespace `https://scheme.example.org/` to ensure collision resistant element names.
+The following example shows how an implementation could utilize the namespace `https://scheme.example.org/` to ensure collision-resistant element names.
 
 ```JSON
 {
@@ -450,7 +450,7 @@ with invalid values or if required elements are missing, the AS MUST abort proce
 
 # Token Request
 
-The `authorization_details` token request parameter can be used to specify the authorization details a client wants the AS to assign to an access token. The AS checks whether the underlying grant (in case of grant types `authorization_code`, `refresh_token`, ...) or the client's policy (in case of grant type `client_credential`) allows the issuance of an access token with the requested authorization details. Otherwise, the AS refuses the request with error code `invalid_authorization_details` (similar to `invalid_scope`).
+The `authorization_details` token request parameter can be used to specify the authorization details a client wants the AS to assign to an access token. The AS checks whether the underlying grant (in case of grant types `authorization_code`, `refresh_token`, ...) or the client's policy (in case of grant type `client_credential`) allows the issuance of an access token with the requested authorization details. Otherwise, the AS refuses the request with the error code `invalid_authorization_details` (similar to `invalid_scope`).
 
 ## Comparing authorization details
 
@@ -533,34 +533,28 @@ Later that same client makes a refresh request for `read` access:
 The AS would compare the `type` value and the `action` value to determine that the `read` access is
 already covered by the `write` access previously granted to the client.
 
-## Interaction with the resource parameter
+The predefined authorization data element `locations` MAY be used by the client to request an access token valid for a certain resource server, 
+i.e. it is the recommended way to request issuance of audience restricted access tokens.
 
-The `resource` token request parameter as defined in [@!RFC8707] MAY be used in the token request to request the creation of an audience restricted access token (as recommended in [@I-D.ietf-oauth-security-topics]). If the client uses this parameter, the AS MUST consider the audience restriction defined by the `locations` elements of the `authorization_details` to filter the authorization data objects applicable to the respective resource(s). 
+For our running example, the client MAY ask for all permissions of the approved grant of type `payment_iniation` applicable to the resource server residing at `https://example.com/payments` as follows:  
 
-The logic is as follows:
+```JSON
+[
+   {
+      "type": "payment_initiation",
+      "locations": [
+         "https://example.com/payments"
+      ]
+   }
+]
 
-* For every authorization details object without a `locations` element: the authorization server treats it as applicable to all resources, i.e. it assigns this authorization details object to the access token. 
-* For every authorization details object with a `locations` element: the authorization server adds this object to the access token, if at least one of the `locations` values exactly matches the `resource` token request parameter value. The authorization server MUST compare both values using an exact byte match of the string values.
-
-For example the following token request selects authorization details applicable for the resource server represented by the URI `https://example.com/payments`.
-
-```http
-POST /token HTTP/1.1
-Host: as.example.com
-Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
-Content-Type: application/x-www-form-urlencoded
-
-grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA
-&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
-&resource=https%3A%2F%2Fexample%2Ecom%2Fpayments
 ```
 
-Using the example given above, this request would result in the assignment of the `payment_initiation` authorization details object from (#authz_details) to the access token to be issued (see below).
-
 # Token Response
-The authorization details assigned to the access token issued in a token response are determined by the `authorization_detail` parameter of the corresponding token request as well as any related parameters such as `resource` and `scope`.  If the client does not specify any of those token request parameters, the AS determines the resulting authorization details at its discretion.
 
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
+
+The authorization details assigned to the access token issued in a token response are determined by the `authorization_detail` parameter of the corresponding token request. If the client does not specify the `authorization_detail` token request parameters, the AS determines the resulting authorization details at its discretion. The authorization server MAY consider the values of other parameters such as `resource` and `scope` if they are present during this processing, and the details of such considerations are outside the scope of this specification.
 
 For our running example, this would look like this:
 
@@ -674,7 +668,7 @@ For another example, the client is asking for access to a medical record but doe
       "actions": [ "read" ],
       "datatypes": [ "Patient", "Observation", "Appointment" ]
    }
-]
+]}
 ```
 
 When the user interacts with the AS, they select which of the medical records they are responsible for to give to the client. This information gets returned with the access token.
@@ -690,7 +684,7 @@ When the user interacts with the AS, they select which of the medical records th
       "type": "medical_record",
       "sens": [ "HIV", "ETH", "MART" ],
       "actions": [ "read" ],
-      "datatypes": [ "Patient", "Observation", "Appointment" ]
+      "datatypes": [ "Patient", "Observation", "Appointment" ],
       "identifier": "patient-541235",
       "locations": [ "https://records.example.com/" ]
      }
@@ -698,7 +692,7 @@ When the user interacts with the AS, they select which of the medical records th
 }
 ```
 
-Note: the client needs to be aware upfront of the possibility that a certain authorization details object can be enriched. It is assumned that this property is part of the definition of the respective authorization details type. 
+Note: the client needs to be aware upfront of the possibility that a certain authorization details object can be enriched. It is assumed that this property is part of the definition of the respective authorization details type. 
 
 # Token Error Response
 
@@ -711,11 +705,11 @@ In order to enable the RS to enforce the authorization details as approved in th
 
 ## JWT-based Access Tokens
 
-If the access token is a JWT [@!RFC7519], the AS is RECOMMENDED to add the `authorization_details` object, filtered to the specific audience, as top-level claim. 
+If the access token is a JWT [@!RFC7519], the AS is RECOMMENDED to add the `authorization_details` object, filtered to the specific audience, as a top-level claim. 
 
-The AS will typically also add further claims to the JWT the RS requires for request processing, e.g., user id, roles, and transaction specific data. What claims the particular RS requires is defined by the RS-specific policy with the AS.
+The AS will typically also add further claims to the JWT the RS requires for request processing, e.g., user id, roles, and transaction-specific data. What claims the particular RS requires is defined by the RS-specific policy with the AS.
 
-The following shows the contents of an example JWT for the payment initation example above: 
+The following shows the contents of an example JWT for the payment initiation example above: 
 
 ```JSON
 {
@@ -758,15 +752,15 @@ In this case, the AS added the following example claims:
 
 * `sub`: conveys the user on which behalf the client is asking for payment initation
 * `txn`: transaction id used to trace the transaction across the services of provider `example.com`
-* `debtorAccount`: API-specific element containing the debtor account. In the example, this account was not passed in the authorization details but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particuar account. In this case, they is the owner. This data is used for access control at the payment API (the RS).
+* `debtorAccount`: API-specific element containing the debtor account. In the example, this account was not passed in the authorization details but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particular account. In this case, they is the owner. This data is used for access control at the payment API (the RS).
 
 ## Token Introspection 
 
-In case of opaque access tokens, the data provided to a certain RS is determined using the RS's identifier with the AS (see [@I-D.ietf-oauth-jwt-introspection-response], section 3). 
+In the case of opaque access tokens, the data provided to a certain RS is determined using the RS's identifier with the AS (see [@I-D.ietf-oauth-jwt-introspection-response], section 3). 
 
-The token endpoint response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. 
+The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. 
 
-Here is an example for the payment initation example RS:
+Here is an example for the payment initiation example RS:
 
 ```json
 {
@@ -815,7 +809,7 @@ The registration of authorization data types with the AS is out of scope of this
 
 # Scope value "openid" and "claims" parameter
 
-OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that can be used to specify the claims a client (acting as OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy preserving way as well as assign those claims to a certain delivery mechanisms, i.e. ID Token or userinfo response. 
+OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that can be used to specify the claims a client (acting as OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy-preserving way as well as assign those claims to certain delivery mechanisms, i.e. ID Token or userinfo response. 
 
 The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every non-OIDC scope value. 
 
@@ -842,9 +836,8 @@ Products supporting this specification should provide the following basic functi
 * Accept `authorization_details` parameter in authorization requests including basic syntax check for compliance with this specification 
 * Support storage of consented authorization details as part of a grant
 * Implement default behavior for adding authorization details to access tokens and token introspection responses in order to make them available to resource servers (similar to scope values). This should work with any grant type, especially `authorization_code` and `refresh_token`. 
-* If the product supports resource indicators, it should also support filtering of the authorization details to be assigned to access tokens using the `resource` token request parameter.
 
-Processing and presentation of authorization details will vary significantly among different authorization data types. Products should therefore support customization of the respective behavior. In particular products should 
+Processing and presentation of authorization details will vary significantly among different authorization data types. Products should therefore support customization of the respective behavior. In particular, products should 
   
 * allow deployments to determine presentation of the authorization details
 * allow deployments to modify requested authorization details in the user consent process, e.g. adding fields 
@@ -895,17 +888,17 @@ All strings MUST be compared using the exact byte representation of the characte
 
 # Privacy Considerations {#privacy_considerations}
 
-Implementers MUST design and use authorization details in a privacy preserving manner. 
+Implementers MUST design and use authorization details in a privacy-preserving manner. 
 
 Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@I-D.ietf-oauth-jwsreq] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@I-D.ietf-oauth-par] and the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq].
 
-Even if the request data is encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attacker vector and implement appropriate counter measures, e.g. by only showing portions of the data or, if possible, determing whether the assumed user context is still the same (after user authentication). 
+Even if the request data is encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attacker vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication). 
 
 The AS MUST take into consideration the privacy implications when sharing authorization details with the resource servers. The AS SHOULD share this data with the resource servers on a "need to know" basis.
 
 # Acknowledgements {#Acknowledgements}
       
-We would would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
+We would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
 
 We would also like to thank 
 Vladimir Dzhuvinov,
@@ -1155,7 +1148,7 @@ A more sophisticated example is shown in the following
 
 ## Remote Electronic Signing {#signing}
 
-The following example is based on the concept layed out for remote electronic signing in ETSI TS 119 432 [@ETSI] and the CSC API for remote signature creation [@CSC].
+The following example is based on the concept laid out for remote electronic signing in ETSI TS 119 432 [@ETSI] and the CSC API for remote signature creation [@CSC].
 
 ```json
 [
@@ -1184,13 +1177,13 @@ The top-level elements have the following meaning:
 
 * `credentialID`: identifier of the certificate to be used for signing
 * `documentDigests`: array containing the hash of every document to be signed (`hash` elements). Additionally, the corresponding `label` element identifies the respective document to the user, e.g. to be used in user consent.
-* `hashAlgorithm`: algomrithm that was used to calculate the hash values. 
+* `hashAlgorithm`: algorithm that was used to calculate the hash values. 
 
-The AS is supposed to ask the user for consent for the creation of signatues for the documents listed in the structure. The client uses the access token issued as result of the process to call the sign doc endpoint at the respective signing service to actually create the signature. This access token is bound to the client, the user id and the hashes (and signature algorithm) as consented by the user.
+The AS is supposed to ask the user for consent for the creation of signatures for the documents listed in the structure. The client uses the access token issued as a result of the process to call the sign doc endpoint at the respective signing service to actually create the signature. This access token is bound to the client, the user id and the hashes (and signature algorithm) as consented by the user.
 
 ## Access to Tax Data {#tax}
 
-This example is inspired by an API allowing third parties to access citizen's tax declarations and income statements, for example to determine their credit worthiness.
+This example is inspired by an API allowing third parties to access citizen's tax declarations and income statements, for example, to determine their creditworthiness.
 
 ```json
 [
@@ -1217,11 +1210,11 @@ The top-level elements have the following meaning:
 
 These two examples are inspired by requirements for APIs used in the Norwegian eHealth system. 
 
-In this use case the physical therapist sits in front of her computer using a local Electronic Health Records (EHR) system. They wants to look at the electronic patient records of a certain patient and they also wants to fetch the patients journal entries in another system, perhaps at another institution or a national service. Access to this data is provided by an API.
+In this use case, the physical therapist sits in front of her computer using a local Electronic Health Records (EHR) system. They want to look at the electronic patient records of a certain patient and they also want to fetch the patients journal entries in another system, perhaps at another institution or a national service. Access to this data is provided by an API.
 
 The information necessary to authorize the request at the API is only known by the EHR system, and must be presented to the API.
 
-In the first example the authorization details object contains the identifier of an organization. In this case the API needs to know if the given organization has the lawful basis for processing personal health information to give access to sensitive data.
+In the first example, the authorization details object contains the identifier of an organization. In this case, the API needs to know if the given organization has the lawful basis for processing personal health information to give access to sensitive data.
 
 ```JSON
 "authorization_details":{ 
@@ -1245,7 +1238,7 @@ In the first example the authorization details object contains the identifier of
     }
 }
 ```
-In the second example the API requires more information to authorize the request. In this case the authorization details object contains additional information about the health institution and the current profession the user has at the time of the request. The additional level of detail could be used for both authorization and data minimization.
+In the second example, the API requires more information to authorize the request. In this case, the authorization details object contains additional information about the health institution and the current profession the user has at the time of the request. The additional level of detail could be used for both authorization and data minimization.
 
 ```JSON
 [
@@ -1308,7 +1301,7 @@ In the second example the API requires more information to authorize the request
 
 Description of the elements:
 
-* `patient_identifier`: the identifier of the patient composed of a system identifier in OID format (namespace) and the acutal value within this namespace. 
+* `patient_identifier`: the identifier of the patient composed of a system identifier in OID format (namespace) and the actual value within this namespace. 
 * `reason_for_request`: the reason why the user wants to access a certain API
 * `requesting_entity`: specification of the requester by means of identity, role and organizational context. This data is provided to facilitate authorization and for auditing purposes. 
 
@@ -1321,7 +1314,9 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    -06
 
    * incorporated review feedback from WGLC
-   
+   * removed use of resource indicators to filter authorization details in token response
+   * fixed wording in token introspection section
+
    -05
 
    * added `authorization_details` token request parameter and discussion on authorization details comparison
@@ -1364,7 +1359,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    * Added text on audience restriction
    * Added description of relationship between `scope` and `authorization_details`
    * Added text on token request & response and `authorization_details`
-   * Added text on how authorization details are conveyed to RSs by JWTs or token endpoint response
+   * Added text on how authorization details are conveyed to RSs by JWTs or token introspection endpoint response
    * Added description of relationship between `claims` and `authorization_details`
    * Added more example from different sectors
    * Clarified string comparison to be byte-exact without collation
