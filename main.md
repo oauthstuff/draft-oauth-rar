@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-05"
+value = "draft-ietf-oauth-rar-06"
 stream = "IETF"
 status = "standard"
 
@@ -551,6 +551,8 @@ The authorization details assigned to the access token issued in a token respons
 
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
 
+The AS MAY omit alues in the `authorization_details` to the client in the token Response if these are deemed of no intended use for the client.
+
 For our running example, this would look like this:
 
 ```JSON
@@ -890,7 +892,7 @@ Any sensitive personal data included in authorization details MUST be prevented 
 
 Even if the request data is encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attacker vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication). 
 
-The AS MUST take into consideration the privacy implications when sharing authorization details with the resource servers. The AS SHOULD share this data with the resource servers on a "need to know" basis.
+The AS MUST take into consideration the privacy implications when sharing authorization details with the client or resource servers. The AS SHOULD share this data with those parties on a "need to know" basis.
 
 # Acknowledgements {#Acknowledgements}
       
@@ -906,6 +908,7 @@ Jørgen Binningsbø,
 Aamund Bremer, 
 Steinar Noem,
 Francis Pouatcha,
+Jacob Ideskog,
 and Aaron Parecki for their valuable feedback to this draft.
 
 # IANA Considerations {#iana_considerations}
@@ -1308,6 +1311,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    [[ To be removed from the final specification ]]
    
    * fixed wording in token introspection section
+   * added privacy considerations re authorization details in token response
 
    -05
 
