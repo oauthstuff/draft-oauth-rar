@@ -214,8 +214,8 @@ defined by the API, such as reading the photos and writing the contacts.
    {
       "type": "customer_information",
       "locations": [
-         "https://example.com/customers",
-      ]
+         "https://example.com/customers"
+      ],
       "actions": [
          "read",
          "write"
@@ -656,7 +656,7 @@ For another example, the client is asking for access to a medical record but doe
       "actions": [ "read" ],
       "datatypes": [ "Patient", "Observation", "Appointment" ]
    }
-]
+]}
 ```
 
 When the user interacts with the AS, they select which of the medical records they are responsible for to give to the client. This information gets returned with the access token.
@@ -672,7 +672,7 @@ When the user interacts with the AS, they select which of the medical records th
       "type": "medical_record",
       "sens": [ "HIV", "ETH", "MART" ],
       "actions": [ "read" ],
-      "datatypes": [ "Patient", "Observation", "Appointment" ]
+      "datatypes": [ "Patient", "Observation", "Appointment" ],
       "identifier": "patient-541235",
       "locations": [ "https://records.example.com/" ]
      }
