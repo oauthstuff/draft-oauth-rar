@@ -54,13 +54,12 @@ specify the requested scope, i.e., the permission, of an access token.
 This mechanism is sufficient to implement static scenarios and
 coarse-grained authorization requests, such as "give me read access to
 the resource owner's profile" but it is not sufficient to specify
-fine-grained authorization requirements, such as "please let me make a
-payment with the amount of 45 Euros" or "please give me read access to
-folder A and write access to file X".
+fine-grained authorization requirements, such as "please let me transfer an amount of 45 Euros to Merchant A" 
+or "please give me read access to folder A and write access to file X".
 
 This draft introduces a new parameter `authorization_details` that allows clients to specify their fine-grained authorization requirements using the expressiveness of JSON data structures. 
 
-For example, a request for payment authorization can be represented using a JSON object like this:
+For example, an authorization request for a credit transfer (designated as "payment initiation" in several open banking initiatives) can be represented using a JSON object like this:
 
 ```JSON
 {
@@ -72,7 +71,7 @@ For example, a request for payment authorization can be represented using a JSON
       "currency": "EUR",
       "amount": "123.50"
    },
-   "creditorName": "Merchant123",
+   "creditorName": "Merchant A",
    "creditorAccount": {
       "iban": "DE02100100109307118603"
    },
@@ -86,7 +85,7 @@ For a comprehensive discussion of the challenges arising from new use cases in t
 
 In addition to facilitating custom authorization requests, this draft also introduces a set of common data type fields for use across different APIs. 
 
-Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@!RFC8707] or by specifying authorization details with a single location only in the token request, it enables the AS to mint RS-specific structured access tokens that only contain the permissions applicable to the respective RS.
+Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@!RFC8707] or by specifying authorization details with a single location only in the token request, it enables the AS to issue RS-specific structured access tokens that only contain the permissions applicable to the respective RS.
 
 ## Conventions and Terminology
 
@@ -124,7 +123,7 @@ This example shows the specification of authorization details using the payment 
          "currency": "EUR",
          "amount": "123.50"
       },
-      "creditorName": "Merchant123",
+      "creditorName": "Merchant A",
       "creditorAccount": {
          "iban": "DE02100100109307118603"
       },
@@ -162,7 +161,7 @@ This example shows a combined request asking for access to account information a
          "currency": "EUR",
          "amount": "123.50"
       },
-      "creditorName": "Merchant123",
+      "creditorName": "Merchant A",
       "creditorAccount": {
          "iban": "DE02100100109307118603"
       },
@@ -275,37 +274,43 @@ field. The second access request includes the `actions` and
 `identifier` fields specified here as well as the API-specific
 `currency` field.
 
-~~~
-    "resources": [
-        {
-            "type": "photo-api",
-            "actions": [
-                "read",
-                "write"
-            ],
-            "locations": [
-                "https://server.example.net/",
-                "https://resource.local/other"
-            ],
-            "datatypes": [
-                "metadata",
-                "images"
-            ],
-            "geolocation": [
-                { lat: -32.364, lng: 153.207 },
-                { lat: -35.364, lng: 158.207 }
-            ]
-        },
-        {
-            "type": "financial-transaction",
-            "actions": [
-                "withdraw"
-            ],
-            "identifier": "account-14-32-32-3", 
-            "currency": "USD"
-        }
-    ]
-~~~
+```JSON
+[
+   {
+      "type":"photo-api",
+      "actions":[
+         "read",
+         "write"
+      ],
+      "locations":[
+         "https://server.example.net/",
+         "https://resource.local/other"
+      ],
+      "datatypes":[
+         "metadata",
+         "images"
+      ],
+      "geolocation":[
+         {
+            "lat":-32.364,
+            "lng":153.207
+         },
+         {
+            "lat":-35.364,
+            "lng":158.207
+         }
+      ]
+   },
+   {
+      "type":"financial-transaction",
+      "actions":[
+         "withdraw"
+      ],
+      "identifier":"account-14-32-32-3",
+      "currency":"USD"
+   }
+]
+```
 
 If this request is approved, the resulting access token's access rights will be
 the union of the requested types of access for each of the two APIs, just as above.
@@ -350,6 +355,8 @@ The `authorization_details` authorization request parameter can be used to speci
 * Device Authorization Request as specified in [@!RFC8628],
 * Backchannel Authentication Requests as defined in [@OpenID.CIBA].
 
+In case of a authorization requests as defined in [@!RFC6749], implementors MAY consider to use pushed authorization requests [@I-D.ietf-oauth-par] to improve to security, privacy, and reliability of the flow. See (#security_considerations), (#privacy_considerations), and (#large_requests) for details. 
+
 Parameter encoding is determined by the respective context. In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format of the serialized JSON as shown in the following using the example from (#authz_details) (line breaks for display purposes only):
 
 ```
@@ -368,13 +375,17 @@ GET /authorize?response_type=code
    D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fp
    ayments%22%5D%2C%22instructedAmount%22%3A%7B%22currency%22%
    3A%22EUR%22%2C%22amount%22%3A%22123%2E50%22%7D%2C%22credito
-   rName%22%3A%22Merchant123%22%2C%22creditorAccount%22%3A%7B%
+   rName%22%3A%22Merchant%20A%22%2C%22creditorAccount%22%3A%7B%
    22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittance
    InformationUnstructured%22%3A%22RefNumberMerchant%22%7D%5D HTTP/1.1
 Host: server.example.com
 ``` 
 
-Based on the data provided in the `authorization_details` parameter the AS will ask the user for consent to the requested access permissions. In this example, the client wants to get access to account information and initiate a payment:
+Based on the data provided in the `authorization_details` parameter the AS will ask the user for consent to the requested access permissions. 
+
+Note: the user may also grant a subset of the requested authorization details. 
+
+In this example, the client wants to get access to account information and intiate a payment:
 
 ```JSON
 [
@@ -403,7 +414,7 @@ Based on the data provided in the `authorization_details` parameter the AS will 
          "currency": "EUR",
          "amount": "123.50"
       },
-      "creditorName": "Merchant123",
+      "creditorName": "Merchant A",
       "creditorAccount": {
          "iban": "DE02100100109307118603"
       },
@@ -545,6 +556,8 @@ In addition to the token response parameters as defined in [@!RFC6749], the auth
 
 The authorization details assigned to the access token issued in a token response are determined by the `authorization_detail` parameter of the corresponding token request. If the client does not specify the `authorization_detail` token request parameters, the AS determines the resulting authorization details at its discretion. The authorization server MAY consider the values of other parameters such as `resource` and `scope` if they are present during this processing, and the details of such considerations are outside the scope of this specification.
 
+The AS MAY omit values in the `authorization_details` to the client in the token Response if these are deemed of no intended use for the client.
+
 For our running example, this would look like this:
 
 ```JSON
@@ -572,7 +585,7 @@ Cache-Control: no-cache, no-store
             "currency": "EUR",
             "amount": "123.50"
          },
-         "creditorName": "Merchant123",
+         "creditorName": "Merchant A",
          "creditorAccount": {
             "iban": "DE02100100109307118603"
          },
@@ -584,7 +597,7 @@ Cache-Control: no-cache, no-store
 
 ## Enriched authorization details in Token Response
 
-The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to account information but leave the decision about the accounts it will be able to access to the user. The user would select the subset of accounts they want the client to entitle to access in the course of the authorization process. In order to allow the client to determine the accounts it is entitled to access, the authorization server will add this information to the respective authorization details object. 
+The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to account information but leave the decision about the accounts it will be able to access to the user. The user would select the sub set of accounts they wants the client to entitle to access in the course of the authorization process. As one design option to convey the selected accounts, the authorization server could add this information to the respective authorization details object. 
 
 As an example, the requested authorization detail parameter could look like this:
 
@@ -723,7 +736,7 @@ The following shows the contents of an example JWT for the payment initiation ex
             "currency": "EUR",
             "amount": "123.50"
          },
-         "creditorName": "Merchant123",
+         "creditorName": "Merchant A",
          "creditorAccount": {
             "iban": "DE02100100109307118603"
          },
@@ -840,7 +853,7 @@ Products might allow deployments to use machine-readable schema languages for de
 
 Note however that `type` values are identifiers understood by the AS and, to the extent necessary, the client and RS. This specification makes no assumption that a `type` value point to a machine-readable schema format, or that any party in the system (such as the client, AS, or RS) dereference or process the contents of the `type` field in any specific way. 
 
-## Large requests
+## Large requests {#large_requests}
 
 Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers SHOULD therefore consider using the `request_uri` parameter as defined in [@I-D.ietf-oauth-jwsreq] in combination with the pushed request object mechanism as defined in [@I-D.ietf-oauth-par] to pass authorization details in a reliable and secure manner. Here is an example of such a pushed authorization request that sends the authorization request data directly to the AS via a HTTPS-protected connection: 
 
@@ -869,21 +882,21 @@ Authorization request URIs containing authorization details in a request paramet
   0Number%20Merchant%22%7D%5D
 ```
 
-# Security Considerations
+# Security Considerations {#security_considerations}
 
 Authorization details are sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. In order to ensure their integrity, the client SHOULD send authorization details in a signed request object as defined in [@I-D.ietf-oauth-jwsreq] or use the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq] in conjunction with [@I-D.ietf-oauth-par] to pass the URI of the request object to the authorization server.
 
 All strings MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values. 
 
-# Privacy Considerations
+# Privacy Considerations {#privacy_considerations}
 
 Implementers MUST design and use authorization details in a privacy-preserving manner. 
 
-Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@I-D.ietf-oauth-jwsreq] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq].
+Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@I-D.ietf-oauth-jwsreq] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@I-D.ietf-oauth-par] and the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq].
 
 Even if the request data is encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attacker vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication). 
 
-The AS MUST take into consideration the privacy implications when sharing authorization details with the resource servers. The AS SHOULD share this data with the resource servers on a "need to know" basis.
+The AS MUST take into consideration the privacy implications when sharing authorization details with the client or resource servers. The AS SHOULD share this data with those parties on a "need to know" basis.
 
 # Acknowledgements {#Acknowledgements}
       
@@ -899,6 +912,7 @@ Jørgen Binningsbø,
 Aamund Bremer, 
 Steinar Noem,
 Francis Pouatcha,
+Jacob Ideskog,
 and Aaron Parecki for their valuable feedback to this draft.
 
 # IANA Considerations {#iana_considerations}
@@ -1302,9 +1316,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    -06
 
-   * incoporated feedback from WGLC
+   * incorporated review feedback from WGLC
    * removed use of resource indicators to filter authorization details in token response
    * fixed wording in token introspection section
+   * added privacy considerations re authorization details in token response
 
    -05
 
