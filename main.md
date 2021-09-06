@@ -540,9 +540,10 @@ For our running example, the client MAY ask for all permissions of the approved 
 ```
 
 # Token Response
-The authorization details assigned to the access token issued in a token response are determined by the `authorization_detail` parameter of the corresponding token request. If the client does not specify the `authorization_detail` token request parameters, the AS determines the resulting authorization details at its discretion. The authorization server MAY consider the values of other parameters such as `resource` and `scope` if they are present during this processing, and the details of such considerations are outside the scope of this specification.
 
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
+
+The authorization details assigned to the access token issued in a token response are determined by the `authorization_detail` parameter of the corresponding token request. If the client does not specify the `authorization_detail` token request parameters, the AS determines the resulting authorization details at its discretion. The authorization server MAY consider the values of other parameters such as `resource` and `scope` if they are present during this processing, and the details of such considerations are outside the scope of this specification.
 
 For our running example, this would look like this:
 
