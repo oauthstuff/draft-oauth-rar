@@ -551,7 +551,7 @@ The authorization details assigned to the access token issued in a token respons
 
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
 
-The AS MAY omit alues in the `authorization_details` to the client in the token Response if these are deemed of no intended use for the client.
+The AS MAY omit values in the `authorization_details` to the client in the token Response if these are deemed of no intended use for the client.
 
 For our running example, this would look like this:
 
