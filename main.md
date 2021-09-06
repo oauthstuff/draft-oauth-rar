@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-05"
+value = "draft-ietf-oauth-rar-06"
 stream = "IETF"
 status = "standard"
 
@@ -522,32 +522,25 @@ Later that same client makes a refresh request for `read` access:
 The AS would compare the `type` value and the `action` value to determine that the `read` access is
 already covered by the `write` access previously granted to the client.
 
-## Interaction with the resource parameter
+The predefined authorization data element `locations` MAY be used by the client to request an access token valid for a certain resource server, 
+i.e. it is the recommended way to request issuance of audience restricted access tokens.
 
-The `resource` token request parameter as defined in [@!RFC8707] MAY be used in the token request to request the creation of an audience restricted access token (as recommended in [@I-D.ietf-oauth-security-topics]). If the client uses this parameter, the AS MUST consider the audience restriction defined by the `locations` elements of the `authorization_details` to filter the authorization data objects applicable to the respective resource(s). 
+For our running example, the client MAY ask for all permissions of the approved grant of type `payment_iniation` applicable to the resource server residing at `https://example.com/payments` as follows:  
 
-The logic is as follows:
+```JSON
+[
+   {
+      "type": "payment_initiation",
+      "locations": [
+         "https://example.com/payments"
+      ]
+   }
+]
 
-* For every authorization details object without a `locations` element: the authorization server treats it as applicable to all resources, i.e. it assigns this authorization details object to the access token. 
-* For every authorization details object with a `locations` element: the authorization server adds this object to the access token, if at least one of the `locations` values exactly matches the `resource` token request parameter value. The authorization server MUST compare both values using an exact byte match of the string values.
-
-For example, the following token request selects authorization details applicable for the resource server represented by the URI `https://example.com/payments`.
-
-```http
-POST /token HTTP/1.1
-Host: as.example.com
-Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
-Content-Type: application/x-www-form-urlencoded
-
-grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA
-&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
-&resource=https%3A%2F%2Fexample%2Ecom%2Fpayments
 ```
 
-Using the example given above, this request would result in the assignment of the `payment_initiation` authorization details object from (#authz_details) to the access token to be issued (see below).
-
 # Token Response
-The authorization details assigned to the access token issued in a token response are determined by the `authorization_detail` parameter of the corresponding token request as well as any related parameters such as `resource` and `scope`.  If the client does not specify any of those token request parameters, the AS determines the resulting authorization details at its discretion.
+The authorization details assigned to the access token issued in a token response are determined by the `authorization_detail` parameter of the corresponding token request. If the client does not specify the `authorization_detail` token request parameters, the AS determines the resulting authorization details at its discretion. The authorization server MAY consider the values of other parameters such as `resource` and `scope` if they are present during this processing, and the details of such considerations are outside the scope of this specification.
 
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
 
@@ -831,7 +824,6 @@ Products supporting this specification should provide the following basic functi
 * Accept `authorization_details` parameter in authorization requests including basic syntax check for compliance with this specification 
 * Support storage of consented authorization details as part of a grant
 * Implement default behavior for adding authorization details to access tokens and token introspection responses in order to make them available to resource servers (similar to scope values). This should work with any grant type, especially `authorization_code` and `refresh_token`. 
-* If the product supports resource indicators, it should also support filtering of the authorization details to be assigned to access tokens using the `resource` token request parameter.
 
 Processing and presentation of authorization details will vary significantly among different authorization data types. Products should therefore support customization of the respective behavior. In particular, products should 
   
@@ -1306,6 +1298,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+   -06
+
+   * removed use of resource indicators to filter authorization details in token response
    
    * fixed wording in token introspection section
 
