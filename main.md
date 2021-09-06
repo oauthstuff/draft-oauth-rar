@@ -1302,8 +1302,8 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    -06
 
+   * incoporated feedback from WGLC
    * removed use of resource indicators to filter authorization details in token response
-   
    * fixed wording in token introspection section
 
    -05
