@@ -549,7 +549,8 @@ client is then granted such `admin` privileges to the API:
 ```
 
 The AS would compare the `type` value and find the `privileges` value subsumes any aspects of
-`read` or `write` access that had been granted to the client previously.
+`read` or `write` access that had been granted to the client previously. Note that other
+API definitions can use `privileges` in a non-subsuming fashion.
 
 The predefined authorization data element `locations` MAY be used by the client to request an access token valid for a certain resource server, 
 i.e. it is the recommended way to request issuance of audience restricted access tokens.
