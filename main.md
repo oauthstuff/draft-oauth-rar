@@ -533,7 +533,7 @@ Later that same client makes a refresh request for `read` access:
 The AS would compare the `type` value and the `action` value to determine that the `read` access is
 already covered by the `write` access previously granted to the client.
 
-This same API could be designed with a `privileges` values of `admin`, used in this example to 
+This same API could be designed with a possible value for `privileges` of `admin`, used in this example to 
 denote that the resulting token is allowed to perform any functions on the resources. If that
 client is then granted such `admin` privileges to the API:
 
