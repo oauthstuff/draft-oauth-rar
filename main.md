@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-06"
+value = "draft-ietf-oauth-rar-08"
 stream = "IETF"
 status = "standard"
 
@@ -181,7 +181,9 @@ The allowable contents of the authorization details object are determined by the
 
 This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST ensure that there is no collision between different authorization data types that it supports. The AS MUST NOT do any collation or normalization of data types during comparison.
 
-The value of the `type` field determines the allowable contents of the object which contains it. This draft defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. All data elements are OPTIONAL for use by a given API definition. The allowable values of all elements are determined by the API being protected.
+The value of the `type` field determines the allowable contents of the object which contains it.
+
+This draft defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. All data elements are OPTIONAL for use by a given API definition. The allowable values of all elements are determined by the API being protected.
 
 `locations`:
 :   An array of strings representing the location of the resource or resource server. These strings are typically URIs identifying the
@@ -1314,13 +1316,20 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    [[ To be removed from the final specification ]]
 
-   -06
+   -08
 
+   * formatting in authorization details type section 
+
+   -07 
+   
    * incorporated review feedback from WGLC
-   * removed use of resource indicators to filter authorization details in token response
    * fixed wording in token introspection section
    * added privacy considerations re authorization details in token response
 
+   -06
+
+  * removed use of resource indicators to filter authorization details in token response
+ 
    -05
 
    * added `authorization_details` token request parameter and discussion on authorization details comparison
