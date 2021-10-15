@@ -533,6 +533,24 @@ Later that same client makes a refresh request for `read` access:
 The AS would compare the `type` value and the `action` value to determine that the `read` access is
 already covered by the `write` access previously granted to the client.
 
+This same API could be designed with a `privileges` values of `admin`, used in this example to 
+denote that the resulting token is allowed to perform any functions on the resources. If that
+client is then granted such `admin` privileges to the API:
+
+```JSON
+[
+    {
+        "type": "example_api",
+        "privileges": [
+            "admin"
+        ]
+    }
+]
+```
+
+The AS would compare the `type` value and find the `privileges` value subsumes any aspects of
+`read` or `write` access that had been granted to the client previously.
+
 The predefined authorization data element `locations` MAY be used by the client to request an access token valid for a certain resource server, 
 i.e. it is the recommended way to request issuance of audience restricted access tokens.
 
