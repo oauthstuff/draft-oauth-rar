@@ -104,13 +104,13 @@ This specification uses the terms "access token", "refresh token",
 The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field, which is defined as follow:
 
 `type`:
-:   The type of authorization data as a string. The value of the `type` field determines the allowable contents of the object which contains it. This field is REQUIRED.
+:   The type of authorization details as a string. The value of the `type` field determines the allowable contents of the object which contains it. This field is REQUIRED.
 
-This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST ensure that there is no collision between different authorization data types that it supports. The AS MUST NOT do any collation or normalization of data types during comparison.
+This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST ensure that there is no collision between different authorization details types that it supports. The AS MUST NOT do any collation or normalization of data types during comparison.
 
 An `authorization_details` array MAY contain several entries of the same `type`.
 
-This example shows the specification of authorization details of type `payment_initation` using the authorization data shown above: 
+This example shows the specification of authorization details of type `payment_initation` using the example data shown above: 
 
 ```JSON
 [
@@ -177,11 +177,11 @@ This example shows a combined request asking for access to account information a
 ```
 Figure: Example authorization details for a combined request.
 
-The JSON objects with `type` fields of `account_information` and `payment_initiation` represent the different authorization data to be used by the AS to ask for consent. 
+The JSON objects with `type` fields of `account_information` and `payment_initiation` represent the different authorization details to be used by the AS to ask for consent. 
 
 Note: The AS will make this data subsequently available to the respective resource servers (see (#resource_servers)).  
 
-## Authorization Data Types
+## Authorization Details Types
 
 Interpretation of the value of the `type` parameter, and the object fields that the `type` parameter allows, is under the control of the AS. However, the value of the `type` parameter is also generally documented and intended to be used by developers, it is RECOMMENDED that API designers choose `type` values that are easily copied without ambiguity. For example, some glyphs have multiple Unicode code points for the same visual character, and a developer could potentially type a different character than what the AS has defined. Possible means of reducing potential confusion are limiting the value to ASCII characters, providing a machine-readable listing of data type values, or instructing developers to copy and paste directly from the documentation.
 
@@ -450,7 +450,7 @@ This specification does not define extensions to the authorization response.
 
 # Authorization Error Response {#authz_details_error}
 
-The AS MUST refuse to process any unknown authorization data type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization data type or an object of known type but containing unknown fields or fields of the wrong type or fields 
+The AS MUST refuse to process any unknown authorization details type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization details type or an object of known type but containing unknown fields or fields of the wrong type or fields 
 with invalid values or if required fields are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 # Token Request
@@ -561,7 +561,7 @@ The AS would compare the `type` value and find the `privileges` value subsumes a
 `read` or `write` access that had been granted to the client previously. Note that other
 API definitions can use `privileges` in a non-subsuming fashion.
 
-The predefined authorization data field `locations` MAY be used by the client to request an access token valid for a certain resource server, 
+The predefined authorization details field `locations` MAY be used by the client to request an access token valid for a certain resource server, 
 i.e. it is the recommended way to request issuance of audience restricted access tokens.
 
 For our running example, the client MAY ask for all permissions of the approved grant of type `payment_iniation` applicable to the resource server residing at `https://example.com/payments` as follows:  
@@ -732,7 +732,7 @@ Note: the client needs to be aware upfront of the possibility that a certain aut
 
 # Token Error Response
 
-The AS MUST refuse to process any unknown authorization data `type` or authorization details not conforming to the respective `type` definition. If any of the objects in `authorization_details` contains an unknown authorization data `type` or an object of known `type` but containing unknown fields or fields of the wrong `type`,  fields 
+The AS MUST refuse to process any unknown authorization details `type` or authorization details not conforming to the respective `type` definition. If any of the objects in `authorization_details` contains an unknown authorization details `type` or an object of known `type` but containing unknown fields or fields of the wrong `type`,  fields 
 with invalid values, or if required fields are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 # Resource Servers {#resource_servers}
@@ -841,9 +841,9 @@ Figure: Example for authorization details in introspection response.
 
 The AS publishes the list of authorization details types it supports using the metadata parameter `authorization_details_types_supported`, which is a JSON array.
 
-Clients announce the authorization data types they use in the new dynamic client registration parameter `authorization_details_types`.
+Clients announce the authorization details types they use in the new dynamic client registration parameter `authorization_details_types`.
 
-The registration of authorization data types with the AS is out of scope of this specification. 
+The registration of authorization details types with the AS is out of scope of this specification. 
 
 # Scope value "openid" and "claims" parameter
 
@@ -851,7 +851,7 @@ OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that 
 
 The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every non-OIDC scope value. 
 
-Alternatively, there could be an authorization data type for OpenID Connect. (#openid) gives an example of what such an authorization data type could look like.
+Alternatively, there could be an authorization details type for OpenID Connect. (#openid) gives an example of what such an authorization details type could look like.
 
 # Implementation Considerations
 
@@ -875,7 +875,7 @@ Products supporting this specification should provide the following basic functi
 * Support storage of consented authorization details as part of a grant
 * Implement default behavior for adding authorization details to access tokens and token introspection responses in order to make them available to resource servers (similar to scope values). This should work with any grant type, especially `authorization_code` and `refresh_token`. 
 
-Processing and presentation of authorization details will vary significantly among different authorization data types. Products should therefore support customization of the respective behavior. In particular, products should 
+Processing and presentation of authorization details will vary significantly among different authorization details types. Products should therefore support customization of the respective behavior. In particular, products should 
   
 * allow deployments to determine presentation of the authorization details
 * allow deployments to modify requested authorization details in the user consent process, e.g. adding fields 
