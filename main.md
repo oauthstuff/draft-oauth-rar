@@ -104,7 +104,7 @@ This specification uses the terms "access token", "refresh token",
 
 # Request parameter "authorization_details" {#authz_details}
 
-The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field. 
+The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field. `authorization_details` MAY contain several elements of the same `type`.
 
 This example shows the specification of authorization details using the payment authorization object shown above: 
 
@@ -173,7 +173,9 @@ This example shows a combined request asking for access to account information a
 ```
 Figure: Example authorization details for a combined request.
 
-The JSON objects with `type` fields of `account_information` and `payment_initiation` represent the different authorization data to be used by the AS to ask for consent and MUST subsequently also be made available to the respective resource servers. The array MAY contain several elements of the same `type`. 
+The JSON objects with `type` fields of `account_information` and `payment_initiation` represent the different authorization data to be used by the AS to ask for consent. 
+
+Note: The AS will make this data subsequently available to the respective resource servers (see (#resource_servers)).  
 
 ## Authorization data elements types
 
@@ -739,7 +741,7 @@ Note: the client needs to be aware upfront of the possibility that a certain aut
 The AS MUST refuse to process any unknown authorization data `type` or authorization details not conforming to the respective `type` definition. If any of the objects in `authorization_details` contains an unknown authorization data `type` or an object of known `type` but containing unknown elements or elements of the wrong `type`,  elements 
 with invalid values, or if required elements are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
-# Resource Servers
+# Resource Servers {#resource_servers}
 
 In order to enable the RS to enforce the authorization details as approved in the authorization process, the AS MUST make this data available to the RS. The AS MAY add the `authorization_details` element to access tokens in JWT format or to Token Introspection responses. 
 
