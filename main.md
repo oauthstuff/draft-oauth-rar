@@ -57,7 +57,7 @@ the resource owner's profile" but it is not sufficient to specify
 fine-grained authorization requirements, such as "please let me transfer an amount of 45 Euros to Merchant A" 
 or "please give me read access to folder A and write access to file X".
 
-This draft introduces a new parameter `authorization_details` that allows clients to specify their fine-grained authorization requirements using the expressiveness of JSON data structures. 
+This specification introduces a new parameter `authorization_details` that allows clients to specify their fine-grained authorization requirements using the expressiveness of JSON data structures. 
 
 For example, an authorization request for a credit transfer (designated as "payment initiation" in several open banking initiatives) can be represented using a JSON object like this:
 
@@ -78,12 +78,13 @@ For example, an authorization request for a credit transfer (designated as "paym
    "remittanceInformationUnstructured": "Ref Number Merchant"
 }
 ```
+Figure: Example authorization request for a credit transfer.
 
 This object contains detailed information about the intended payment, such as amount, currency, and creditor, that are required to inform the user and obtain her consent. The AS and the respective RS (providing the payment initiation API) will together enforce this consent.
 
 For a comprehensive discussion of the challenges arising from new use cases in the open banking and electronic signing spaces see [@transaction-authorization]. 
 
-In addition to facilitating custom authorization requests, this draft also introduces a set of common data type fields for use across different APIs. 
+In addition to facilitating custom authorization requests, this specification also introduces a set of common data type fields for use across different APIs. 
 
 Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@!RFC8707] or by specifying authorization details with a single location only in the token request, it enables the AS to issue RS-specific structured access tokens that only contain the permissions applicable to the respective RS.
 
@@ -131,6 +132,7 @@ This example shows the specification of authorization details using the payment 
    }
 ]
 ```
+Figure: Example authorization details for a credit transfer.
 
 This example shows a combined request asking for access to account information and permission to initiate a payment:
 
@@ -169,6 +171,7 @@ This example shows a combined request asking for access to account information a
    }
 ]
 ```
+Figure: Example authorization details for a combined request.
 
 The JSON objects with `type` fields of `account_information` and `payment_initiation` represent the different authorization data to be used by the AS to ask for consent and MUST subsequently also be made available to the respective resource servers. The array MAY contain several elements of the same `type`. 
 
@@ -183,7 +186,7 @@ This field MUST be compared using an exact byte match of the string value agains
 
 The value of the `type` field determines the allowable contents of the object which contains it.
 
-This draft defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. All data elements are OPTIONAL for use by a given API definition. The allowable values of all elements are determined by the API being protected.
+This specification defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. All data elements are OPTIONAL for use by a given API definition. The allowable values of all elements are determined by the API being protected.
 
 `locations`:
 :   An array of strings representing the location of the resource or resource server. These strings are typically URIs identifying the
@@ -209,7 +212,6 @@ access to both the `contacts` and `photos` belonging to customers in a `customer
 this request is granted, the client would assume it would be able to use any combination of rights
 defined by the API, such as reading the photos and writing the contacts.
 
-
 ```JSON
 [
    {
@@ -228,7 +230,7 @@ defined by the API, such as reading the photos and writing the contacts.
    }
 ]
 ```
-
+Figure: Example for authorization details with common data elements.
 
 If the client wishes to have finer control over its access, it can send multiple objects. In this example, 
 the client is asking for `read` access to the `contacts` and `write` access to the `photos` in the same API endpoint.
@@ -262,6 +264,7 @@ If this request is granted, the client would not be able to write to the contact
    }
 ]
 ```
+Figure: Example for authorization details with common data elements in multiple objects.
 
 
 An API MAY define its own extensions, subject to the `type` of the respective authorization object.
@@ -313,6 +316,7 @@ field. The second access request includes the `actions` and
    }
 ]
 ```
+Figure: Example for authorization details using common and extension data elements.
 
 If this request is approved, the resulting access token's access rights will be
 the union of the requested types of access for each of the two APIs, just as above.
@@ -348,6 +352,7 @@ The following example shows how an implementation could utilize the namespace `h
    ]
 }
 ```
+Figure: Example for authorization details with an URL as type identifier.
 
 # Authorization Request {#authz_request}
 
@@ -382,6 +387,7 @@ GET /authorize?response_type=code
    InformationUnstructured%22%3A%22RefNumberMerchant%22%7D%5D HTTP/1.1
 Host: server.example.com
 ``` 
+Figure: Example authorization request with authorization_details.
 
 Based on the data provided in the `authorization_details` parameter the AS will ask the user for consent to the requested access permissions. 
 
@@ -424,6 +430,7 @@ In this example, the client wants to get access to account information and intia
    }
 ]
 ```
+Figure: URL decoded authorization details.
 
 ## Relationship to "scope" parameter {#scope}
 
@@ -493,6 +500,7 @@ The client could now request the AS to issue an access token assigned with the p
    }
 ]
 ```
+Figure: Example for authorization details reduced privileges.
 
 The example API is designed such that each field used by the `account_information` type contains additive rights, 
 with each value within the `actions` and `locations` arrays specifying a different element of access. To make a comparison in this
@@ -518,6 +526,7 @@ a token with `write` access, which implies both read and write access to this AP
     }
 ]
 ```
+Figure: Example for authorization details requesting "write" access to an API.
 
 Later that same client makes a refresh request for `read` access:
 
@@ -531,6 +540,7 @@ Later that same client makes a refresh request for `read` access:
     }
 ]
 ```
+Figure: Example for authorization details requesting "read" access to an API.
 
 The AS would compare the `type` value and the `action` value to determine that the `read` access is
 already covered by the `write` access previously granted to the client.
@@ -549,6 +559,7 @@ client is then granted such `admin` privileges to the API:
     }
 ]
 ```
+Figure: Example for authorization details requesting "admin" access to an API.
 
 The AS would compare the `type` value and find the `privileges` value subsumes any aspects of
 `read` or `write` access that had been granted to the client previously. Note that other
@@ -570,6 +581,7 @@ For our running example, the client MAY ask for all permissions of the approved 
 ]
 
 ```
+Figure: Example for authorization details requesting an audience restricted access token.
 
 # Token Response
 
@@ -615,6 +627,7 @@ Cache-Control: no-cache, no-store
    ]
 }
 ```
+Figure: Example token response.
 
 ## Enriched authorization details in Token Response
 
@@ -635,6 +648,7 @@ As an example, the requested authorization detail parameter could look like this
    }
 ]
 ```
+Figure: Example for requested authorization details.
 
 The authorization server then would expand the authorization details object and add the respective account identifiers.
 
@@ -679,6 +693,7 @@ Cache-Control: no-cache, no-store
    ]
 }
 ```
+Figure: Example for enriched authorization details.
 
 For another example, the client is asking for access to a medical record but does not know the record number at request time. In this example, the client specifies the type of access it wants but doesn't specify the location or identifier of that access. 
 
@@ -693,6 +708,7 @@ For another example, the client is asking for access to a medical record but doe
    }
 ]}
 ```
+Figure: Example for requested authorization details.
 
 When the user interacts with the AS, they select which of the medical records they are responsible for to give to the client. This information gets returned with the access token.
 
@@ -714,6 +730,7 @@ When the user interacts with the AS, they select which of the medical records th
   ]
 }
 ```
+Figure: Example for enriched authorization details.
 
 Note: the client needs to be aware upfront of the possibility that a certain authorization details object can be enriched. It is assumed that this property is part of the definition of the respective authorization details type. 
 
@@ -770,6 +787,7 @@ The following shows the contents of an example JWT for the payment initiation ex
    }
 }
 ```
+Figure: Example for authorization details in JWT-based access token.
 
 In this case, the AS added the following example claims:
 
@@ -821,6 +839,7 @@ Here is an example for the payment initiation example RS:
    }
 }
 ```
+Figure: Example for authorization details in introspection response.
 
 # Metadata {#metadata}
 
@@ -828,7 +847,7 @@ The AS publishes the list of authorization details types it supports using the m
 
 Clients announce the authorization data types they use in the new dynamic client registration parameter `authorization_details_types`.
 
-The registration of authorization data types with the AS is out of scope of this draft. 
+The registration of authorization data types with the AS is out of scope of this specification. 
 
 # Scope value "openid" and "claims" parameter
 
@@ -902,6 +921,7 @@ Authorization request URIs containing authorization details in a request paramet
   07118603%22%7D%2C%22remittanceInformationUnstructured%22%3A%22Ref%2
   0Number%20Merchant%22%7D%5D
 ```
+Figure: Example for large request including authorization details.
 
 # Security Considerations {#security_considerations}
 
@@ -921,7 +941,7 @@ The AS MUST take into consideration the privacy implications when sharing author
 
 # Acknowledgements {#Acknowledgements}
       
-We would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this draft.
+We would like to thank Daniel Fett, Sebastian Ebling, Dave Tonge, Mike Jones, Nat Sakimura, and Rob Otto for their valuable feedback during the preparation of this specification.
 
 We would also like to thank 
 Vladimir Dzhuvinov,
@@ -934,7 +954,7 @@ Aamund Bremer,
 Steinar Noem,
 Francis Pouatcha,
 Jacob Ideskog,
-and Aaron Parecki for their valuable feedback to this draft.
+and Aaron Parecki for their valuable feedback to this specification.
 
 # IANA Considerations {#iana_considerations}
 
@@ -1131,6 +1151,7 @@ This is a simple request for some claim sets.
    }
 ]
 ```
+Figure: Example for OpenID Connect request utilizing authorization details.
 
 Note: `locations` specifies the location of the userinfo endpoint since this is the only place where an access token is used by a client (RP) in OpenID Connect to obtain claims.
 
@@ -1169,6 +1190,7 @@ A more sophisticated example is shown in the following
    }
 ]
 ```
+Figure: Advanced example for OpenID Connect request utilizing authorization details.
 
 ## Remote Electronic Signing {#signing}
 
@@ -1196,6 +1218,7 @@ The following example is based on the concept laid out for remote electronic sig
    }
 ]
 ```
+Figure: Example for electronic signing.
 
 The top-level elements have the following meaning:
 
@@ -1223,6 +1246,7 @@ This example is inspired by an API allowing third parties to access citizen's ta
     }
 ]
 ```
+Figure: Example for tax data access.
 
 The top-level elements have the following meaning:
 
@@ -1262,6 +1286,8 @@ In the first example, the authorization details object contains the identifier o
     }
 }
 ```
+Figure: eHealth Example.
+
 In the second example, the API requires more information to authorize the request. In this case, the authorization details object contains additional information about the health institution and the current profession the user has at the time of the request. The additional level of detail could be used for both authorization and data minimization.
 
 ```JSON
@@ -1322,6 +1348,7 @@ In the second example, the API requires more information to authorize the reques
    }
 ]
 ```
+Figure: Advanced eHaelth example.
 
 Description of the elements:
 
@@ -1334,6 +1361,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+   -09
+
+   * Incorporated feedback by Hannes
 
    -08
 
@@ -1361,7 +1392,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    -04 
 
-   * restructured draft for better readability
+   * restructured specification for better readability
    * simplified normative text about use of the `resource` parameter with `authorization_details`
    * added implementation considerations for deployments and products
    * added type union language from GNAP
