@@ -42,8 +42,7 @@ organization="Ping Identity"
 .# Abstract 
 
 This document specifies a new parameter `authorization_details` that is 
-used to carry fine-grained authorization data in the OAuth authorization 
-request. 
+used to carry fine-grained authorization data in OAuth messages. 
 
 {mainmatter}
 
@@ -86,8 +85,6 @@ For a comprehensive discussion of the challenges arising from new use cases in t
 
 In addition to facilitating custom authorization requests, this specification also introduces a set of common data type fields for use across different APIs. 
 
-Most notably, the field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is now possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service). In combination with the `resource` token request parameter as specified in [@!RFC8707] or by specifying authorization details with a single location only in the token request, it enables the AS to issue RS-specific structured access tokens that only contain the permissions applicable to the respective RS.
-
 ## Conventions and Terminology
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
@@ -104,9 +101,16 @@ This specification uses the terms "access token", "refresh token",
 
 # Request parameter "authorization_details" {#authz_details}
 
-The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field. `authorization_details` MAY contain several elements of the same `type`.
+The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field, which is defined as follow:
 
-This example shows the specification of authorization details using the payment authorization object shown above: 
+`type`:
+:   The type of authorization data as a string. The value of the `type` field determines the allowable contents of the object which contains it. This field is REQUIRED.
+
+This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST ensure that there is no collision between different authorization data types that it supports. The AS MUST NOT do any collation or normalization of data types during comparison.
+
+An `authorization_details` array MAY contain several entries of the same `type`.
+
+This example shows the specification of authorization details of type `payment_initation` using the authorization data shown above: 
 
 ```JSON
 [
@@ -177,22 +181,46 @@ The JSON objects with `type` fields of `account_information` and `payment_initia
 
 Note: The AS will make this data subsequently available to the respective resource servers (see (#resource_servers)).  
 
-## Authorization data elements types
+## Authorization Data Types
 
-The allowable contents of the authorization details object are determined by the `type` parameter.
+Interpretation of the value of the `type` parameter, and the object fields that the `type` parameter allows, is under the control of the AS. However, the value of the `type` parameter is also generally documented and intended to be used by developers, it is RECOMMENDED that API designers choose `type` values that are easily copied without ambiguity. For example, some glyphs have multiple Unicode code points for the same visual character, and a developer could potentially type a different character than what the AS has defined. Possible means of reducing potential confusion are limiting the value to ASCII characters, providing a machine-readable listing of data type values, or instructing developers to copy and paste directly from the documentation.
 
-`type`:
-:   The type of authorization data as a string. This field MAY define which other elements are allowed in the request. This element is REQUIRED.
+If an application or API is expected to be deployed across different servers, such as the case in an open standard, the API designer is RECOMMENDED to use a collision-resistant namespace under their control, such as a URI that the API designer controls.
 
-This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST ensure that there is no collision between different authorization data types that it supports. The AS MUST NOT do any collation or normalization of data types during comparison.
+The following example shows how an implementation could utilize the namespace `https://scheme.example.org/` to ensure collision-resistant type values.
 
-The value of the `type` field determines the allowable contents of the object which contains it.
+```JSON
+{
+   "type": "https://scheme.example.org/files",
+   "locations": [
+      "https://example.com/files"
+   ],
+   "permissions": [
+      {
+         "path": "/myfiles/A",
+         "access": [
+            "read"
+         ]
+      },
+      {
+         "path": "/myfiles/A/X",
+         "access": [
+            "read",
+            "write"
+         ]
+      }
+   ]
+}
+```
+Figure: Example for authorization details with an URL as type identifier.
 
-This specification defines a set of common data elements that are designed to be usable across different types of APIs. These data elements MAY be combined in different ways depending on the needs of the API. All data elements are OPTIONAL for use by a given API definition. The allowable values of all elements are determined by the API being protected.
+## Common data fields
+
+This specification defines a set of common data fields that are designed to be usable across different types of APIs. These data fields MAY be combined in different ways depending on the needs of the API. All data fields are OPTIONAL for use by a given API definition. The allowable values of all fields are determined by the API being protected.
 
 `locations`:
 :   An array of strings representing the location of the resource or resource server. These strings are typically URIs identifying the
-    location of the RS.
+    location of the RS. The field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
 
 `actions`:
 :   An array of strings representing the kinds of actions to be taken at the resource.
@@ -206,7 +234,7 @@ This specification defines a set of common data elements that are designed to be
 `privileges`:
 :   An array of strings representing the types or levels of privilege being requested at the resource.
 
-When different element types are used in combination, the permissions the client requests is the cartesian product of the values. That is to 
+When different common data fields are used in combination, the permissions the client requests is the cartesian product of the values. That is to 
 say, the object represents a request for all `action` values listed within the object
 to be used at all `locations` values listed within the object for all `datatype`
 values listed within the object. In the following example, the client is requesting `read` and `write` 
@@ -232,7 +260,7 @@ defined by the API, such as reading the photos and writing the contacts.
    }
 ]
 ```
-Figure: Example for authorization details with common data elements.
+Figure: Example for authorization details with common data fields.
 
 If the client wishes to have finer control over its access, it can send multiple objects. In this example, 
 the client is asking for `read` access to the `contacts` and `write` access to the `photos` in the same API endpoint.
@@ -266,12 +294,11 @@ If this request is granted, the client would not be able to write to the contact
    }
 ]
 ```
-Figure: Example for authorization details with common data elements in multiple objects.
-
+Figure: Example for authorization details with common data fields in multiple objects.
 
 An API MAY define its own extensions, subject to the `type` of the respective authorization object.
 It is anticipated that API designers will use a combination
-of common fields defined in this specification as well as
+of common data fields defined in this specification as well as
 fields specific to the API itself. The following non-normative 
 example shows the use of both common and API-specific fields as 
 part of two different fictitious API `type` values. The first
@@ -279,7 +306,7 @@ access request includes the `actions`, `locations`, and `datatypes`
 fields specified here as well as the API-specific `geolocation`
 field. The second access request includes the `actions` and
 `identifier` fields specified here as well as the API-specific
-`currency` field.
+`currency` fields.
 
 ```JSON
 [
@@ -318,43 +345,10 @@ field. The second access request includes the `actions` and
    }
 ]
 ```
-Figure: Example for authorization details using common and extension data elements.
+Figure: Example for authorization details using common and extension data fields.
 
 If this request is approved, the resulting access token's access rights will be
 the union of the requested types of access for each of the two APIs, just as above.
-
-## Authorization Data Types
-
-Interpretation of the value of the `type` parameter, and the object elements that the `type` parameter allows, is under the control of the AS. However, the value of the `type` parameter is also generally documented and intended to be used by developers, it is RECOMMENDED that API designers choose `type` values that are easily copied without ambiguity. For example, some glyphs have multiple Unicode code points for the same visual character, and a developer could potentially type a different character than what the AS has defined. Possible means of reducing potential confusion are limiting the value to ASCII characters, providing a machine-readable listing of data type values, or instructing developers to copy and paste directly from the documentation.
-
-If an application or API is expected to be deployed across different servers, such as the case in an open standard, the API designer is RECOMMENDED to use a collision-resistant namespace under their control, such as a URI that the API designer controls.
-
-The following example shows how an implementation could utilize the namespace `https://scheme.example.org/` to ensure collision-resistant element names.
-
-```JSON
-{
-   "type": "https://scheme.example.org/files",
-   "locations": [
-      "https://example.com/files"
-   ],
-   "permissions": [
-      {
-         "path": "/myfiles/A",
-         "access": [
-            "read"
-         ]
-      },
-      {
-         "path": "/myfiles/A/X",
-         "access": [
-            "read",
-            "write"
-         ]
-      }
-   ]
-}
-```
-Figure: Example for authorization details with an URL as type identifier.
 
 # Authorization Request {#authz_request}
 
@@ -456,8 +450,8 @@ This specification does not define extensions to the authorization response.
 
 # Authorization Error Response {#authz_details_error}
 
-The AS MUST refuse to process any unknown authorization data type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization data type or an object of known type but containing unknown elements or elements of the wrong type or elements 
-with invalid values or if required elements are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
+The AS MUST refuse to process any unknown authorization data type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization data type or an object of known type but containing unknown fields or fields of the wrong type or fields 
+with invalid values or if required fields are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 # Token Request
 
@@ -470,7 +464,7 @@ is asking for "more" or "less" than a previous, existing request. For example, u
 ask for a new access token with "fewer permissions" than had been previously authorized by the resource owner.
 Since the nature of an authorization details request is based solely on the API or APIs that it is describing, there is not
 a simple means of comparing any two arbitrary authorization details requests. 
-Authorization servers should not rely on simple object comparison in most cases, as the intersection of some elements
+Authorization servers should not rely on simple object comparison in most cases, as the intersection of some fields
 within a request could have side effects in the access rights granted, depending on how the API
 has been designed and deployed. This is a similar effect to the scope values used with some APIs.
 
@@ -567,7 +561,7 @@ The AS would compare the `type` value and find the `privileges` value subsumes a
 `read` or `write` access that had been granted to the client previously. Note that other
 API definitions can use `privileges` in a non-subsuming fashion.
 
-The predefined authorization data element `locations` MAY be used by the client to request an access token valid for a certain resource server, 
+The predefined authorization data field `locations` MAY be used by the client to request an access token valid for a certain resource server, 
 i.e. it is the recommended way to request issuance of audience restricted access tokens.
 
 For our running example, the client MAY ask for all permissions of the approved grant of type `payment_iniation` applicable to the resource server residing at `https://example.com/payments` as follows:  
@@ -738,12 +732,12 @@ Note: the client needs to be aware upfront of the possibility that a certain aut
 
 # Token Error Response
 
-The AS MUST refuse to process any unknown authorization data `type` or authorization details not conforming to the respective `type` definition. If any of the objects in `authorization_details` contains an unknown authorization data `type` or an object of known `type` but containing unknown elements or elements of the wrong `type`,  elements 
-with invalid values, or if required elements are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
+The AS MUST refuse to process any unknown authorization data `type` or authorization details not conforming to the respective `type` definition. If any of the objects in `authorization_details` contains an unknown authorization data `type` or an object of known `type` but containing unknown fields or fields of the wrong `type`,  fields 
+with invalid values, or if required fields are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
 
 # Resource Servers {#resource_servers}
 
-In order to enable the RS to enforce the authorization details as approved in the authorization process, the AS MUST make this data available to the RS. The AS MAY add the `authorization_details` element to access tokens in JWT format or to Token Introspection responses. 
+In order to enable the RS to enforce the authorization details as approved in the authorization process, the AS MUST make this data available to the RS. The AS MAY add the `authorization_details` field to access tokens in JWT format or to Token Introspection responses. 
 
 ## JWT-based Access Tokens
 
@@ -795,13 +789,13 @@ In this case, the AS added the following example claims:
 
 * `sub`: conveys the user on which behalf the client is asking for payment initation
 * `txn`: transaction id used to trace the transaction across the services of provider `example.com`
-* `debtorAccount`: API-specific element containing the debtor account. In the example, this account was not passed in the authorization details but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particular account. In this case, they is the owner. This data is used for access control at the payment API (the RS).
+* `debtorAccount`: API-specific field containing the debtor account. In the example, this account was not passed in the authorization details but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particular account. In this case, they is the owner. This data is used for access control at the payment API (the RS).
 
 ## Token Introspection 
 
 In the case of opaque access tokens, the data provided to a certain RS is determined using the RS's identifier with the AS (see [@I-D.ietf-oauth-jwt-introspection-response], section 3). 
 
-The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. 
+The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON field along with the claims the RS requires for request processing. 
 
 Here is an example for the payment initiation example RS:
 
@@ -927,7 +921,8 @@ Figure: Example for large request including authorization details.
 
 # Security Considerations {#security_considerations}
 
-Authorization details are sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. In order to ensure their integrity, the client SHOULD send authorization details in a signed request object as defined in [@I-D.ietf-oauth-jwsreq] or use the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq] in conjunction with [@I-D.ietf-oauth-par] to pass the URI of the request object to the authorization server.
+Authorization details are sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. If integrity of the 
+authorization details is a concern, clients MUST protect authorization details against tampering and swapping. This can be achieved by signing the request using signed request objects as defined in [@I-D.ietf-oauth-jwsreq] or using the `request_uri` authorization request parameter as defined in [@I-D.ietf-oauth-jwsreq] in conjunction with [@I-D.ietf-oauth-par] to pass the URI of the request object to the authorization server.  
 
 All strings MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values. 
 
@@ -1130,7 +1125,7 @@ Specification Document(s):
 
 These hypothetical examples try to encapsulate all details specific to the OpenID Connect part of an authorization process into an authorization JSON object.
 
-The top-level elements are based on the definitions given in [@OIDC]:
+The top-level field are based on the definitions given in [@OIDC]:
 
 * `claim_sets`: names of predefined claim sets, replacement for respective scope values, such as `profile`
 * `max_age`: Maximum Authentication Age 
@@ -1222,10 +1217,10 @@ The following example is based on the concept laid out for remote electronic sig
 ```
 Figure: Example for electronic signing.
 
-The top-level elements have the following meaning:
+The top-level fields have the following meaning:
 
 * `credentialID`: identifier of the certificate to be used for signing
-* `documentDigests`: array containing the hash of every document to be signed (`hash` elements). Additionally, the corresponding `label` element identifies the respective document to the user, e.g. to be used in user consent.
+* `documentDigests`: array containing the hash of every document to be signed (`hash` fields). Additionally, the corresponding `label` field identifies the respective document to the user, e.g. to be used in user consent.
 * `hashAlgorithm`: algorithm that was used to calculate the hash values. 
 
 The AS is supposed to ask the user for consent for the creation of signatures for the documents listed in the structure. The client uses the access token issued as a result of the process to call the sign doc endpoint at the respective signing service to actually create the signature. This access token is bound to the client, the user id and the hashes (and signature algorithm) as consented by the user.
@@ -1250,7 +1245,7 @@ This example is inspired by an API allowing third parties to access citizen's ta
 ```
 Figure: Example for tax data access.
 
-The top-level elements have the following meaning:
+The top-level fields have the following meaning:
 
 * `periods`: determines the periods the client wants to access
 * `duration_of_access`: how long does the client intend to access the data in days
@@ -1352,7 +1347,7 @@ In the second example, the API requires more information to authorize the reques
 ```
 Figure: Advanced eHaelth example.
 
-Description of the elements:
+Description of the fields:
 
 * `patient_identifier`: the identifier of the patient composed of a system identifier in OID format (namespace) and the actual value within this namespace. 
 * `reason_for_request`: the reason why the user wants to access a certain API
@@ -1371,7 +1366,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    -08
 
    * formatting in authorization details type section 
-   * added example for `privileges` common data element 
+   * added example for `privileges` common data field 
 
    -07 
    
