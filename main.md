@@ -960,11 +960,12 @@ Takahiko Kawasaki,
 Daniel Fett, 
 Dave Tonge, 
 Travis Spencer, 
-Jørgen Binningsbø, 
+Joergen Binningsboe, 
 Aamund Bremer, 
 Steinar Noem,
 Francis Pouatcha,
 Jacob Ideskog,
+Hannes Tschofenig,
 and Aaron Parecki for their valuable feedback to this specification.
 
 # IANA Considerations {#iana_considerations}
