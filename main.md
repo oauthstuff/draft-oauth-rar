@@ -214,7 +214,7 @@ The following example shows how an implementation could utilize the namespace `h
 ```
 Figure: Example for authorization details with an URL as type identifier.
 
-## Common data fields
+## Common data fields {#common_data_fields}
 
 This specification defines a set of common data fields that are designed to be usable across different types of APIs. These data fields MAY be combined in different ways depending on the needs of the API. All data fields are OPTIONAL for use by a given API definition. The allowable values of all fields are determined by the API being protected.
 
@@ -561,10 +561,7 @@ The AS would compare the `type` value and find the `privileges` value subsumes a
 `read` or `write` access that had been granted to the client previously. Note that other
 API definitions can use `privileges` in a non-subsuming fashion.
 
-The predefined authorization details field `locations` MAY be used by the client to request an access token valid for a certain resource server, 
-i.e. it is the recommended way to request issuance of audience restricted access tokens.
-
-For our running example, the client MAY ask for all permissions of the approved grant of type `payment_iniation` applicable to the resource server residing at `https://example.com/payments` as follows:  
+The next example shows how the client can use the common data element `locations` (see (#common_data_fields)) to request the isaunce of an access token restricted to a certain resource server. In our running example, the client may ask for all permissions of the approved grant of type `payment_iniation` applicable to the resource server residing at `https://example.com/payments` as follows:  
 
 ```JSON
 [
@@ -841,17 +838,34 @@ Figure: Example for authorization details in introspection response.
 
 The AS publishes the list of authorization details types it supports using the metadata parameter `authorization_details_types_supported`, which is a JSON array.
 
+This is illustrated by the following example:
+
+```JSON
+{
+   ...
+   "authorization_details_types_supported":[
+      "payment_initiation",
+      "account_information"
+   ]
+}
+```
+Figure: Example for server metadata about authorization details.
+
 Clients announce the authorization details types they use in the new dynamic client registration parameter `authorization_details_types`.
 
+This is illustrated by the following example:
+
+```JSON
+{
+   ...
+   "authorization_details_types":[
+      "payment_initiation"
+   ]
+}
+```
+Figure: Example for server metadata about authorization details.
+
 The registration of authorization details types with the AS is out of scope of this specification. 
-
-# Scope value "openid" and "claims" parameter
-
-OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that can be used to specify the claims a client (acting as OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy-preserving way as well as assign those claims to certain delivery mechanisms, i.e. ID Token or userinfo response. 
-
-The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every non-OIDC scope value. 
-
-Alternatively, there could be an authorization details type for OpenID Connect. (#openid) gives an example of what such an authorization details type could look like.
 
 # Implementation Considerations
 
@@ -1122,6 +1136,12 @@ Specification Document(s):
 # Additional Examples
 
 ## OpenID Connect {#openid}
+
+OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that can be used to specify the claims a client (acting as OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy-preserving way as well as assign those claims to certain delivery mechanisms, i.e. ID Token or userinfo response. 
+
+The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every non-OIDC scope value. 
+
+Alternatively, there could be an authorization details type for OpenID Connect. This section gives an example of what such an authorization details type could look like.
 
 These hypothetical examples try to encapsulate all details specific to the OpenID Connect part of an authorization process into an authorization JSON object.
 
