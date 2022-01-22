@@ -432,7 +432,7 @@ Figure: URL decoded authorization details.
 
 `authorization_details` and `scope` can be used in the same authorization request for carrying independent authorization requirements. 
 
-Note: Combined use of `authorization_details` and `scope` is supported by this specification to allow existing OAuth-based applications to incrementally migration towards `authorization_details`. It is RECOMMENDED that a given API uses only one form of requirement specification. 
+Combined use of `authorization_details` and `scope` is supported by this specification in part to allow existing OAuth-based applications to incrementally migrate towards using `authorization_details` exclusively. It is RECOMMENDED that a given API use only one form of requirement specification. 
 
 The AS MUST consider both sets of requirements in combination with each other for the given authorization request. The details of how the AS combines these parameters are specific to the APIs being protected and outside the scope of this specification.
 
@@ -450,8 +450,13 @@ This specification does not define extensions to the authorization response.
 
 # Authorization Error Response {#authz_details_error}
 
-The AS MUST refuse to process any unknown authorization details type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization details type or an object of known type but containing unknown fields or fields of the wrong type or fields 
-with invalid values or if required fields are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
+The AS MUST refuse to process any unknown authorization details type or authorization details not conforming to the respective type definition. The AS MUST abort processing and respond with an error `invalid_authorization_details` to the client if any of the following are true of any of the objects in `authorization_details` structure:
+
+- Contains an unknown authorization details type value,
+- An object of known type but containing unknown fields,
+- Contains fields of the wrong type for the authorization details type,
+- Contains fields with invalid values for the authorization details type, or
+- Missing required fields for the authorization details type.
 
 # Token Request
 
@@ -782,7 +787,7 @@ The following shows the contents of an example JWT for the payment initiation ex
 ```
 Figure: Example for authorization details in JWT-based access token.
 
-In this case, the AS added the following example claims:
+In this case, the AS added the following example claims to the JWT-based access token:
 
 * `sub`: conveys the user on which behalf the client is asking for payment initation
 * `txn`: transaction id used to trace the transaction across the services of provider `example.com`
@@ -792,7 +797,7 @@ In this case, the AS added the following example claims:
 
 In the case of opaque access tokens, the data provided to a certain RS is determined using the RS's identifier with the AS (see [@I-D.ietf-oauth-jwt-introspection-response], section 3). 
 
-The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON field along with the claims the RS requires for request processing. 
+The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. 
 
 Here is an example for the payment initiation example RS:
 
@@ -1144,7 +1149,7 @@ OpenID Connect [@OIDC] specifies the JSON-based `claims` request parameter that 
 
 The combination of the scope value `openid` and the additional parameter `claims` can be used beside `authorization_details` in the same way as every non-OIDC scope value. 
 
-Alternatively, there could be an authorization details type for OpenID Connect. This section gives an example of what such an authorization details type could look like.
+Alternatively, there could be an authorization details type for OpenID Connect. This section gives an example of what such an authorization details type could look like, but defining this authorization details type is outside the scope of this specification.
 
 These hypothetical examples try to encapsulate all details specific to the OpenID Connect part of an authorization process into an authorization JSON object.
 
@@ -1384,12 +1389,12 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    -09
 
-   * Incorporated feedback by Hannes
+   * Incorporated feedback by Hannes as document shepherd
 
    -08
 
    * formatting in authorization details type section 
-   * added example for `privileges` common data field 
+   * added example for `privileges` common data element
 
    -07 
    
@@ -1412,7 +1417,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    -04 
 
-   * restructured specification for better readability
+   * restructured draft for better readability
    * simplified normative text about use of the `resource` parameter with `authorization_details`
    * added implementation considerations for deployments and products
    * added type union language from GNAP
