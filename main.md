@@ -220,7 +220,7 @@ This specification defines a set of common data fields that are designed to be u
 
 `locations`:
 :   An array of strings representing the location of the resource or resource server. These strings are typically URIs identifying the
-    location of the RS. The field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
+    location of the RS. This field can allow a client to specify a particular RS, as discussed in (#security_considerations).
 
 `actions`:
 :   An array of strings representing the kinds of actions to be taken at the resource.
@@ -939,6 +939,8 @@ Authorization details are sent through the user agent in case of an OAuth author
 authorization details is a concern, clients MUST protect authorization details against tampering and swapping. This can be achieved by signing the request using signed request objects as defined in [@RFC9101] or using the `request_uri` authorization request parameter as defined in [@RFC9101] in conjunction with [@RFC9126] to pass the URI of the request object to the authorization server.  
 
 All strings MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values. 
+
+The common data field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
 
 # Privacy Considerations {#privacy_considerations}
 
