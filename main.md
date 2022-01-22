@@ -450,8 +450,13 @@ This specification does not define extensions to the authorization response.
 
 # Authorization Error Response {#authz_details_error}
 
-The AS MUST refuse to process any unknown authorization details type or authorization details not conforming to the respective type definition. If any of the objects in `authorization_details` contains an unknown authorization details type or an object of known type but containing unknown fields or fields of the wrong type or fields 
-with invalid values or if required fields are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
+The AS MUST refuse to process any unknown authorization details type or authorization details not conforming to the respective type definition. The AS MUST abort processing and respond with an error `invalid_authorization_details` to the client if any of the following are true of any of the objects in `authorization_details` structure:
+
+- Contains an unknown authorization details type value,
+- An object of known type but containing unknown fields,
+- Contains fields of the wrong type for the authorization details type,
+- Contains fields with invalid values for the authorization details type, or
+- Missing required fields for the authorization details type.
 
 # Token Request
 
