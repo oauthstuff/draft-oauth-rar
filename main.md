@@ -787,7 +787,7 @@ The following shows the contents of an example JWT for the payment initiation ex
 ```
 Figure: Example for authorization details in JWT-based access token.
 
-In this case, the AS added the following example claims:
+In this case, the AS added the following example claims to the JWT-based access token:
 
 * `sub`: conveys the user on which behalf the client is asking for payment initation
 * `txn`: transaction id used to trace the transaction across the services of provider `example.com`
