@@ -432,7 +432,7 @@ Figure: URL decoded authorization details.
 
 `authorization_details` and `scope` can be used in the same authorization request for carrying independent authorization requirements. 
 
-Note: Combined use of `authorization_details` and `scope` is supported by this specification to allow existing OAuth-based applications to incrementally migration towards `authorization_details`. It is RECOMMENDED that a given API uses only one form of requirement specification. 
+Combined use of `authorization_details` and `scope` is supported by this specification in part to allow existing OAuth-based applications to incrementally migrate towards using `authorization_details` exclusively. It is RECOMMENDED that a given API use only one form of requirement specification. 
 
 The AS MUST consider both sets of requirements in combination with each other for the given authorization request. The details of how the AS combines these parameters are specific to the APIs being protected and outside the scope of this specification.
 
