@@ -1392,7 +1392,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    -08
 
    * formatting in authorization details type section 
-   * added example for `privileges` common data field 
+   * added example for `privileges` common data element
 
    -07 
    
