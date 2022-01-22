@@ -1387,7 +1387,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    -09
 
-   * Incorporated feedback by Hannes
+   * Incorporated feedback by Hannes as document shepherd
 
    -08
 
