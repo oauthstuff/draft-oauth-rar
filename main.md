@@ -1415,7 +1415,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    -04 
 
-   * restructured specification for better readability
+   * restructured draft for better readability
    * simplified normative text about use of the `resource` parameter with `authorization_details`
    * added implementation considerations for deployments and products
    * added type union language from GNAP
