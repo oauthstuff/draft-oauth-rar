@@ -986,7 +986,7 @@ Claim Name:
 : `authorization_details`
 
 Claim Description:
-: The claim `authorization_details` contains, a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.
+: The claim `authorization_details` contains a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.
 
 Change Controller:
 : IESG
@@ -1003,7 +1003,7 @@ Name:
 : `authorization_details`
 
 Description:
-: The member `authorization_details` contains, a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.
+: The member `authorization_details` contains a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.
  
 Change Controller:
 : IESG
