@@ -741,7 +741,7 @@ with invalid values, or if required fields are missing, the AS MUST abort proces
 
 In order to enable the RS to enforce the authorization details as approved in the authorization process, the AS MUST make this data available to the RS. The AS MAY add the `authorization_details` field to access tokens in JWT format or to Token Introspection responses. 
 
-## JWT-based Access Tokens
+## JWT-based Access Tokens {#jwt_based_access_tokens}
 
 If the access token is a JWT [@!RFC7519], the AS is RECOMMENDED to add the `authorization_details` object, filtered to the specific audience, as a top-level claim. 
 
@@ -793,7 +793,7 @@ In this case, the AS added the following example claims to the JWT-based access 
 * `txn`: transaction id used to trace the transaction across the services of provider `example.com`
 * `debtorAccount`: API-specific field containing the debtor account. In the example, this account was not passed in the authorization details but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particular account. In this case, they is the owner. This data is used for access control at the payment API (the RS).
 
-## Token Introspection 
+## Token Introspection {#token_introspection}
 
 In the case of opaque access tokens, the data provided to a certain RS is determined using the RS's identifier with the AS (see [@I-D.ietf-oauth-jwt-introspection-response], section 3). 
 
@@ -986,13 +986,30 @@ Claim Name:
 : `authorization_details`
 
 Claim Description:
-: The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.
+: The claim `authorization_details` contains, a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.
+
+Change Controller:
+: IESG
+
+Specification Document(s):
+: (#jwt_based_access_tokens) of this document
+
+## OAuth Token Introspection Response
+
+This specification requests registration of the following value in the IANA "OAuth Token Introspection Response Registry" established by [@!RFC7662]. 
+
+{spacing="compact"}
+Name:
+: `authorization_details`
+
+Description:
+: The member `authorization_details` contains, a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.
  
 Change Controller:
 : IESG
 
 Specification Document(s):
-: (#authz_details) of this document
+: (#token_introspection) of this document
 
 ## OAuth Authorization Server Metadata
 
