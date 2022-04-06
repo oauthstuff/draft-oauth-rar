@@ -977,6 +977,26 @@ and Aaron Parecki for their valuable feedback to this specification.
 
 # IANA Considerations {#iana_considerations}
 
+## OAuth Parameters Registration
+
+This specification requests registration of the following parameter
+in the "OAuth Parameters" registry [@IANA.OAuth.Parameters]
+established by [@!RFC6749].
+
+{spacing="compact"}
+Name:
+: `authorization_details`
+
+Parameter Usage Location:
+: authorization request, token request, token response
+
+Change Controller:
+: IESG
+
+Specification Document(s):
+: this document
+
+
 ## JSON Web Token Claims Registration
 
 This specification requests registration of the following value in the IANA "JSON Web Token Claims Registry" established by [@!RFC7519]. 
