@@ -1424,9 +1424,13 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    [[ To be removed from the final specification ]]
 
+-11
+
+* Updated IANA registrations adding `authorization_details` parameter
+
    -10
 
-    * Updated IANA registrations
+* Updated IANA registrations
 
    -09
 
