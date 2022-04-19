@@ -795,9 +795,7 @@ In this case, the AS added the following example claims to the JWT-based access 
 
 ## Token Introspection {#token_introspection}
 
-In the case of opaque access tokens, the data provided to a certain RS is determined using the RS's identifier with the AS (see [@I-D.ietf-oauth-jwt-introspection-response], section 3). 
-
-The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. 
+Token introspection [!@RFC7662] provides a means for an RS to inquire to the AS what a given access token is good for. The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. The `authorization_details` member contains the same structure defined in (#authz_details), potentially filtered and extended for the RS making the introspection request.
 
 Here is an example for the payment initiation example RS:
 
@@ -1423,6 +1421,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+-12
+
+* Clarify introspection response.
 
 -11
 
