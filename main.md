@@ -108,7 +108,7 @@ The request parameter `authorization_details` contains, in JSON notation, an arr
 
 This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST ensure that there is no collision between different authorization details types that it supports. The AS MUST NOT do any collation or normalization of data types during comparison.
 
-An `authorization_details` array MAY contain several entries of the same `type`.
+An `authorization_details` array MAY contain multiple entries of the same `type`.
 
 This example shows the specification of authorization details of type `payment_initiation` using the example data shown above: 
 
