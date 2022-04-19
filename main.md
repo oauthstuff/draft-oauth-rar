@@ -491,11 +491,11 @@ The client could now request the AS to issue an access token assigned with the p
 ```JSON
 [
    {
-      "type":"account_information",
-      "actions":[
+      "type": "account_information",
+      "actions": [
          "list_accounts"
       ],
-      "locations":[
+      "locations": [
          "https://example.com/accounts"
       ]
    }
