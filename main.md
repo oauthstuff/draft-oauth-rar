@@ -708,7 +708,7 @@ For another example, the client is asking for access to a medical record but doe
 ```
 Figure: Example for requested authorization details.
 
-When the user interacts with the AS, they select which of the medical records they are responsible for to give to the client. This information gets returned with the access token.
+When the user interacts with the AS, they select which of the medical records they are responsible for giving to the client. This information gets returned with the access token.
 
 ```JSON
 {
