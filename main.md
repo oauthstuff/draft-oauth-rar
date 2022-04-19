@@ -212,7 +212,7 @@ The following example shows how an implementation could utilize the namespace `h
    ]
 }
 ```
-Figure: Example for authorization details with an URL as type identifier.
+Figure: Example for authorization details with a URL as type identifier.
 
 ## Common data fields {#common_data_fields}
 
@@ -358,7 +358,7 @@ The `authorization_details` authorization request parameter can be used to speci
 * Device Authorization Request as specified in [@!RFC8628],
 * Backchannel Authentication Requests as defined in [@OpenID.CIBA].
 
-In case of a authorization requests as defined in [@!RFC6749], implementors MAY consider to use pushed authorization requests [@RFC9126] to improve to security, privacy, and reliability of the flow. See (#security_considerations), (#privacy_considerations), and (#large_requests) for details. 
+In case of authorization requests as defined in [@!RFC6749], implementors MAY consider to use pushed authorization requests [@RFC9126] to improve to security, privacy, and reliability of the flow. See (#security_considerations), (#privacy_considerations), and (#large_requests) for details. 
 
 Parameter encoding is determined by the respective context. In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format of the serialized JSON as shown in the following using the example from (#authz_details) (line breaks for display purposes only):
 
@@ -594,7 +594,7 @@ For our running example, this would look like this:
 ```JSON
 HTTP/1.1 200 OK
 Content-Type: application/json
-Cache-Control: no-cache, no-store
+Cache-Control: no-store
 
 {
    "access_token": "2YotnFZFEjr1zCsicMWpAA",
@@ -629,7 +629,7 @@ Figure: Example token response.
 
 ## Enriched authorization details in Token Response
 
-The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to account information but leave the decision about the accounts it will be able to access to the user. The user would select the sub set of accounts they wants the client to entitle to access in the course of the authorization process. As one design option to convey the selected accounts, the authorization server could add this information to the respective authorization details object. 
+The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to account information but leave the decision about the accounts it will be able to access to the user. The user would select the sub set of accounts they want the client to entitle to access in the course of the authorization process. As one design option to convey the selected accounts, the authorization server could add this information to the respective authorization details object. 
 
 As an example, the requested authorization detail parameter could look like this:
 
@@ -653,7 +653,7 @@ The authorization server then would expand the authorization details object and 
 ```JSON
 HTTP/1.1 200 OK
 Content-Type: application/json
-Cache-Control: no-cache, no-store
+Cache-Control: no-store
 
 {
    "access_token":"2YotnFZFEjr1zCsicMWpAA",
@@ -789,9 +789,9 @@ Figure: Example for authorization details in JWT-based access token.
 
 In this case, the AS added the following example claims to the JWT-based access token:
 
-* `sub`: conveys the user on which behalf the client is asking for payment initation
+* `sub`: conveys the user on which behalf the client is asking for payment initiation
 * `txn`: transaction id used to trace the transaction across the services of provider `example.com`
-* `debtorAccount`: API-specific field containing the debtor account. In the example, this account was not passed in the authorization details but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particular account. In this case, they is the owner. This data is used for access control at the payment API (the RS).
+* `debtorAccount`: API-specific field containing the debtor account. In the example, this account was not passed in the authorization details but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particular account. In this case, they are the owner. This data is used for access control at the payment API (the RS).
 
 ## Token Introspection {#token_introspection}
 
@@ -910,7 +910,7 @@ Note however that `type` values are identifiers understood by the AS and, to the
 
 ## Large requests {#large_requests}
 
-Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers should therefore consider using the `request_uri` parameter as defined in [@RFC9101] in combination with the pushed request object mechanism as defined in [@RFC9126] to pass authorization details in a reliable and secure manner. Here is an example of such a pushed authorization request that sends the authorization request data directly to the AS via a HTTPS-protected connection: 
+Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers should therefore consider using the `request_uri` parameter as defined in [@RFC9101] in combination with the pushed request object mechanism as defined in [@RFC9126] to pass authorization details in a reliable and secure manner. Here is an example of such a pushed authorization request that sends the authorization request data directly to the AS via an HTTPS-protected connection: 
 
 ```
   POST /as/par HTTP/1.1
@@ -941,19 +941,19 @@ Figure: Example for large request including authorization details.
 # Security Considerations {#security_considerations}
 
 Authorization details are sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. If integrity of the 
-authorization details is a concern, clients MUST protect authorization details against tampering and swapping. This can be achieved by signing the request using signed request objects as defined in [@RFC9101] or using the `request_uri` authorization request parameter as defined in [@RFC9101] in conjunction with [@RFC9126] to pass the URI of the request object to the authorization server.  
+authorization details is a concern, clients MUST protect authorization details against tampering and swapping. This can be achieved by signing the request using signed request objects as defined in [@RFC9101] or using the `request_uri` authorization request parameter as defined in [@RFC9101] in conjunction with [@RFC9126] to pass the URI of the request object to the authorization server.
 
-All strings MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values. 
+All strings MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values.
 
 The common data field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
 
 # Privacy Considerations {#privacy_considerations}
 
-Implementers MUST design and use authorization details in a privacy-preserving manner. 
+Implementers MUST design and use authorization details in a privacy-preserving manner.
 
-Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The later does not require application level encryption but it requires another message exchange between client and AS.  
+Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The latter does not require application level encryption but it requires another message exchange between client and AS.
 
-Even if the request data is encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attacker vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication). 
+Even if the request data is encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attacker vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).
 
 The AS MUST take into consideration the privacy implications when sharing authorization details with the client or resource servers. The AS SHOULD share this data with those parties on a "need to know" basis.
 
@@ -1082,7 +1082,7 @@ Change Controller:
 Specification Document(s):
 : (#authz_details_error) of [[ this document ]]
 
-<reference anchor="OIDC" target="http://openid.net/specs/openid-connect-core-1_0.html">
+<reference anchor="OIDC" target="https://openid.net/specs/openid-connect-core-1_0.html">
   <front>
     <title>OpenID Connect Core 1.0 incorporating errata set 1</title>
     <author initials="N." surname="Sakimura" fullname="Nat Sakimura">
@@ -1143,7 +1143,7 @@ Specification Document(s):
   </front>
 </reference>
 
-<reference anchor="IANA.OAuth.Parameters" target="http://www.iana.org/assignments/oauth-parameters">
+<reference anchor="IANA.OAuth.Parameters" target="https://www.iana.org/assignments/oauth-parameters">
  <front>
   <title>OAuth Parameters</title>
   <author>
@@ -1327,21 +1327,21 @@ The information necessary to authorize the request at the API is only known by t
 In the first example, the authorization details object contains the identifier of an organization. In this case, the API needs to know if the given organization has the lawful basis for processing personal health information to give access to sensitive data.
 
 ```JSON
-"authorization_details":{ 
-    "type":"patient_record",
+"authorization_details": { 
+    "type": "patient_record",
     "requesting_entity": {
         "type": "Practitioner",
         "identifier": [
         {
-            "system": " urn:oid:2.16.578.1.12.4.1.4.4",
+            "system": "urn:oid:2.16.578.1.12.4.1.4.4",
             "value": "1234567"
         }],
-        "practitioner_role":{ 
-            "organization":{ 
+        "practitioner_role": { 
+            "organization": { 
                 "identifier": {
-                    "system":"urn:oid:2.16.578.1.12.4.1.2.101",
-                    "type":"ENH",
-                    "value":"[organizational number]"
+                    "system": "urn:oid:2.16.578.1.12.4.1.2.101",
+                    "type": "ENH",
+                    "value": "[organizational number]"
                 }
             }
         }
@@ -1371,7 +1371,7 @@ In the second example, the API requires more information to authorize the reques
          "type": "Practitioner",
          "identifier": [
             {
-               "system": " urn:oid:2.16.578.1.12.4.1.4.4",
+               "system": "urn:oid:2.16.578.1.12.4.1.4.4",
                "value": "1234567"
             }
          ],
@@ -1456,7 +1456,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    * added `authorization_details` token request parameter and discussion on authorization details comparison
    * added `privileges` field to authorization details (to align with GNAP)
    * added IANA text and changed metadata parameter names
-   * added text about use of machine-readable type schemas, e.g JSON Schema
+   * added text about use of machine-readable type schemas, e.g. JSON Schema
    * added text on how authorization details are determined for access token issued with token response
    * added token error response and further error conditions to authorization error response
 
