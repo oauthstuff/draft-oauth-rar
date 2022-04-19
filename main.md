@@ -759,7 +759,7 @@ The following shows the contents of an example JWT for the payment initiation ex
    "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
    "authorization_details": [
       {
-         "type": "https://www.someorg.com/payment_initiation",
+         "type": "https://scheme.example.com/payment_initiation",
          "actions": [
             "initiate",
             "status",
@@ -811,7 +811,7 @@ Here is an example for the payment initiation example RS:
    "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
    "authorization_details": [
       {
-         "type": "https://www.someorg.com/payment_initiation",
+         "type": "https://scheme.example.com/payment_initiation",
          "actions": [
             "initiate",
             "status",
