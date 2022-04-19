@@ -110,7 +110,7 @@ This field MUST be compared using an exact byte match of the string value agains
 
 An `authorization_details` array MAY contain several entries of the same `type`.
 
-This example shows the specification of authorization details of type `payment_initation` using the example data shown above: 
+This example shows the specification of authorization details of type `payment_initiation` using the example data shown above: 
 
 ```JSON
 [
