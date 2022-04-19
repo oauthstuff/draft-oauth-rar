@@ -54,7 +54,7 @@ This mechanism is sufficient to implement static scenarios and
 coarse-grained authorization requests, such as "give me read access to
 the resource owner's profile" but it is not sufficient to specify
 fine-grained authorization requirements, such as "please let me transfer an amount of 45 Euros to Merchant A" 
-or "please give me read access to folder A and write access to file X".
+or "please give me read access to directory A and write access to file X".
 
 This specification introduces a new parameter `authorization_details` that allows clients to specify their fine-grained authorization requirements using the expressiveness of JSON data structures. 
 
