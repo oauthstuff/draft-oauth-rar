@@ -470,7 +470,7 @@ ask for a new access token with "fewer permissions" than had been previously aut
 Since the nature of an authorization details request is based solely on the API or APIs that it is describing, there is not
 a simple means of comparing any two arbitrary authorization details requests. 
 Authorization servers should not rely on simple object comparison in most cases, as the intersection of some fields
-within a request could have side effects in the access rights granted, depending on how the API
+within a request could have side effects on the access rights granted, depending on how the API
 has been designed and deployed. This is a similar effect to the scope values used with some APIs.
 
 However, when comparing a new request to an existing request, authorization servers can use the same 
