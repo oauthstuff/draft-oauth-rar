@@ -603,7 +603,7 @@ Cache-Control: no-store
    "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA",
    "authorization_details": [
       {
-         "type": "https://www.someorg.com/payment_initiation",
+         "type": "https://example.com/payment_initiation",
          "actions": [
             "initiate",
             "status",
