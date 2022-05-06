@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-12"
+value = "draft-ietf-oauth-rar-13"
 stream = "IETF"
 status = "standard"
 
@@ -1425,6 +1425,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 -12
 
 * Clarify introspection response.
+* Editorial updates
 
 -11
 
