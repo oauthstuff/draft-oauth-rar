@@ -358,7 +358,7 @@ The `authorization_details` authorization request parameter can be used to speci
 * Device Authorization Request as specified in [@!RFC8628],
 * Backchannel Authentication Requests as defined in [@OpenID.CIBA].
 
-In case of authorization requests as defined in [@!RFC6749], implementors MAY consider to use pushed authorization requests [@RFC9126] to improve to security, privacy, and reliability of the flow. See (#security_considerations), (#privacy_considerations), and (#large_requests) for details. 
+In case of authorization requests as defined in [@!RFC6749], implementors MAY consider using pushed authorization requests [@RFC9126] to improve to security, privacy, and reliability of the flow. See (#security_considerations), (#privacy_considerations), and (#large_requests) for details.
 
 Parameter encoding is determined by the respective context. In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format of the serialized JSON as shown in the following using the example from (#authz_details) (line breaks for display purposes only):
 
@@ -389,7 +389,7 @@ Based on the data provided in the `authorization_details` parameter the AS will 
 
 Note: the user may also grant a subset of the requested authorization details. 
 
-In this example, the client wants to get access to account information and intiate a payment:
+In this example, the client wants to get access to account information and initiate a payment:
 
 ```JSON
 [
@@ -566,7 +566,7 @@ The AS would compare the `type` value and find the `privileges` value subsumes a
 `read` or `write` access that had been granted to the client previously. Note that other
 API definitions can use `privileges` in a non-subsuming fashion.
 
-The next example shows how the client can use the common data element `locations` (see (#common_data_fields)) to request the isaunce of an access token restricted to a certain resource server. In our running example, the client may ask for all permissions of the approved grant of type `payment_iniation` applicable to the resource server residing at `https://example.com/payments` as follows:  
+The next example shows how the client can use the common data element `locations` (see (#common_data_fields)) to request the issuance of an access token restricted to a certain resource server. In our running example, the client may ask for all permissions of the approved grant of type `payment_iniation` applicable to the resource server residing at `https://example.com/payments` as follows:
 
 ```JSON
 [
@@ -603,7 +603,7 @@ Cache-Control: no-store
    "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA",
    "authorization_details": [
       {
-         "type": "https://scheme.example.com/payment_initiation",
+         "type": "payment_initiation",
          "actions": [
             "initiate",
             "status",
@@ -629,7 +629,7 @@ Figure: Example token response.
 
 ## Enriched authorization details in Token Response
 
-The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to account information but leave the decision about the accounts it will be able to access to the user. The user would select the sub set of accounts they want the client to entitle to access in the course of the authorization process. As one design option to convey the selected accounts, the authorization server could add this information to the respective authorization details object. 
+The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to account information but leave the decision about the accounts it will be able to access to the user. The user would select the subset of accounts they want the client to entitle to access in the course of the authorization process. As one design option to convey the selected accounts, the authorization server could add this information to the respective authorization details object.
 
 As an example, the requested authorization detail parameter could look like this:
 
@@ -795,7 +795,7 @@ In this case, the AS added the following example claims to the JWT-based access 
 
 ## Token Introspection {#token_introspection}
 
-Token introspection [!@RFC7662] provides a means for an RS to inquire to the AS what a given access token is good for. The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. The `authorization_details` member contains the same structure defined in (#authz_details), potentially filtered and extended for the RS making the introspection request.
+Token introspection [@!RFC7662] provides a means for an RS to inquire to the AS what a given access token is good for. The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. The `authorization_details` member contains the same structure defined in (#authz_details), potentially filtered and extended for the RS making the introspection request.
 
 Here is an example for the payment initiation example RS:
 
@@ -883,26 +883,26 @@ Using authorization details in a certain deployment will require the following s
 * (if needed) Determine how authorization details are reflected in access token content or introspection responses
 * Determine how the resource server(s) process(s) the authorization details or token data derived from authorization details
 
-## Minimal product support
+## Minimal implementation support
 
-Products supporting this specification should provide the following basic functions:
+General authorization server implementations supporting this specification should provide the following basic functions:
 
 * Support advertisement of supported authorization details types in OAuth server metadata
 * Accept `authorization_details` parameter in authorization requests including basic syntax check for compliance with this specification 
 * Support storage of consented authorization details as part of a grant
 * Implement default behavior for adding authorization details to access tokens and token introspection responses in order to make them available to resource servers (similar to scope values). This should work with any grant type, especially `authorization_code` and `refresh_token`. 
 
-Processing and presentation of authorization details will vary significantly among different authorization details types. Products should therefore support customization of the respective behavior. In particular, products should 
+Processing and presentation of authorization details will vary significantly among different authorization details types. Implementations should therefore support customization of the respective behavior. In particular, implementations should:
   
 * allow deployments to determine presentation of the authorization details
 * allow deployments to modify requested authorization details in the user consent process, e.g. adding fields 
 * allow deployments to merge requested and pre-existing authorization details
 
-One option would be to have a mechanism allowing the registration of extension modules, each of them responsible for rendering the respective user consent and any transformation needed to provide the data needed to the resource server by way of structured access tokens or token introspection responses.
+One approach to supporting such customization would be to have a mechanism allowing the registration of extension modules, each of them responsible for rendering the respective user consent and any transformation needed to provide the data needed to the resource server by way of structured access tokens or token introspection responses.
 
 ## Use of Machine-readable Type Schemas
 
-Products might allow deployments to use machine-readable schema languages for defining authorization details types to facilitate creating and validating authorization details objects against such schemas. For example, if an authorization details `type` were defined using JSON Schemas [@JSON.Schema], the JSON schema id could be used as `type` value in the respective authorization details objects.
+Implementations might allow deployments to use machine-readable schema languages for defining authorization details types to facilitate creating and validating authorization details objects against such schemas. For example, if an authorization details `type` were defined using JSON Schemas [@JSON.Schema], the JSON schema id could be used as `type` value in the respective authorization details objects.
 
 Note however that `type` values are identifiers understood by the AS and, to the extent necessary, the client and RS. This specification makes no assumption that a `type` value point to a machine-readable schema format, or that any party in the system (such as the client, AS, or RS) dereference or process the contents of the `type` field in any specific way. 
 
@@ -945,15 +945,17 @@ All strings MUST be compared using the exact byte representation of the characte
 
 The common data field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
 
+The Security Considerations of [@RFC6749], [@RFC7662], and [@RFC8414] also apply.
+
 # Privacy Considerations {#privacy_considerations}
 
-Implementers MUST design and use authorization details in a privacy-preserving manner.
+Implementers must design and use authorization details in a privacy-preserving manner.
 
 Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The latter does not require application level encryption but it requires another message exchange between client and AS.
 
 Even if the request data is encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attacker vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).
 
-The AS MUST take into consideration the privacy implications when sharing authorization details with the client or resource servers. The AS SHOULD share this data with those parties on a "need to know" basis.
+The AS MUST take into consideration the privacy implications when sharing authorization details with the client or resource servers. The AS SHOULD share this data with those parties on a "need to know" basis as determined by local policy.
 
 # Acknowledgements {#Acknowledgements}
       
@@ -1421,6 +1423,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+-13
+
+* Editorial updates from Roman Danyliw's AD review
 
 -12
 
