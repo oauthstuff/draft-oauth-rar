@@ -216,7 +216,7 @@ Figure: Example for authorization details with a URL as type identifier.
 
 ## Common data fields {#common_data_fields}
 
-This specification defines a set of common data fields that are designed to be usable across different types of APIs. These data fields MAY be combined in different ways depending on the needs of the API. All data fields are OPTIONAL for use by a given API definition. The allowable values of all fields are determined by the API being protected.
+This specification defines a set of common data fields that are designed to be usable across different types of APIs. This specification does not require the use of any of these common fields by an API definition, but instead provides them as reusable generic components for API designers to make use of. The allowable values of all fields are determined by the API being protected, as defined by a particular "type" value.
 
 `locations`:
 :   An array of strings representing the location of the resource or resource server. These strings are typically URIs identifying the
@@ -1427,6 +1427,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 -13
 
 * Editorial updates from Roman Danyliw's AD review
+* Removed normative language from field definitions.
 
 -12
 
