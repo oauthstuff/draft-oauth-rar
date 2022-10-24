@@ -587,7 +587,7 @@ Figure: Example for authorization details requesting an audience restricted acce
 
 In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
 
-The authorization details assigned to the access token issued in a token response are determined by the `authorization_details` parameter of the corresponding token request. If the client does not specify the `authorization_details` token request parameters, the AS determines the resulting authorization details at its discretion. The authorization server MAY consider the values of other parameters such as `resource` and `scope` if they are present during this processing, and the details of such considerations are outside the scope of this specification.
+The authorization details assigned to the access token issued in a token response are determined by the `authorization_details` parameter of the corresponding token request. If the client does not specify the `authorization_details` token request parameters, the AS determines the resulting authorization details at its discretion.
 
 The AS MAY omit values in the `authorization_details` to the client in the token Response if these are deemed of no intended use for the client.
 
@@ -736,8 +736,7 @@ Note: the client needs to be aware upfront of the possibility that a certain aut
 
 # Token Error Response
 
-The AS MUST refuse to process any unknown authorization details `type` or authorization details not conforming to the respective `type` definition. If any of the objects in `authorization_details` contains an unknown authorization details `type` or an object of known `type` but containing unknown fields or fields of the wrong `type`,  fields 
-with invalid values, or if required fields are missing, the AS MUST abort processing and respond with an error `invalid_authorization_details` to the client. 
+The Token Error Response MUST conform the the rules given in (#authz_details_error).
 
 # Resource Servers {#resource_servers}
 
@@ -1429,6 +1428,8 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 -14 
 
  * Added clarification regarding authorization details types matching
+ * Removed duplicate text on use of "scope" and "resource" parameters alongside "authorization_details"
+ * Replaced duplicate error response description in Section 8 with reference to Section 5
 
 -13
 
