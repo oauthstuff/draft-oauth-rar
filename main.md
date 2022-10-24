@@ -106,7 +106,9 @@ The request parameter `authorization_details` contains, in JSON notation, an arr
 `type`:
 :   The type of authorization details as a string. The value of the `type` field determines the allowable contents of the object which contains it. This field is REQUIRED.
 
-This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST ensure that there is no collision between different authorization details types that it supports. The AS MUST NOT do any collation or normalization of data types during comparison.
+This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST NOT do any collation or normalization of data types during comparison. String values with different byte representations constitute different types.
+
+The AS MUST ensure that there is no collision between different authorization details types that it supports. 
 
 An `authorization_details` array MAY contain multiple entries of the same `type`.
 
@@ -1423,6 +1425,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+-14 
+
+ * Added clarification regarding authorization details types matching
 
 -13
 
