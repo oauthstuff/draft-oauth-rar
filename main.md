@@ -469,13 +469,13 @@ The `authorization_details` token request parameter can be used to specify the a
 Many actions in the OAuth protocol allow the AS and RS to make security decisions based on whether or not the request
 is asking for "more" or "less" than a previous, existing request. For example, upon refreshing a token, the client can
 ask for a new access token with "fewer permissions" than had been previously authorized by the resource owner.
-Since the nature of an authorization details request is based solely on the API or APIs that it is describing, there is not
-a simple means of comparing any two arbitrary authorization details requests. 
+Since the semantics of the fields in the authorization details will be implementation specific to a given API or set of APIs, there is no
+standardized mechanism to compare two arbitrary authorization detail requests.
 Authorization servers should not rely on simple object comparison in most cases, as the intersection of some fields
 within a request could have side effects on the access rights granted, depending on how the API
 has been designed and deployed. This is a similar effect to the scope values used with some APIs.
 
-However, when comparing a new request to an existing request, authorization servers can use the same 
+When comparing a new request to an existing request, authorization servers can use the same 
 processing techniques as used in granting the request in the first place to determine if a resource
 owner needs to authorize the request. The details of this comparison are dependent on the definition
 of the `type` of authorization request and outside the scope of this specification, but common patterns
@@ -889,7 +889,7 @@ Using authorization details in a certain deployment will require the following s
 General authorization server implementations supporting this specification should provide the following basic functions:
 
 * Support advertisement of supported authorization details types in OAuth server metadata
-* Accept `authorization_details` parameter in authorization requests including basic syntax check for compliance with this specification 
+* Accept `authorization_details` parameter in authorization requests in conformance with this specification 
 * Support storage of consented authorization details as part of a grant
 * Implement default behavior for adding authorization details to access tokens and token introspection responses in order to make them available to resource servers (similar to scope values). This should work with any grant type, especially `authorization_code` and `refresh_token`. 
 
@@ -1424,6 +1424,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+-15
+
+* Editorial updates from Roman Danyliw's AD review
 
 -14 
 
