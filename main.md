@@ -49,7 +49,7 @@ used to carry fine-grained authorization data in OAuth messages.
 # Introduction {#Introduction}
 
 The OAuth 2.0 authorization framework [@!RFC6749] defines the parameter `scope` that allows OAuth clients to
-specify the requested scope, i.e., the permission, of an access token.
+specify the requested scope, i.e., the limited capability, of an access token.
 This mechanism is sufficient to implement static scenarios and
 coarse-grained authorization requests, such as "give me read access to
 the resource owner's profile" but it is not sufficient to specify
@@ -796,7 +796,7 @@ In this case, the AS added the following example claims to the JWT-based access 
 
 ## Token Introspection {#token_introspection}
 
-Token introspection [@!RFC7662] provides a means for an RS to inquire to the AS what a given access token is good for. The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. The `authorization_details` member contains the same structure defined in (#authz_details), potentially filtered and extended for the RS making the introspection request.
+Token introspection [@!RFC7662] provides a means for an RS to query the AS to determine information about an access token. The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. The `authorization_details` member contains the same structure defined in (#authz_details), potentially filtered and extended for the RS making the introspection request.
 
 Here is an example for the payment initiation example RS:
 
@@ -879,7 +879,7 @@ Using authorization details in a certain deployment will require the following s
 
 * Define authorization details types
 * Publish authorization details types in the OAuth server metadata
-* Determine how authorization details are shown to the user in the user consent 
+* Determine how authorization details are shown to the user in the user consent prompt
 * (if needed) Enrich authorization details in the user consent process (e.g. add selected accounts or set expirations)
 * (if needed) Determine how authorization details are reflected in access token content or introspection responses
 * Determine how the resource server(s) process(s) the authorization details or token data derived from authorization details
@@ -954,7 +954,7 @@ Implementers must design and use authorization details in a privacy-preserving m
 
 Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The latter does not require application level encryption but it requires another message exchange between client and AS.
 
-Even if the request data is encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attacker vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).
+Even if the request data is encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attack vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).
 
 The AS MUST take into consideration the privacy implications when sharing authorization details with the client or resource servers. The AS SHOULD share this data with those parties on a "need to know" basis as determined by local policy.
 
