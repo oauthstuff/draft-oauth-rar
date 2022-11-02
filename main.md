@@ -952,11 +952,11 @@ The Security Considerations of [@RFC6749], [@RFC7662], and [@RFC8414] also apply
 
 It is especially important for implementers to design and use authorization details in a privacy-preserving manner.
 
-Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The latter does not require application level encryption but it requires another message exchange between client and AS.
+Any sensitive personal data included in authorization details must be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The latter does not require application level encryption but it requires another message exchange between client and AS.
 
-Even if the request data is encrypted, an attacker could use the authorization server to learn the user's data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attack vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).
+Even if the request data is encrypted, an attacker could use the authorization server to learn the user's data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations need to consider this attack vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).
 
-The AS MUST take into consideration the privacy implications when sharing authorization details with the client or resource servers. The AS SHOULD share this data with those parties on a "need to know" basis as determined by local policy.
+The AS needs to take into consideration the privacy implications when sharing authorization details with the client or resource servers. The AS should share this data with those parties on a "need to know" basis as determined by local policy.
 
 # Acknowledgements {#Acknowledgements}
       
