@@ -796,7 +796,7 @@ In this case, the AS added the following example claims to the JWT-based access 
 
 ## Token Introspection {#token_introspection}
 
-Token introspection [@!RFC7662] provides a means for an RS to query the AS to determine information about an access token. It is RECOMMENDED that the applicable authorization detail information be conveyed with `authorization_details` as a top-level member of the introspection response JSON. The `authorization_details` member MUST contain the same structure defined in (#authz_details), potentially filtered and extended for the RS making the introspection request.
+Token introspection [@!RFC7662] provides a means for an RS to query the AS to determine information about an access token. If the AS includes authorization detail information for the token in its response, the information MUST be conveyed with `authorization_details` as a top-level member of the introspection response JSON object. The `authorization_details` member MUST contain the same structure defined in (#authz_details), potentially filtered and extended for the RS making the introspection request.
 
 Here is an example for the payment initiation example RS:
 
