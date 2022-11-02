@@ -840,7 +840,7 @@ Figure: Example for authorization details in introspection response.
 
 # Metadata {#metadata}
 
-Authorization servers SHOULD publish the supported list of authorization details types using the metadata parameter `authorization_details_types_supported`, which is a JSON array.
+If the AS wants to advertise its support for this feature, the supported list of authorization details types MUST be included in the AS metadata response [@!RFC8414] using the metadata parameter `authorization_details_types_supported`, which is a JSON array.
 
 This is illustrated by the following example:
 
