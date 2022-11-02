@@ -950,7 +950,7 @@ The Security Considerations of [@RFC6749], [@RFC7662], and [@RFC8414] also apply
 
 # Privacy Considerations {#privacy_considerations}
 
-Implementers MUST design and use authorization details in a privacy-preserving manner.
+It is especially important for implementers to design and use authorization details in a privacy-preserving manner.
 
 Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The latter does not require application level encryption but it requires another message exchange between client and AS.
 
