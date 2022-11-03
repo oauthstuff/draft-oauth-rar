@@ -796,7 +796,7 @@ In this case, the AS added the following example claims to the JWT-based access 
 
 ## Token Introspection {#token_introspection}
 
-Token introspection [@!RFC7662] provides a means for an RS to query the AS to determine information about an access token. The token introspection response provides the RS with the authorization details applicable to it as a top-level JSON element along with the claims the RS requires for request processing. The `authorization_details` member contains the same structure defined in (#authz_details), potentially filtered and extended for the RS making the introspection request.
+Token introspection [@!RFC7662] provides a means for an RS to query the AS to determine information about an access token. If the AS includes authorization detail information for the token in its response, the information MUST be conveyed with `authorization_details` as a top-level member of the introspection response JSON object. The `authorization_details` member MUST contain the same structure defined in (#authz_details), potentially filtered and extended for the RS making the introspection request.
 
 Here is an example for the payment initiation example RS:
 
@@ -840,7 +840,7 @@ Figure: Example for authorization details in introspection response.
 
 # Metadata {#metadata}
 
-The AS publishes the list of authorization details types it supports using the metadata parameter `authorization_details_types_supported`, which is a JSON array.
+If the AS wants to advertise its support for this feature, the supported list of authorization details types MUST be included in the AS metadata response [@!RFC8414] using the metadata parameter `authorization_details_types_supported`, which is a JSON array.
 
 This is illustrated by the following example:
 
@@ -855,7 +855,7 @@ This is illustrated by the following example:
 ```
 Figure: Example for server metadata about authorization details.
 
-Clients announce the authorization details types they use in the new dynamic client registration parameter `authorization_details_types`.
+Clients MAY announce the authorization details types they use in the new dynamic client registration parameter `authorization_details_types`.
 
 This is illustrated by the following example:
 
@@ -903,7 +903,7 @@ One approach to supporting such customization would be to have a mechanism allow
 
 ## Use of Machine-readable Type Schemas
 
-Implementations might allow deployments to use machine-readable schema languages for defining authorization details types to facilitate creating and validating authorization details objects against such schemas. For example, if an authorization details `type` were defined using JSON Schemas [@JSON.Schema], the JSON schema id could be used as `type` value in the respective authorization details objects.
+Implementations might allow deployments to use machine-readable schema languages for defining authorization details types to facilitate creating and validating authorization details objects against such schemas. For example, if an authorization details `type` were defined using JSON Schemas [@JSON.Schema], the JSON Schema identifier could be used as `type` value in the respective authorization details objects.
 
 Note however that `type` values are identifiers understood by the AS and, to the extent necessary, the client and RS. This specification makes no assumption that a `type` value point to a machine-readable schema format, or that any party in the system (such as the client, AS, or RS) dereference or process the contents of the `type` field in any specific way. 
 
@@ -950,13 +950,13 @@ The Security Considerations of [@RFC6749], [@RFC7662], and [@RFC8414] also apply
 
 # Privacy Considerations {#privacy_considerations}
 
-Implementers must design and use authorization details in a privacy-preserving manner.
+It is especially important for implementers to design and use authorization details in a privacy-preserving manner.
 
-Any sensitive personal data included in authorization details MUST be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The latter does not require application level encryption but it requires another message exchange between client and AS.
+Any sensitive personal data included in authorization details must be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The latter does not require application level encryption but it requires another message exchange between client and AS.
 
-Even if the request data is encrypted, an attacker could use the authorization server to learn the user data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations MUST consider this attack vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).
+Even if the request data is encrypted, an attacker could use the authorization server to learn the user's data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations need to consider this attack vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).
 
-The AS MUST take into consideration the privacy implications when sharing authorization details with the client or resource servers. The AS SHOULD share this data with those parties on a "need to know" basis as determined by local policy.
+The AS needs to take into consideration the privacy implications when sharing authorization details with the client or resource servers. The AS should share this data with those parties on a "need to know" basis as determined by local policy.
 
 # Acknowledgements {#Acknowledgements}
       
