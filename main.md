@@ -10,7 +10,7 @@ keyword = ["security", "oauth2"]
 name = "Internet-Draft"
 value = "draft-ietf-oauth-rar-15"
 stream = "IETF"
-status = "standard"
+status = "standard" 
 
 [[author]]
 initials="T."
@@ -56,7 +56,7 @@ the resource owner's profile" but it is not sufficient to specify
 fine-grained authorization requirements, such as "please let me transfer an amount of 45 Euros to Merchant A" 
 or "please give me read access to directory A and write access to file X".
 
-This specification introduces a new parameter `authorization_details` that allows clients to specify their fine-grained authorization requirements using the expressiveness of JSON data structures. 
+This specification introduces a new parameter `authorization_details` that allows clients to specify their fine-grained authorization requirements using the expressiveness of JSON [@RFC8259] data structures. 
 
 For example, an authorization request for a credit transfer (designated as "payment initiation" in several open banking initiatives) can be represented using a JSON object like this:
 
@@ -185,7 +185,7 @@ Note: The AS will make this data subsequently available to the respective resour
 
 ## Authorization Details Types
 
-Interpretation of the value of the `type` parameter, and the object fields that the `type` parameter allows, is under the control of the AS. However, the value of the `type` parameter is also generally documented and intended to be used by developers, it is RECOMMENDED that API designers choose `type` values that are easily copied without ambiguity. For example, some glyphs have multiple Unicode code points for the same visual character, and a developer could potentially type a different character than what the AS has defined. Possible means of reducing potential confusion are limiting the value to ASCII characters, providing a machine-readable listing of data type values, or instructing developers to copy and paste directly from the documentation.
+Interpretation of the value of the `type` parameter, and the object fields that the `type` parameter allows, is under the control of the AS. However, the value of the `type` parameter is also generally documented and intended to be used by developers, it is RECOMMENDED that API designers choose `type` values that are easily copied without ambiguity. For example, some glyphs have multiple Unicode code points for the same visual character, and a developer could potentially type a different character than what the AS has defined. Possible means of reducing potential confusion are limiting the value to ASCII [@RFC0020] characters, providing a machine-readable listing of data type values, or instructing developers to copy and paste directly from the documentation.
 
 If an application or API is expected to be deployed across different servers, such as the case in an open standard, the API designer is RECOMMENDED to use a collision-resistant namespace under their control, such as a URI that the API designer controls.
 
@@ -236,7 +236,7 @@ This specification defines a set of common data fields that are designed to be u
 `privileges`:
 :   An array of strings representing the types or levels of privilege being requested at the resource.
 
-When different common data fields are used in combination, the permissions the client requests is the cartesian product of the values. That is to 
+When different common data fields are used in combination, the permissions the client requests are the cartesian product of the values. That is to 
 say, the object represents a request for all `action` values listed within the object
 to be used at all `locations` values listed within the object for all `datatype`
 values listed within the object. In the following example, the client is requesting `read` and `write` 
@@ -360,7 +360,7 @@ The `authorization_details` authorization request parameter can be used to speci
 * Device Authorization Request as specified in [@!RFC8628],
 * Backchannel Authentication Requests as defined in [@OpenID.CIBA].
 
-In case of authorization requests as defined in [@!RFC6749], implementors MAY consider using pushed authorization requests [@RFC9126] to improve to security, privacy, and reliability of the flow. See (#security_considerations), (#privacy_considerations), and (#large_requests) for details.
+In case of authorization requests as defined in [@!RFC6749], implementors MAY consider using pushed authorization requests [@RFC9126] to improve the security, privacy, and reliability of the flow. See (#security_considerations), (#privacy_considerations), and (#large_requests) for details.
 
 Parameter encoding is determined by the respective context. In the context of an authorization request according to [@!RFC6749], the parameter is encoded using the `application/x-www-form-urlencoded` format of the serialized JSON as shown in the following using the example from (#authz_details) (line breaks for display purposes only):
 
@@ -1075,7 +1075,7 @@ Metadata Name:
 : `invalid_authorization_details`
 
 Metadata Description:
-: indicates invalid `authorization_details_parameter`to the client.
+: indicates invalid `authorization_details_parameter` to the client.
 
 Change Controller:
 : IESG
@@ -1428,6 +1428,7 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 -15
 
 * Editorial updates from Roman Danyliw's AD review
+* Other editorial updates
 
 -14 
 
