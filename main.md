@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-15"
+value = "draft-ietf-oauth-rar-16"
 stream = "IETF"
 status = "standard"
 
@@ -1424,6 +1424,8 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+-16
 
 -15
 
