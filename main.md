@@ -10,7 +10,7 @@ keyword = ["security", "oauth2"]
 name = "Internet-Draft"
 value = "draft-ietf-oauth-rar-15"
 stream = "IETF"
-status = "standard" 
+status = "standard"
 
 [[author]]
 initials="T."
