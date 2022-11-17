@@ -1411,7 +1411,7 @@ In the second example, the API requires more information to authorize the reques
    }
 ]
 ```
-Figure: Advanced eHaelth example.
+Figure: Advanced eHealth example.
 
 Description of the fields:
 
