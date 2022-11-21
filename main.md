@@ -79,7 +79,7 @@ For example, an authorization request for a credit transfer (designated as "paym
 ```
 Figure: Example authorization request for a credit transfer.
 
-This object contains detailed information about the intended payment, such as amount, currency, and creditor, that are required to inform the user and obtain her consent. The AS and the respective RS (providing the payment initiation API) will together enforce this consent.
+This object contains detailed information about the intended payment, such as amount, currency, and creditor, that are required to inform the user and obtain her consent. The authorization server (AS) and the respective resource server (RS) (providing the payment initiation API) will together enforce this consent.
 
 For a comprehensive discussion of the challenges arising from new use cases in the open banking and electronic signing spaces see [@transaction-authorization]. 
 
