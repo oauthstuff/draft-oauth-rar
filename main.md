@@ -486,7 +486,7 @@ This shall be illustrated using our running example. The example authorization r
 * list accounts 
 * access the balance of one or more accounts,
 * access the transactions of one or more accounts, and 
-* to initiate a payment. 
+* to initiate, checking the status of and canceling a payment. 
 
 The client could now request the AS to issue an access token assigned with the privilege to just access a list of accounts as follows:
 
