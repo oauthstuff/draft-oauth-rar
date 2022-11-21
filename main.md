@@ -883,6 +883,7 @@ Using authorization details in a certain deployment will require the following s
 * (if needed) Enrich authorization details in the user consent process (e.g. add selected accounts or set expirations)
 * (if needed) Determine how authorization details are reflected in access token content or introspection responses
 * Determine how the resource server(s) process(s) the authorization details or token data derived from authorization details
+* (if needed) Entitle clients to use certain authorization details types
 
 ## Minimal implementation support
 
@@ -942,7 +943,7 @@ Figure: Example for large request including authorization details.
 Authorization details are sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. If integrity of the 
 authorization details is a concern, clients MUST protect authorization details against tampering and swapping. This can be achieved by signing the request using signed request objects as defined in [@RFC9101] or using the `request_uri` authorization request parameter as defined in [@RFC9101] in conjunction with [@RFC9126] to pass the URI of the request object to the authorization server.
 
-All strings MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values. The AS MUST ensure that there is no collision between different authorization details types that it supports
+All strings in an `authorization_details` parameter MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values. The AS MUST ensure that there is no collision between different authorization details types that it supports.
 
 The common data field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
 
