@@ -589,7 +589,7 @@ In addition to the token response parameters as defined in [@!RFC6749], the auth
 
 The authorization details assigned to the access token issued in a token response are determined by the `authorization_details` parameter of the corresponding token request. If the client does not specify the `authorization_details` token request parameters, the AS determines the resulting authorization details at its discretion.
 
-The AS MAY omit values in the `authorization_details` to the client in the token Response if these are deemed of no intended use for the client.
+The AS MUST omit values in the `authorization_details` to the client in the token Response if these are deemed of no intended use for the client.
 
 For our running example, this would look like this:
 
@@ -1426,6 +1426,8 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    [[ To be removed from the final specification ]]
 
 -16
+
+* incoporated feedback from Sec Dir review
 
 -15
 
