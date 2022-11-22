@@ -79,7 +79,7 @@ For example, an authorization request for a credit transfer (designated as "paym
 ```
 Figure: Example authorization request for a credit transfer.
 
-This object contains detailed information about the intended payment, such as amount, currency, and creditor, that are required to inform the user and obtain her consent. The AS and the respective RS (providing the payment initiation API) will together enforce this consent.
+This object contains detailed information about the intended payment, such as amount, currency, and creditor, that are required to inform the user and obtain her consent. The authorization server (AS) and the respective resource server (RS) (providing the payment initiation API) will together enforce this consent.
 
 For a comprehensive discussion of the challenges arising from new use cases in the open banking and electronic signing spaces see [@transaction-authorization]. 
 
@@ -486,7 +486,7 @@ This shall be illustrated using our running example. The example authorization r
 * list accounts 
 * access the balance of one or more accounts,
 * access the transactions of one or more accounts, and 
-* to initiate a payment. 
+* to initiate, check the status of, and cancel a payment. 
 
 The client could now request the AS to issue an access token assigned with the privilege to just access a list of accounts as follows:
 
@@ -589,7 +589,7 @@ In addition to the token response parameters as defined in [@!RFC6749], the auth
 
 The authorization details assigned to the access token issued in a token response are determined by the `authorization_details` parameter of the corresponding token request. If the client does not specify the `authorization_details` token request parameters, the AS determines the resulting authorization details at its discretion.
 
-The AS MAY omit values in the `authorization_details` to the client in the token Response if these are deemed of no intended use for the client.
+The AS MUST omit values in the `authorization_details` to the client in the token Response if these are deemed of no intended use for the client.
 
 For our running example, this would look like this:
 
@@ -883,6 +883,7 @@ Using authorization details in a certain deployment will require the following s
 * (if needed) Enrich authorization details in the user consent process (e.g. add selected accounts or set expirations)
 * (if needed) Determine how authorization details are reflected in access token content or introspection responses
 * Determine how the resource server(s) process(s) the authorization details or token data derived from authorization details
+* (if needed) Entitle clients to use certain authorization details types
 
 ## Minimal implementation support
 
@@ -942,7 +943,7 @@ Figure: Example for large request including authorization details.
 Authorization details are sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. If integrity of the 
 authorization details is a concern, clients MUST protect authorization details against tampering and swapping. This can be achieved by signing the request using signed request objects as defined in [@RFC9101] or using the `request_uri` authorization request parameter as defined in [@RFC9101] in conjunction with [@RFC9126] to pass the URI of the request object to the authorization server.
 
-All strings MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values.
+All strings in an `authorization_details` parameter MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values. The AS MUST ensure that there is no collision between different authorization details types that it supports.
 
 The common data field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
 
@@ -1426,6 +1427,8 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    [[ To be removed from the final specification ]]
 
 -16
+
+* incoporated feedback from Sec Dir review
 
 -15
 
