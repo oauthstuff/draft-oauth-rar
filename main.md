@@ -101,14 +101,12 @@ This specification uses the terms "access token", "refresh token",
 
 # Request parameter "authorization_details" {#authz_details}
 
-The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field, which is defined as follow:
+The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field, which is defined as follows:
 
 `type`:
-:   The authorization_details type as a string. The value of the `type` field determines the allowable contents of the object which contains it. This field is REQUIRED.
+:   The authorization_details type as a string. The value of the `type` field determines the allowable contents of the object which contains it. This field is REQUIRED. Note that the type value is a unique-key in the context of an AS.
 
 This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST NOT do any collation or normalization of data types during comparison. String values with different byte representations constitute different types.
-
-The AS MUST ensure that there is no collision between different authorization details types that it supports. 
 
 An `authorization_details` array MAY contain multiple entries of the same `type`.
 
@@ -943,7 +941,7 @@ Figure: Example for large request including `authorization_details`.
 The `authorization_details` parameter is sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. If integrity of the
 `authorization_details` is a concern, clients MUST protect `authorization_details` against tampering and swapping. This can be achieved by signing the request using signed request objects as defined in [@RFC9101] or using the `request_uri` authorization request parameter as defined in [@RFC9101] in conjunction with [@RFC9126] to pass the URI of the request object to the authorization server.
 
-All strings in an `authorization_details` parameter MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values. The AS MUST ensure that there is no collision between different authorization details types that it supports.
+All strings in an `authorization_details` parameter MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values.
 
 The common data field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
 
