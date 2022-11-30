@@ -631,9 +631,11 @@ Figure: Example token response.
 
 ## Enriched authorization details in Token Response
 
-The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are use cases where the authorization server enriches the data in an authorization details object. For example, a client may ask for access to account information but leave the decision about the accounts it will be able to access to the user. The user would select the subset of accounts they want the client to entitle to access in the course of the authorization process. As one design option to convey the selected accounts, the authorization server could add this information to the respective authorization details object.
+The authorization details attached to the access token MAY differ from what the client requests. In addition to the user authorizing less than what the client requested, there are some use cases where the authorization server enriches the data in an authorization details object. Whether enrichment is allowed and specifics of how it works are necessarily part of the definition of the respective authorization details type.
 
-As an example, the requested authorization detail parameter could look like this:
+As one example, a client may ask for access to account information but leave the decision about the specific accounts it will be able to access to the user. The user would, during the course of the authorization process, select the subset of their accounts that they want to allow the client to access. As one design option to convey the selected accounts, the authorization server could add this information to the respective authorization details object.
+
+In that example, the requested authorization detail parameter might look like the following. In this example the empty arrays serve as placeholders for where data will be added during enrichment by the AS.
 
 ```JSON
 "authorization_details": [
