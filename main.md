@@ -635,7 +635,7 @@ The authorization details attached to the access token MAY differ from what the 
 
 As one example, a client may ask for access to account information but leave the decision about the specific accounts it will be able to access to the user. The user would, during the course of the authorization process, select the subset of their accounts that they want to allow the client to access. As one design option to convey the selected accounts, the authorization server could add this information to the respective authorization details object.
 
-In that example, the requested authorization detail parameter might look like the following. In this example the empty arrays serve as placeholders for where data will be added during enrichment by the AS.
+In that example, the requested authorization detail parameter might look like the following. In this example the empty arrays serve as placeholders for where data will be added during enrichment by the AS. This mechanic is illustrative only and is not intended to suggest a preference for designing the specifics of any authorization details type this way.
 
 ```JSON
 "authorization_details": [
