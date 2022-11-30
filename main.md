@@ -104,7 +104,7 @@ This specification uses the terms "access token", "refresh token",
 The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field, which is defined as follows:
 
 `type`:
-:   The authorization details type as a string. The value of the `type` field determines the allowable contents of the object which contains it. This field is REQUIRED. Note that the type value is a unique-key in the context of an AS.
+:   An identifier for the the authorization details type as a string. The value of the `type` field determines the allowable contents of the object which contains it. This field is REQUIRED. Note that the type value is a unique-key in the context of an AS.
 
 This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST NOT do any collation or normalization of data types during comparison. String values with different byte representations constitute different types.
 
