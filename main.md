@@ -106,8 +106,6 @@ The request parameter `authorization_details` contains, in JSON notation, an arr
 `type`:
 :   An identifier for the authorization details type as a string. The value of the `type` field determines the allowable contents of the object which contains it and is unique for the described API in the context of the AS. This field is REQUIRED.
 
-This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST NOT do any collation or normalization of data types during comparison. String values with different byte representations constitute different types.
-
 An `authorization_details` array MAY contain multiple entries of the same `type`.
 
 This example shows an `authorization_details` of type `payment_initiation` using the example data shown above: 
@@ -941,7 +939,7 @@ Figure: Example for large request including `authorization_details`.
 The `authorization_details` parameter is sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. If integrity of the
 `authorization_details` is a concern, clients MUST protect `authorization_details` against tampering and swapping. This can be achieved by signing the request using signed request objects as defined in [@RFC9101] or using the `request_uri` authorization request parameter as defined in [@RFC9101] in conjunction with [@RFC9126] to pass the URI of the request object to the authorization server.
 
-All strings in an `authorization_details` parameter MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values.
+All string comparisons in an `authorization_details` parameter are to be done as defined by [@RFC8259]. No additional transformation or normalization is to be done in evaluating equivalence of string values.
 
 The common data field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
 
