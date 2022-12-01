@@ -48,7 +48,7 @@ used to carry fine-grained authorization data in OAuth messages.
 
 # Introduction {#Introduction}
 
-The OAuth 2.0 authorization framework [@!RFC6749] defines the "scope" parameter that allows OAuth clients to
+The OAuth 2.0 authorization framework [@!RFC6749] defines the `scope` parameter that allows OAuth clients to
 specify the requested scope, i.e., the limited capability, of an access token.
 This mechanism is sufficient to implement static scenarios and
 coarse-grained authorization requests, such as "give me read access to
