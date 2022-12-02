@@ -48,7 +48,7 @@ used to carry fine-grained authorization data in OAuth messages.
 
 # Introduction {#Introduction}
 
-The OAuth 2.0 authorization framework [@!RFC6749] defines the parameter `scope` that allows OAuth clients to
+The OAuth 2.0 authorization framework [@!RFC6749] defines the `scope` parameter that allows OAuth clients to
 specify the requested scope, i.e., the limited capability, of an access token.
 This mechanism is sufficient to implement static scenarios and
 coarse-grained authorization requests, such as "give me read access to
@@ -101,18 +101,14 @@ This specification uses the terms "access token", "refresh token",
 
 # Request parameter "authorization_details" {#authz_details}
 
-The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field, which is defined as follow:
+The request parameter `authorization_details` contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the `type` field, which is defined as follows:
 
 `type`:
-:   The type of authorization details as a string. The value of the `type` field determines the allowable contents of the object which contains it. This field is REQUIRED.
-
-This field MUST be compared using an exact byte match of the string value against known types by the AS. The AS MUST NOT do any collation or normalization of data types during comparison. String values with different byte representations constitute different types.
-
-The AS MUST ensure that there is no collision between different authorization details types that it supports. 
+:   An identifier for the authorization details type as a string. The value of the `type` field determines the allowable contents of the object which contains it and is unique for the described API in the context of the AS. This field is REQUIRED.
 
 An `authorization_details` array MAY contain multiple entries of the same `type`.
 
-This example shows the specification of authorization details of type `payment_initiation` using the example data shown above: 
+This example shows an `authorization_details` of type `payment_initiation` using the example data shown above: 
 
 ```JSON
 [
@@ -138,7 +134,7 @@ This example shows the specification of authorization details of type `payment_i
    }
 ]
 ```
-Figure: Example authorization details for a credit transfer.
+Figure: Example `authorization_details` for a credit transfer.
 
 This example shows a combined request asking for access to account information and permission to initiate a payment:
 
@@ -177,9 +173,9 @@ This example shows a combined request asking for access to account information a
    }
 ]
 ```
-Figure: Example authorization details for a combined request.
+Figure: Example `authorization_details` for a combined request.
 
-The JSON objects with `type` fields of `account_information` and `payment_initiation` represent the different authorization details to be used by the AS to ask for consent. 
+The JSON objects with `type` fields of `account_information` and `payment_initiation` represent the different `authorization_details` to be used by the AS to ask for consent. 
 
 Note: The AS will make this data subsequently available to the respective resource servers (see (#resource_servers)).  
 
@@ -214,7 +210,7 @@ The following example shows how an implementation could utilize the namespace `h
    ]
 }
 ```
-Figure: Example for authorization details with a URL as type identifier.
+Figure: Example for `authorization_details` with a URL as type identifier.
 
 ## Common data fields {#common_data_fields}
 
@@ -236,8 +232,8 @@ This specification defines a set of common data fields that are designed to be u
 `privileges`:
 :   An array of strings representing the types or levels of privilege being requested at the resource.
 
-When different common data fields are used in combination, the permissions the client requests are the cartesian product of the values. That is to 
-say, the object represents a request for all `action` values listed within the object
+When different common data fields are used in combination, the permissions the client requests are the product of all the values.
+The object represents a request for all `action` values listed within the object
 to be used at all `locations` values listed within the object for all `datatype`
 values listed within the object. In the following example, the client is requesting `read` and `write` 
 access to both the `contacts` and `photos` belonging to customers in a `customer_information` API. If
@@ -262,7 +258,7 @@ defined by the API, such as reading the photos and writing the contacts.
    }
 ]
 ```
-Figure: Example for authorization details with common data fields.
+Figure: Example for `authorization_details` with common data fields.
 
 If the client wishes to have finer control over its access, it can send multiple objects. In this example, 
 the client is asking for `read` access to the `contacts` and `write` access to the `photos` in the same API endpoint.
@@ -296,7 +292,7 @@ If this request is granted, the client would not be able to write to the contact
    }
 ]
 ```
-Figure: Example for authorization details with common data fields in multiple objects.
+Figure: Example for `authorization_details` with common data fields in multiple objects.
 
 An API MAY define its own extensions, subject to the `type` of the respective authorization object.
 It is anticipated that API designers will use a combination
@@ -347,7 +343,7 @@ field. The second access request includes the `actions` and
    }
 ]
 ```
-Figure: Example for authorization details using common and extension data fields.
+Figure: Example for `authorization_details` using common and extension data fields.
 
 If this request is approved, the resulting access token's access rights will be
 the union of the requested types of access for each of the two APIs, just as above.
@@ -428,7 +424,7 @@ In this example, the client wants to get access to account information and initi
    }
 ]
 ```
-Figure: URL decoded authorization details.
+Figure: URL decoded `authorization_details`.
 
 ## Relationship to "scope" parameter {#scope}
 
@@ -469,7 +465,7 @@ The `authorization_details` token request parameter can be used to specify the a
 Many actions in the OAuth protocol allow the AS and RS to make security decisions based on whether or not the request
 is asking for "more" or "less" than a previous, existing request. For example, upon refreshing a token, the client can
 ask for a new access token with "fewer permissions" than had been previously authorized by the resource owner.
-Since the semantics of the fields in the authorization details will be implementation specific to a given API or set of APIs, there is no
+Since the semantics of the fields in the `authorization_details` will be implementation specific to a given API or set of APIs, there is no
 standardized mechanism to compare two arbitrary authorization detail requests.
 Authorization servers should not rely on simple object comparison in most cases, as the intersection of some fields
 within a request could have side effects on the access rights granted, depending on how the API
@@ -503,7 +499,7 @@ The client could now request the AS to issue an access token assigned with the p
    }
 ]
 ```
-Figure: Example for authorization details reduced privileges.
+Figure: Example for `authorization_details` reduced privileges.
 
 The example API is designed such that each field used by the `account_information` type contains additive rights, 
 with each value within the `actions` and `locations` arrays specifying a different element of access. To make a comparison in this
@@ -529,7 +525,7 @@ a token with `write` access, which implies both read and write access to this AP
     }
 ]
 ```
-Figure: Example for authorization details requesting "write" access to an API.
+Figure: Example for `authorization_details` requesting "write" access to an API.
 
 Later that same client makes a refresh request for `read` access:
 
@@ -543,7 +539,7 @@ Later that same client makes a refresh request for `read` access:
     }
 ]
 ```
-Figure: Example for authorization details requesting "read" access to an API.
+Figure: Example for `authorization_details` requesting "read" access to an API.
 
 The AS would compare the `type` value and the `action` value to determine that the `read` access is
 already covered by the `write` access previously granted to the client.
@@ -562,11 +558,11 @@ client is then granted such `admin` privileges to the API:
     }
 ]
 ```
-Figure: Example for authorization details requesting "admin" access to an API.
+Figure: Example for `authorization_details` requesting "admin" access to an API.
 
 The AS would compare the `type` value and find the `privileges` value subsumes any aspects of
 `read` or `write` access that had been granted to the client previously. Note that other
-API definitions can use `privileges` in a non-subsuming fashion.
+API definitions can use `privileges` such that values do not subsume one another. 
 
 The next example shows how the client can use the common data element `locations` (see (#common_data_fields)) to request the issuance of an access token restricted to a certain resource server. In our running example, the client may ask for all permissions of the approved grant of type `payment_iniation` applicable to the resource server residing at `https://example.com/payments` as follows:
 
@@ -581,15 +577,15 @@ The next example shows how the client can use the common data element `locations
 ]
 
 ```
-Figure: Example for authorization details requesting an audience restricted access token.
+Figure: Example for `authorization_details` requesting an audience restricted access token.
 
 # Token Response
 
-In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the authorization details as granted by the resource owner and assigned to the respective access token. 
+In addition to the token response parameters as defined in [@!RFC6749], the authorization server MUST also return the `authorization_details` as granted by the resource owner and assigned to the respective access token. 
 
-The authorization details assigned to the access token issued in a token response are determined by the `authorization_details` parameter of the corresponding token request. If the client does not specify the `authorization_details` token request parameters, the AS determines the resulting authorization details at its discretion.
+The authorization details assigned to the access token issued in a token response are determined by the `authorization_details` parameter of the corresponding token request. If the client does not specify the `authorization_details` token request parameters, the AS determines the resulting `authorization_details` at its discretion.
 
-The AS MUST omit values in the `authorization_details` to the client in the token Response if these are deemed of no intended use for the client.
+The AS MAY omit values in the `authorization_details` to the client.
 
 For our running example, this would look like this:
 
@@ -650,7 +646,7 @@ In that example, the requested authorization detail parameter might look like th
    }
 ]
 ```
-Figure: Example for requested authorization details.
+Figure: Example for requested `authorization_details`.
 
 The authorization server then would expand the authorization details object and add the respective account identifiers.
 
@@ -695,7 +691,7 @@ Cache-Control: no-store
    ]
 }
 ```
-Figure: Example for enriched authorization details.
+Figure: Example for enriched `authorization_details`.
 
 For another example, the client is asking for access to a medical record but does not know the record number at request time. In this example, the client specifies the type of access it wants but doesn't specify the location or identifier of that access. 
 
@@ -710,7 +706,7 @@ For another example, the client is asking for access to a medical record but doe
    }
 ]}
 ```
-Figure: Example for requested authorization details.
+Figure: Example for requested `authorization_details`.
 
 When the user interacts with the AS, they select which of the medical records they are responsible for giving to the client. This information gets returned with the access token.
 
@@ -732,7 +728,7 @@ When the user interacts with the AS, they select which of the medical records th
   ]
 }
 ```
-Figure: Example for enriched authorization details.
+Figure: Example for enriched `authorization_details`.
 
 Note: the client needs to be aware upfront of the possibility that a certain authorization details object can be enriched. It is assumed that this property is part of the definition of the respective authorization details type. 
 
@@ -788,19 +784,19 @@ The following shows the contents of an example JWT for the payment initiation ex
    }
 }
 ```
-Figure: Example for authorization details in JWT-based access token.
+Figure: Example for `authorization_details` in JWT-based access token.
 
 In this case, the AS added the following example claims to the JWT-based access token:
 
 * `sub`: conveys the user on which behalf the client is asking for payment initiation
 * `txn`: transaction id used to trace the transaction across the services of provider `example.com`
-* `debtorAccount`: API-specific field containing the debtor account. In the example, this account was not passed in the authorization details but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particular account. In this case, they are the owner. This data is used for access control at the payment API (the RS).
+* `debtorAccount`: API-specific field containing the debtor account. In the example, this account was not passed in the `authorization_details` but selected by the user during the authorization process. The field `user_role` conveys the role the user has with respect to this particular account. In this case, they are the owner. This data is used for access control at the payment API (the RS).
 
 ## Token Introspection {#token_introspection}
 
 Token introspection [@!RFC7662] provides a means for an RS to query the AS to determine information about an access token. If the AS includes authorization detail information for the token in its response, the information MUST be conveyed with `authorization_details` as a top-level member of the introspection response JSON object. The `authorization_details` member MUST contain the same structure defined in (#authz_details), potentially filtered and extended for the RS making the introspection request.
 
-Here is an example for the payment initiation example RS:
+Here is an example introspection response for the payment initiation example:
 
 ```json
 {
@@ -838,11 +834,11 @@ Here is an example for the payment initiation example RS:
    }
 }
 ```
-Figure: Example for authorization details in introspection response.
+Figure: Example for `authorization_details` in introspection response.
 
 # Metadata {#metadata}
 
-If the AS wants to advertise its support for this feature, the supported list of authorization details types MUST be included in the AS metadata response [@!RFC8414] using the metadata parameter `authorization_details_types_supported`, which is a JSON array.
+To advertise its support for this feature, the supported list of authorization details types is included in the AS metadata response [@!RFC8414] using the metadata parameter `authorization_details_types_supported`, which is a JSON array.
 
 This is illustrated by the following example:
 
@@ -855,9 +851,9 @@ This is illustrated by the following example:
    ]
 }
 ```
-Figure: Example for server metadata about authorization details.
+Figure: Example for server metadata about the supported authorization details.
 
-Clients MAY announce the authorization details types they use in the new dynamic client registration parameter `authorization_details_types`.
+Clients MAY indicate the authorization details types they will use when requesting authorization with the client registration metadata parameter `authorization_details_types`, which is a JSON array.
 
 This is illustrated by the following example:
 
@@ -912,7 +908,7 @@ Note however that `type` values are identifiers understood by the AS and, to the
 
 ## Large requests {#large_requests}
 
-Authorization request URIs containing authorization details in a request parameter or a request object can become very long. Implementers should therefore consider using the `request_uri` parameter as defined in [@RFC9101] in combination with the pushed request object mechanism as defined in [@RFC9126] to pass authorization details in a reliable and secure manner. Here is an example of such a pushed authorization request that sends the authorization request data directly to the AS via an HTTPS-protected connection: 
+Authorization request URIs containing `authorization_details` in a request parameter or a request object can become very long. Implementers should therefore consider using the `request_uri` parameter as defined in [@RFC9101] in combination with the pushed request object mechanism as defined in [@RFC9126] to pass `authorization_details` in a reliable and secure manner. Here is an example of such a pushed authorization request that sends the authorization request data directly to the AS via an HTTPS-protected connection: 
 
 ```
   POST /as/par HTTP/1.1
@@ -938,14 +934,14 @@ Authorization request URIs containing authorization details in a request paramet
   07118603%22%7D%2C%22remittanceInformationUnstructured%22%3A%22Ref%2
   0Number%20Merchant%22%7D%5D
 ```
-Figure: Example for large request including authorization details.
+Figure: Example for large request including `authorization_details`.
 
 # Security Considerations {#security_considerations}
 
-Authorization details are sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. If integrity of the 
-authorization details is a concern, clients MUST protect authorization details against tampering and swapping. This can be achieved by signing the request using signed request objects as defined in [@RFC9101] or using the `request_uri` authorization request parameter as defined in [@RFC9101] in conjunction with [@RFC9126] to pass the URI of the request object to the authorization server.
+The `authorization_details` parameter is sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. If integrity of the
+`authorization_details` is a concern, clients MUST protect `authorization_details` against tampering and swapping. This can be achieved by signing the request using signed request objects as defined in [@RFC9101] or using the `request_uri` authorization request parameter as defined in [@RFC9101] in conjunction with [@RFC9126] to pass the URI of the request object to the authorization server.
 
-All strings in an `authorization_details` parameter MUST be compared using the exact byte representation of the characters as defined by [@RFC8259]. This is especially true for the `type` field, which dictates which other fields and functions are allowed in the request. The server MUST NOT perform any form of collation, transformation, or equivalence on the string values. The AS MUST ensure that there is no collision between different authorization details types that it supports.
+All string comparisons in an `authorization_details` parameter are to be done as defined by [@RFC8259]. No additional transformation or normalization is to be done in evaluating equivalence of string values.
 
 The common data field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
 
@@ -955,11 +951,11 @@ The Security Considerations of [@RFC6749], [@RFC7662], and [@RFC8414] also apply
 
 It is especially important for implementers to design and use authorization details in a privacy-preserving manner.
 
-Any sensitive personal data included in authorization details must be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of authorization details via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The latter does not require application level encryption but it requires another message exchange between client and AS.
+Any sensitive personal data included in `authorization_details` must be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of `authorization_details` via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The latter does not require application level encryption but it requires another message exchange between client and AS.
 
 Even if the request data is encrypted, an attacker could use the authorization server to learn the user's data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations need to consider this attack vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).
 
-The AS needs to take into consideration the privacy implications when sharing authorization details with the client or resource servers. The AS should share this data with those parties on a "need to know" basis as determined by local policy.
+The AS needs to take into consideration the privacy implications when sharing `authorization_details` with the client or resource servers. The AS should share this data with those parties on a "need to know" basis as determined by local policy.
 
 # Acknowledgements {#Acknowledgements}
       
@@ -1198,7 +1194,7 @@ The top-level field are based on the definitions given in [@OIDC]:
 
 * `claim_sets`: names of predefined claim sets, replacement for respective scope values, such as `profile`
 * `max_age`: Maximum Authentication Age 
-* `acr_values`: array of ACR values
+* `acr_values`: requested Authentication Context Class Reference (ACR) values.
 * `claims`: the `claims` JSON structure as defined in [@OIDC]
 
 This is a simple request for some claim sets. 
@@ -1217,7 +1213,7 @@ This is a simple request for some claim sets.
    }
 ]
 ```
-Figure: Example for OpenID Connect request utilizing authorization details.
+Figure: Example for OpenID Connect request utilizing `authorization_details`.
 
 Note: `locations` specifies the location of the userinfo endpoint since this is the only place where an access token is used by a client (RP) in OpenID Connect to obtain claims.
 
@@ -1256,7 +1252,7 @@ A more sophisticated example is shown in the following
    }
 ]
 ```
-Figure: Advanced example for OpenID Connect request utilizing authorization details.
+Figure: Advanced example for OpenID Connect request utilizing `authorization_details`.
 
 ## Remote Electronic Signing {#signing}
 
@@ -1428,9 +1424,13 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    [[ To be removed from the final specification ]]
 
+-17
+
+* incorporated feedback from Genart review
+
 -16
 
-* incoporated feedback from Sec Dir review
+* incorporated feedback from Sec Dir review
 
 -15
 
