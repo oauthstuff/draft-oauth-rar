@@ -995,7 +995,7 @@ Parameter Usage Location:
 : authorization request, token request, token response
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : this document
@@ -1013,7 +1013,7 @@ Claim Description:
 : The claim `authorization_details` contains a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : (#jwt_based_access_tokens) of this document
@@ -1030,7 +1030,7 @@ Description:
 : The member `authorization_details` contains a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.
  
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : (#token_introspection) of this document
@@ -1047,7 +1047,7 @@ Metadata Description:
 : JSON array containing the authorization details types the AS supports
  
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : (#metadata) of [[ this document ]]
@@ -1064,7 +1064,7 @@ Metadata Description:
 : Indicates what authorization details types the client uses.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : (#metadata) of [[ this document ]]
@@ -1081,7 +1081,7 @@ Metadata Description:
 : indicates invalid `authorization_details_parameter` to the client.
 
 Change Controller:
-: IESG
+: IETF
 
 Specification Document(s):
 : (#authz_details_error) of [[ this document ]]
