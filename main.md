@@ -994,12 +994,12 @@ Change Controller:
 : IETF
 
 Specification Document(s):
-: this document
+: [[ this document ]]
 
 
 ## JSON Web Token Claims Registration
 
-This specification requests registration of the following value in the IANA "JSON Web Token Claims Registry" established by [@!RFC7519]. 
+This specification requests registration of the following value in the IANA "JSON Web Token Claims" registry established by [@!RFC7519]. 
 
 {spacing="compact"}
 Claim Name:
@@ -1012,11 +1012,11 @@ Change Controller:
 : IETF
 
 Specification Document(s):
-: (#jwt_based_access_tokens) of this document
+: (#jwt_based_access_tokens) of [[ this document ]]
 
-## OAuth Token Introspection Response
+## OAuth Token Introspection Response Registration
 
-This specification requests registration of the following value in the IANA "OAuth Token Introspection Response Registry" established by [@!RFC7662]. 
+This specification requests registration of the following value in the IANA "OAuth Token Introspection Response" registry established by [@!RFC7662]. 
 
 {spacing="compact"}
 Name:
@@ -1029,9 +1029,9 @@ Change Controller:
 : IETF
 
 Specification Document(s):
-: (#token_introspection) of this document
+: (#token_introspection) of [[ this document ]]
 
-## OAuth Authorization Server Metadata
+## OAuth Authorization Server Metadata Registration
 
 This specification requests registration of the following values in the IANA "OAuth Authorization Server Metadata" registry of [@IANA.OAuth.Parameters] established by [@!RFC8414]. 
 
@@ -1048,7 +1048,7 @@ Change Controller:
 Specification Document(s):
 : (#metadata) of [[ this document ]]
 
-## OAuth Dynamic Client Registration Metadata
+## OAuth Dynamic Client Registration Metadata Registration
 
 This specification requests registration of the following value in the IANA "OAuth Dynamic Client Registration Metadata" registry of [@IANA.OAuth.Parameters] established by [@RFC7591].
 
@@ -1065,21 +1065,24 @@ Change Controller:
 Specification Document(s):
 : (#metadata) of [[ this document ]]
 
-## OAuth Extensions Error registry
+## OAuth Extensions Error Registration
 
-This specification requests registration of the following value in the IANA "OAuth Extensions Error registry" registry of [@IANA.OAuth.Parameters] established by [@RFC6749].
+This specification requests registration of the following value in the IANA "OAuth Extensions Error" registry of [@IANA.OAuth.Parameters] established by [@RFC6749].
 
 {spacing="compact"}
-Metadata Name:
+Error name:
 : `invalid_authorization_details`
 
-Metadata Description:
-: indicates invalid `authorization_details_parameter` to the client.
+Error usage location:
+:  token endpoint, authorization endpoint
+
+Related protocol extension:
+: OAuth 2.0 Rich Authorization Requests
 
 Change Controller:
 : IETF
 
-Specification Document(s):
+Reference:
 : (#authz_details_error) of [[ this document ]]
 
 <reference anchor="OIDC" target="https://openid.net/specs/openid-connect-core-1_0.html">
@@ -1425,6 +1428,8 @@ In this use case, the AS authenticates the requester, who is not the patient, an
    [[ To be removed from the final specification ]]
 
 -18
+
+* IANA Considerations cleanup 
 
 -17
 
