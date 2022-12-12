@@ -79,7 +79,7 @@ For example, an authorization request for a credit transfer (designated as "paym
 ```
 Figure: Example authorization request for a credit transfer.
 
-This object contains detailed information about the intended payment, such as amount, currency, and creditor, that are required to inform the user and obtain her consent. The authorization server (AS) and the respective resource server (RS) (providing the payment initiation API) will together enforce this consent.
+This object contains detailed information about the intended payment, such as amount, currency, and creditor, that are required to inform the user and obtain their consent. The authorization server (AS) and the respective resource server (RS) (providing the payment initiation API) will together enforce this consent.
 
 For a comprehensive discussion of the challenges arising from new use cases in the open banking and electronic signing spaces see [@transaction-authorization]. 
 
@@ -214,7 +214,7 @@ Figure: Example for `authorization_details` with a URL as type identifier.
 
 ## Common data fields {#common_data_fields}
 
-This specification defines a set of common data fields that are designed to be usable across different types of APIs. This specification does not require the use of any of these common fields by an API definition, but instead provides them as reusable generic components for API designers to make use of. The allowable values of all fields are determined by the API being protected, as defined by a particular "type" value.
+This specification defines a set of common data fields that are designed to be usable across different types of APIs. This specification does not require the use of these common fields by an API definition, but instead provides them as reusable generic components for API designers to make use of. The allowable values of all fields are determined by the API being protected, as defined by a particular "type" value.
 
 `locations`:
 :   An array of strings representing the location of the resource or resource server. These strings are typically URIs identifying the
@@ -448,7 +448,7 @@ This specification does not define extensions to the authorization response.
 
 # Authorization Error Response {#authz_details_error}
 
-The AS MUST refuse to process any unknown authorization details type or authorization details not conforming to the respective type definition. The AS MUST abort processing and respond with an error `invalid_authorization_details` to the client if any of the following are true of any of the objects in `authorization_details` structure:
+The AS MUST refuse to process any unknown authorization details type or authorization details not conforming to the respective type definition. The AS MUST abort processing and respond with an error `invalid_authorization_details` to the client if any of the following are true of the objects in `authorization_details` structure:
 
 - Contains an unknown authorization details type value,
 - An object of known type but containing unknown fields,
@@ -462,7 +462,7 @@ The `authorization_details` token request parameter can be used to specify the a
 
 ## Comparing authorization details
 
-Many actions in the OAuth protocol allow the AS and RS to make security decisions based on whether or not the request
+Many actions in the OAuth protocol allow the AS and RS to make security decisions based on whether the request
 is asking for "more" or "less" than a previous, existing request. For example, upon refreshing a token, the client can
 ask for a new access token with "fewer permissions" than had been previously authorized by the resource owner.
 Since the semantics of the fields in the `authorization_details` will be implementation specific to a given API or set of APIs, there is no
@@ -734,7 +734,7 @@ Note: the client needs to be aware upfront of the possibility that a certain aut
 
 # Token Error Response
 
-The Token Error Response MUST conform the the rules given in (#authz_details_error).
+The Token Error Response MUST conform to the rules given in (#authz_details_error).
 
 # Resource Servers {#resource_servers}
 
@@ -953,7 +953,7 @@ It is especially important for implementers to design and use authorization deta
 
 Any sensitive personal data included in `authorization_details` must be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in [@RFC9101] or transmission of `authorization_details` via end-to-end encrypted connections between client and authorization server by utilizing [@RFC9126] and the `request_uri` authorization request parameter as defined in [@RFC9101]. The latter does not require application level encryption but it requires another message exchange between client and AS.
 
-Even if the request data is encrypted, an attacker could use the authorization server to learn the user's data by injecting the encrypted request data into an authorization request on a device under his control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations need to consider this attack vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).
+Even if the request data is encrypted, an attacker could use the authorization server to learn the user's data by injecting the encrypted request data into an authorization request on a device under their control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations need to consider this attack vector and implement appropriate countermeasures, e.g. by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).
 
 The AS needs to take into consideration the privacy implications when sharing `authorization_details` with the client or resource servers. The AS should share this data with those parties on a "need to know" basis as determined by local policy.
 
@@ -1244,7 +1244,7 @@ A more sophisticated example is shown in the following
                "essential": true
             },
             "picture": null,
-            "http://example.info/claims/groups": null
+            "http://example.com/claims/groups": null
          },
          "id_token": {
             "auth_time": {
@@ -1302,7 +1302,7 @@ This example is inspired by an API allowing third parties to access citizen's ta
     {
         "type": "tax_data",
         "locations": [
-            "https://taxservice.govehub.no"
+            "https://taxservice.govehub.no.example.com"
         ],
         "actions":"read_tax_declaration",
         "periods": ["2018"],
@@ -1317,13 +1317,13 @@ The top-level fields have the following meaning:
 
 * `periods`: determines the periods the client wants to access
 * `duration_of_access`: how long does the client intend to access the data in days
-* `tax_payer_id`: identifier of the tax payer (if known to the client)
+* `tax_payer_id`: identifier of the taxpayer (if known to the client)
 
 ## eHealth
 
 These two examples are inspired by requirements for APIs used in the Norwegian eHealth system. 
 
-In this use case, the physical therapist sits in front of her computer using a local Electronic Health Records (EHR) system. They want to look at the electronic patient records of a certain patient and they also want to fetch the patients journal entries in another system, perhaps at another institution or a national service. Access to this data is provided by an API.
+In this use case, the physical therapist sits in front of their computer using a local Electronic Health Records (EHR) system. They want to look at the electronic patient records of a certain patient and they also want to fetch the patients journal entries in another system, perhaps at another institution or a national service. Access to this data is provided by an API.
 
 The information necessary to authorize the request at the API is only known by the EHR system, and must be presented to the API.
 
@@ -1391,7 +1391,7 @@ In the second example, the API requires more information to authorize the reques
                   "coding": [
                      {
                         "system": 
-                           "http://hl7.org/fhir/organization-type",
+                           "http://hl7.example.org/fhir/organization-type",
                         "code": "dept",
                         "display": "Hospital Department"
                      }
@@ -1402,7 +1402,7 @@ In the second example, the API requires more information to authorize the reques
             "profession": {
                "coding": [
                   {
-                     "system": "http://snomed.info/sct",
+                     "system": "http://snomed.example.org/sct",
                      "code": "36682004",
                      "display": "Physical therapist"
                   }
