@@ -1391,7 +1391,7 @@ In the second example, the API requires more information to authorize the reques
                   "coding": [
                      {
                         "system": 
-                           "http://hl7.example.org/fhir/organization-type",
+                           "http://hl7.example.org/fhir/org-type",
                         "code": "dept",
                         "display": "Hospital Department"
                      }
