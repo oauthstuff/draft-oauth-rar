@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-20"
+value = "draft-ietf-oauth-rar-21"
 stream = "IETF"
 status = "standard"
 
@@ -946,6 +946,8 @@ All string comparisons in an `authorization_details` parameter are to be done as
 
 The common data field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
 
+The AS MUST properly sanitized and handle the data passed in the `authorization_details` in order to prevent injection attacks.
+
 The Security Considerations of [@RFC6749], [@RFC7662], and [@RFC8414] also apply.
 
 # Privacy Considerations {#privacy_considerations}
@@ -1427,6 +1429,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+-21
+
+* incorporated feedback from Robert Wilton and Éric Vyncke
 
 -20
 
