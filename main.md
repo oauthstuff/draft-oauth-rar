@@ -72,6 +72,7 @@ For example, an authorization request for a credit transfer (designated as "paym
    },
    "creditorName": "Merchant A",
    "creditorAccount": {
+      "bic":"ABCIDEFFXXX",
       "iban": "DE02100100109307118603"
    },
    "remittanceInformationUnstructured": "Ref Number Merchant"
