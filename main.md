@@ -432,7 +432,7 @@ Figure: URL decoded `authorization_details`.
 
 Combined use of `authorization_details` and `scope` is supported by this specification in part to allow existing OAuth-based applications to incrementally migrate towards using `authorization_details` exclusively. It is RECOMMENDED that a given API use only one form of requirement specification. 
 
-The AS MUST consider both sets of requirements in combination with each other for the given authorization request. The details of how the AS combines these parameters are specific to the APIs being protected and outside the scope of this specification.
+The AS MUST process both sets of requirements in combination with each other for the given authorization request. The details of how the AS combines these parameters are specific to the APIs being protected and outside the scope of this specification.
 
 When gathering user consent, the AS MUST present the merged set of requirements represented by the authorization request. 
 
@@ -631,7 +631,7 @@ The authorization details attached to the access token MAY differ from what the 
 
 As one example, a client may ask for access to account information but leave the decision about the specific accounts it will be able to access to the user. The user would, during the course of the authorization process, select the subset of their accounts that they want to allow the client to access. As one design option to convey the selected accounts, the authorization server could add this information to the respective authorization details object.
 
-In that example, the requested authorization detail parameter might look like the following. In this example the empty arrays serve as placeholders for where data will be added during enrichment by the AS. This mechanic is illustrative only and is not intended to suggest a preference for designing the specifics of any authorization details type this way.
+In that example, the requested authorization detail parameter might look like the following. In this example the empty arrays serve as placeholders for where data will be added during enrichment by the AS. This example is illustrative only and is not intended to suggest a preference for designing the specifics of any authorization details type this way.
 
 ```JSON
 "authorization_details": [
@@ -1426,6 +1426,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+-20
+
+* incorporated feedback from Murray Kucherawy 
 
 -18
 
