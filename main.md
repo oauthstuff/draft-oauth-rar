@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-21"
+value = "draft-ietf-oauth-rar-22"
 stream = "IETF"
 status = "standard"
 
@@ -303,7 +303,8 @@ example shows the use of both common and API-specific fields as
 part of two different fictitious API `type` values. The first
 access request includes the `actions`, `locations`, and `datatypes` 
 fields specified here as well as the API-specific `geolocation`
-field. The second access request includes the `actions` and
+field, indicating access to photos taken at the given coordinates.
+The second access request includes the `actions` and
 `identifier` fields specified here as well as the API-specific
 `currency` fields.
 
@@ -466,6 +467,7 @@ The `authorization_details` token request parameter can be used to specify the a
 Many actions in the OAuth protocol allow the AS and RS to make security decisions based on whether the request
 is asking for "more" or "less" than a previous, existing request. For example, upon refreshing a token, the client can
 ask for a new access token with "fewer permissions" than had been previously authorized by the resource owner.
+The requested access token will convey the reduced permissions but the resource owner's previous authorization is unchanged by such requests.
 Since the semantics of the fields in the `authorization_details` will be implementation specific to a given API or set of APIs, there is no
 standardized mechanism to compare two arbitrary authorization detail requests.
 Authorization servers should not rely on simple object comparison in most cases, as the intersection of some fields
@@ -1430,6 +1432,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 
    [[ To be removed from the final specification ]]
 
+-22
+
+* Add clarifying language around the geolocation example and Section 6.1 per Paul Wouters' ballot comment
+
 -21
 
 * incorporated feedback from Robert Wilton and Éric Vyncke
@@ -1437,6 +1443,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 -20
 
 * incorporated feedback from Murray Kucherawy 
+
+-19
+
+* incorporated feedback from Lars Eggert
 
 -18
 
