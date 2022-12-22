@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-20"
+value = "draft-ietf-oauth-rar-21"
 stream = "IETF"
 status = "standard"
 
@@ -72,6 +72,7 @@ For example, an authorization request for a credit transfer (designated as "paym
    },
    "creditorName": "Merchant A",
    "creditorAccount": {
+      "bic":"ABCIDEFFXXX",
       "iban": "DE02100100109307118603"
    },
    "remittanceInformationUnstructured": "Ref Number Merchant"
@@ -432,7 +433,7 @@ Figure: URL decoded `authorization_details`.
 
 Combined use of `authorization_details` and `scope` is supported by this specification in part to allow existing OAuth-based applications to incrementally migrate towards using `authorization_details` exclusively. It is RECOMMENDED that a given API use only one form of requirement specification. 
 
-The AS MUST consider both sets of requirements in combination with each other for the given authorization request. The details of how the AS combines these parameters are specific to the APIs being protected and outside the scope of this specification.
+The AS MUST process both sets of requirements in combination with each other for the given authorization request. The details of how the AS combines these parameters are specific to the APIs being protected and outside the scope of this specification.
 
 When gathering user consent, the AS MUST present the merged set of requirements represented by the authorization request. 
 
@@ -631,7 +632,7 @@ The authorization details attached to the access token MAY differ from what the 
 
 As one example, a client may ask for access to account information but leave the decision about the specific accounts it will be able to access to the user. The user would, during the course of the authorization process, select the subset of their accounts that they want to allow the client to access. As one design option to convey the selected accounts, the authorization server could add this information to the respective authorization details object.
 
-In that example, the requested authorization detail parameter might look like the following. In this example the empty arrays serve as placeholders for where data will be added during enrichment by the AS. This mechanic is illustrative only and is not intended to suggest a preference for designing the specifics of any authorization details type this way.
+In that example, the requested authorization detail parameter might look like the following. In this example the empty arrays serve as placeholders for where data will be added during enrichment by the AS. This example is illustrative only and is not intended to suggest a preference for designing the specifics of any authorization details type this way.
 
 ```JSON
 "authorization_details": [
@@ -944,6 +945,8 @@ The `authorization_details` parameter is sent through the user agent in case of 
 All string comparisons in an `authorization_details` parameter are to be done as defined by [@RFC8259]. No additional transformation or normalization is to be done in evaluating equivalence of string values.
 
 The common data field `locations` allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g. a `read` scope value potentially applicable for an email as well as a cloud service) through audience restriction.
+
+The AS MUST properly sanitized and handle the data passed in the `authorization_details` in order to prevent injection attacks.
 
 The Security Considerations of [@RFC6749], [@RFC7662], and [@RFC8414] also apply.
 
@@ -1426,6 +1429,14 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+-21
+
+* incorporated feedback from Robert Wilton and Éric Vyncke
+
+-20
+
+* incorporated feedback from Murray Kucherawy 
 
 -18
 
