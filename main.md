@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-rar-22"
+value = "draft-ietf-oauth-rar-23"
 stream = "IETF"
 status = "standard"
 
@@ -378,9 +378,10 @@ GET /authorize?response_type=code
    D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fp
    ayments%22%5D%2C%22instructedAmount%22%3A%7B%22currency%22%
    3A%22EUR%22%2C%22amount%22%3A%22123%2E50%22%7D%2C%22credito
-   rName%22%3A%22Merchant%20A%22%2C%22creditorAccount%22%3A%7B%
-   22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittance
-   InformationUnstructured%22%3A%22RefNumberMerchant%22%7D%5D HTTP/1.1
+   rName%22%3A%22Merchant%20A%22%2C%22creditorAccount%22%3A%7B
+   %22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittanc
+   eInformationUnstructured%22%3A%22Ref%20Number%20Merchant%22
+   %7D%5D HTTP/1.1
 Host: server.example.com
 ``` 
 Figure: Example authorization request with authorization_details.
@@ -1431,6 +1432,10 @@ In this use case, the AS authenticates the requester, who is not the patient, an
 # Document History
 
    [[ To be removed from the final specification ]]
+
+-23
+
+* fix minor inconsistency in example
 
 -22
 
