@@ -1,0 +1,1720 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rfc [
+ <!ENTITY nbsp    "&#160;">
+ <!ENTITY zwsp   "&#8203;">
+ <!ENTITY nbhy   "&#8209;">
+ <!ENTITY wj     "&#8288;">
+]> 
+
+<rfc version="3" ipr="trust200902" docName="draft-ietf-oauth-rar-23" number="9396" submissionType="IETF" category="std" consensus="true" xml:lang="en" xmlns:xi="http://www.w3.org/2001/XInclude" tocInclude="true" sortRefs="true" symRefs="true" updates="" obsoletes="" indexInclude="true">
+
+<front>
+  <title abbrev="OAuth-RAR">OAuth 2.0 Rich Authorization Requests</title>
+  <seriesInfo name="RFC" value="9396"/>
+  <author initials="T." surname="Lodderstedt" fullname="Torsten Lodderstedt">
+    <organization>yes.com</organization><address><postal><street></street>
+  </postal><email>torsten@lodderstedt.net</email></address></author>
+
+  <author initials="J." surname="Richer" fullname="Justin Richer">
+    <organization>Bespoke Engineering</organization><address><postal><street></street>
+  </postal><email>ietf@justin.richer.org</email></address></author>
+
+  <author initials="B." surname="Campbell" fullname="Brian Campbell">
+    <organization>Ping Identity</organization><address><postal><street></street>
+  </postal><email>bcampbell@pingidentity.com</email></address></author>
+
+  <date year="2023" month="May" />
+
+  <area>sec</area>
+  <workgroup>oauth</workgroup>
+
+  <keyword>security</keyword>
+  <keyword>oauth2</keyword>
+
+<abstract>
+<t>This document specifies a new parameter <tt>authorization_details</tt> that is
+used to carry fine-grained authorization data in OAuth messages.</t>
+</abstract>
+
+</front>
+
+<middle>
+
+<section anchor="Introduction"><name>Introduction</name>
+<t>"The OAuth 2.0 Authorization Framework" <xref target="RFC6749"></xref> defines the <tt>scope</tt> parameter that allows OAuth clients to
+specify the requested scope, i.e., the limited capability, of an access token.
+This mechanism is sufficient to implement static scenarios and
+coarse-grained authorization requests, such as "give me read access to
+the resource owner's profile." However, it is not sufficient to specify
+fine-grained authorization requirements, such as "please let me transfer an amount of 45 Euros to Merchant A"
+or "please give me read access to directory A and write access to file X."</t>
+<t>This specification introduces a new parameter <tt>authorization_details</tt> that allows clients to specify their fine-grained authorization requirements using the expressiveness of JSON <xref target="RFC8259"></xref> data structures.</t>
+<t>For example, an authorization request for a credit transfer (designated as "payment initiation" in several open banking initiatives) can be represented using a JSON object like this:</t>
+<figure><name>Example of an Authorization Request for a Credit Transfer
+</name>
+<sourcecode type="json">{
+   "type": "payment_initiation",
+   "locations": [
+      "https://example.com/payments"
+   ],
+   "instructedAmount": {
+      "currency": "EUR",
+      "amount": "123.50"
+   },
+   "creditorName": "Merchant A",
+   "creditorAccount": {
+      "bic":"ABCIDEFFXXX",
+      "iban": "DE02100100109307118603"
+   },
+   "remittanceInformationUnstructured": "Ref Number Merchant"
+}
+</sourcecode>
+</figure>
+<t>This object contains detailed information about the intended payment, such as amount, currency, and creditor, that is required to inform the user and obtain their consent. The authorization server (AS) and the respective resource server (RS) (providing the payment initiation API) will together enforce this consent.</t>
+<t>For a comprehensive discussion of the challenges arising from new use cases in the open banking and electronic signing spaces, see <xref target="Transaction-Auth"></xref>.</t>
+<t>In addition to facilitating custom authorization requests, this specification also introduces a set of common data type fields for use across different APIs.</t>
+
+<section anchor="conventions-and-terminology"><name>Conventions and Terminology</name>
+        <t>
+    The key words "<bcp14>MUST</bcp14>", "<bcp14>MUST NOT</bcp14>", "<bcp14>REQUIRED</bcp14>", "<bcp14>SHALL</bcp14>", "<bcp14>SHALL
+    NOT</bcp14>", "<bcp14>SHOULD</bcp14>", "<bcp14>SHOULD NOT</bcp14>", "<bcp14>RECOMMENDED</bcp14>", "<bcp14>NOT RECOMMENDED</bcp14>",
+    "<bcp14>MAY</bcp14>", and "<bcp14>OPTIONAL</bcp14>" in this document are to be interpreted as
+    described in BCP&nbsp;14 <xref target="RFC2119"/> <xref target="RFC8174"/> 
+    when, and only when, they appear in all capitals, as shown here.
+        </t>
+<t>This specification uses the terms "access token", "refresh token",
+"authorization server", "resource server", "authorization endpoint",
+"authorization request", "authorization response", "token endpoint",
+"grant type", "access token request", "access token response", and
+"client" defined by "<xref target="RFC6749" format="title"/>" <xref target="RFC6749" format="default"/>.</t>
+</section>
+</section>
+
+<section anchor="authz_details"><name>Request Parameter "authorization_details"</name>
+<t>The request parameter <tt>authorization_details</tt> contains, in JSON notation, an array of objects. Each JSON object contains the data to specify the authorization requirements for a certain type of resource. The type of resource or access requirement is determined by the <tt>type</tt> field, which is defined as follows:</t>
+
+<dl spacing="normal">
+<dt><tt>type</tt>:</dt>
+<dd>An identifier for the authorization details type as a string. The value of the <tt>type</tt> field determines the allowable contents of the object that contains it. The value is unique for the described API in the context of the AS. This field is <bcp14>REQUIRED</bcp14>.</dd>
+</dl>
+<t>An <tt>authorization_details</tt> array <bcp14>MAY</bcp14> contain multiple entries of the same <tt>type</tt>.</t>
+<t><xref target="figure2"></xref> shows an <tt>authorization_details</tt> of type <tt>payment_initiation</tt> using the example data shown above:</t>
+
+<figure anchor="figure2"><name>Example of <tt>authorization_details</tt> for a Credit Transfer
+</name>
+<sourcecode type="json">[
+   {
+      "type": "payment_initiation",
+      "actions": [
+         "initiate",
+         "status",
+         "cancel"
+      ],
+      "locations": [
+         "https://example.com/payments"
+      ],
+      "instructedAmount": {
+         "currency": "EUR",
+         "amount": "123.50"
+      },
+      "creditorName": "Merchant A",
+      "creditorAccount": {
+         "iban": "DE02100100109307118603"
+      },
+      "remittanceInformationUnstructured": "Ref Number Merchant"
+   }
+]
+</sourcecode>
+</figure>
+<t><xref target="figure3"></xref> shows a combined request asking for access to account information and permission to initiate a payment:</t>
+
+<figure anchor="figure3"><name>Example of <tt>authorization_details</tt> for a Combined Request
+</name>
+<sourcecode type="json">[
+   {
+      "type": "account_information",
+      "actions": [
+         "list_accounts",
+         "read_balances",
+         "read_transactions"
+      ],
+      "locations": [
+         "https://example.com/accounts"
+      ]
+   },
+   {
+      "type": "payment_initiation",
+      "actions": [
+         "initiate",
+         "status",
+         "cancel"
+      ],
+      "locations": [
+         "https://example.com/payments"
+      ],
+      "instructedAmount": {
+         "currency": "EUR",
+         "amount": "123.50"
+      },
+      "creditorName": "Merchant A",
+      "creditorAccount": {
+         "iban": "DE02100100109307118603"
+      },
+      "remittanceInformationUnstructured": "Ref Number Merchant"
+   }
+]
+</sourcecode>
+</figure>
+<t>The JSON objects with <tt>type</tt> fields of <tt>account_information</tt> and <tt>payment_initiation</tt> represent the different <tt>authorization_details</tt> to be used by the AS to ask for consent.</t>
+
+<t>Note: The AS will make this data subsequently available to the respective resource servers (see <xref target="resource_servers"></xref>).</t>
+
+<section anchor="authorization-details-types"><name>Authorization Details Types</name>
+
+<!-- [rfced] For clarity and to avoid subject/verb confusion, may this
+sentence be rephrased as follows?
+
+Original:
+   Interpretation of the value of the type parameter, and the object
+   fields that the type parameter allows, is under the control of the
+   AS.
+
+Perhaps:
+   The AS controls the interpretation of the value of the type parameter 
+   as well as the object fields that the type parameter allows.
+
+Or:
+   The AS controls the interpretation of a) the value of the type 
+   parameter and b) the object fields that the type parameter allows.
+-->
+
+<t>Interpretation of the value of the <tt>type</tt> parameter, and the object fields that the <tt>type</tt> parameter allows, is under the control of the AS. However, the value of the <tt>type</tt> parameter is also generally documented and intended to be used by developers. It is <bcp14>RECOMMENDED</bcp14> that API designers choose <tt>type</tt> values that are easily copied without ambiguity. For example, some glyphs have multiple Unicode code points for the same visual character, and a developer could potentially type a different character than what the AS has defined. Possible means of reducing potential confusion are limiting the value to ASCII <xref target="RFC0020"></xref> characters, providing a machine-readable listing of data type values, or instructing developers to copy and paste directly from the documentation.</t>
+<t>If an application or API is expected to be deployed across different servers, such as the case in an open standard, the API designer is <bcp14>RECOMMENDED</bcp14> to use a collision-resistant namespace under their control, such as a URI that the API designer controls.</t>
+<t>The following example shows how an implementation could utilize the namespace <tt>https://scheme.example.org/</tt> to ensure collision-resistant type values.</t>
+
+<figure><name>Example of <tt>authorization_details</tt> with a URL as Type Identifier
+</name>
+<sourcecode type="json">{
+   "type": "https://scheme.example.org/files",
+   "locations": [
+      "https://example.com/files"
+   ],
+   "permissions": [
+      {
+         "path": "/myfiles/A",
+         "access": [
+            "read"
+         ]
+      },
+      {
+         "path": "/myfiles/A/X",
+         "access": [
+            "read",
+            "write"
+         ]
+      }
+   ]
+}
+</sourcecode>
+</figure>
+</section>
+
+<section anchor="common_data_fields"><name>Common Data Fields</name>
+<t>This specification defines a set of common data fields that are designed to be usable across different types of APIs. This specification does not require the use of these common fields by an API definition but, instead, provides them as reusable generic components for API designers to make use of. The allowable values of all fields are determined by the API being protected, as defined by a particular "type" value.</t>
+
+<dl spacing="normal">
+<dt><tt>locations</tt>:</dt>
+<dd>An array of strings representing the location of the resource or resource server. These strings are typically URIs identifying the
+location of the RS. This field can allow a client to specify a particular RS, as discussed in <xref target="security_considerations"></xref>.</dd>
+<dt><tt>actions</tt>:</dt>
+<dd>An array of strings representing the kinds of actions to be taken at the resource.</dd>
+<dt><tt>datatypes</tt>:</dt>
+<dd>An array of strings representing the kinds of data being requested from the resource.</dd>
+<dt><tt>identifier</tt>:</dt>
+<dd>A string identifier indicating a specific resource available at the API.</dd>
+<dt><tt>privileges</tt>:</dt>
+<dd>An array of strings representing the types or levels of privilege being requested at the resource.</dd>
+</dl>
+<t>When different common data fields are used in combination, the permissions the client requests are the product of all the values.
+The object represents a request for all <tt>action</tt> values listed within the object
+to be used at all <tt>locations</tt> values listed within the object for all <tt>datatype</tt>
+values listed within the object. In the following example, the client is requesting <tt>read</tt> and <tt>write</tt>
+access to both the <tt>contacts</tt> and <tt>photos</tt> belonging to customers in a <tt>customer_information</tt> API. 
+
+<!-- [rfced] To match subsequent text, may we update "reading 
+the photos and writing the contacts" as follows?
+
+Original:
+   If this request is granted, the client
+   would assume it would be able to use any combination of rights
+   defined by the API, such as reading the photos and writing the
+   contacts.
+
+Perhaps:
+   If this request is granted, the client
+   would assume it would be able to use any combination of rights
+   defined by the API, such as read access to the photos and write 
+   access to the contacts.
+-->
+
+If
+this request is granted, the client would assume it would be able to use any combination of rights
+defined by the API, such as reading the photos and writing the contacts.</t>
+<figure><name>Example of <tt>authorization_details</tt> with Common Data Fields
+</name>
+<sourcecode type="json">[
+   {
+      "type": "customer_information",
+      "locations": [
+         "https://example.com/customers"
+      ],
+      "actions": [
+         "read",
+         "write"
+      ],
+      "datatypes": [
+         "contacts",
+         "photos"
+      ]
+   }
+]
+</sourcecode>
+</figure>
+<t>If the client wishes to have finer control over its access, it can send multiple objects. In this example,
+the client is asking for <tt>read</tt> access to the <tt>contacts</tt> and <tt>write</tt> access to the <tt>photos</tt> in the same API endpoint.
+If this request is granted, the client would not be able to write to the contacts.</t>
+<figure><name>Example of <tt>authorization_details</tt> with Common Data Fields in Multiple Objects
+</name>
+<sourcecode type="json">[
+   {
+      "type": "customer_information",
+      "locations": [
+         "https://example.com/customers"
+      ],
+      "actions": [
+         "read"
+      ],
+      "datatypes": [
+         "contacts"
+      ]
+   },
+   {
+      "type": "customer_information",
+      "locations": [
+         "https://example.com/customers"
+      ],
+      "actions": [
+         "write"
+      ],
+      "datatypes": [
+         "photos"
+      ]
+   }
+]
+</sourcecode>
+</figure>
+<t>An API <bcp14>MAY</bcp14> define its own extensions, subject to the <tt>type</tt> of the respective authorization object.
+It is anticipated that API designers will use a combination
+of common data fields defined in this specification as well as
+fields specific to the API itself. The following non-normative
+example shows the use of both common and API-specific fields as
+part of two different fictitious API <tt>type</tt> values. The first
+access request includes the <tt>actions</tt>, <tt>locations</tt>, and <tt>datatypes</tt>
+fields specified here as well as the API-specific <tt>geolocation</tt>
+field, indicating access to photos taken at the given coordinates.
+The second access request includes the <tt>actions</tt> and
+<tt>identifier</tt> fields specified here as well as the API-specific
+<tt>currency</tt> fields.</t>
+
+<figure><name>Example of <tt>authorization_details</tt> Using Common and Extension Data Fields</name>
+<sourcecode type="json">[
+   {
+      "type":"photo-api",
+      "actions":[
+         "read",
+         "write"
+      ],
+      "locations":[
+         "https://server.example.net/",
+         "https://resource.local/other"
+      ],
+      "datatypes":[
+         "metadata",
+         "images"
+      ],
+      "geolocation":[
+         {
+            "lat":-32.364,
+            "lng":153.207
+         },
+         {
+            "lat":-35.364,
+            "lng":158.207
+         }
+      ]
+   },
+   {
+      "type":"financial-transaction",
+      "actions":[
+         "withdraw"
+      ],
+      "identifier":"account-14-32-32-3",
+      "currency":"USD"
+   }
+]
+</sourcecode>
+</figure>
+<t>If this request is approved, the resulting access token's access rights will be
+the union of the requested types of access for each of the two APIs, just as above.</t>
+</section>
+</section>
+
+<section anchor="authz_request"><name>Authorization Request</name>
+<t>The <tt>authorization_details</tt> authorization request parameter can be used to specify authorization requirements in all places where the <tt>scope</tt> parameter is used for the same purpose, examples include:</t>
+
+<ul spacing="normal">
+<li>authorization requests as specified in <xref target="RFC6749"></xref></li>
+<li>device authorization requests as specified in <xref target="RFC8628"></xref></li>
+<li>backchannel authentication requests as defined in <xref target="OID-CIBA"></xref></li>
+</ul>
+
+<t>In case of authorization requests as defined in <xref target="RFC6749"></xref>, implementers <bcp14>MAY</bcp14> consider using pushed authorization requests <xref target="RFC9126"></xref> to improve the security, privacy, and reliability of the flow. See Sections <xref target="security_considerations" format="counter"></xref>, <xref target="privacy_considerations" format="counter"></xref>, and <xref target="large_requests" format="counter"></xref> for details.</t>
+<t>Parameter encoding is determined by the respective context. In the context of an authorization request according to <xref target="RFC6749"></xref>, the parameter is encoded using the <tt>application/x-www-form-urlencoded</tt> format of the serialized JSON as shown in <xref target="fig8" format="default"/>, using the example from <xref target="authz_details"></xref> (line breaks for display purposes only):</t>
+<figure anchor="fig8"><name>Example of Authorization Request with <tt>authorization_details</tt></name>
+<artwork><![CDATA[ 
+GET /authorize?response_type=code
+   &client_id=s6BhdRkqt3
+   &state=af0ifjsldkj
+   &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
+   &code_challenge_method=S256
+   &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bwc-uCHaoeK1t8U
+   &authorization_details=%5B%7B%22type%22%3A%22account%5Finfo
+   rmation%22%2C%22actions%22%3A%5B%22list%5Faccounts%22%2C%22
+   read%5Fbalances%22%2C%22read%5Ftransactions%22%5D%2C%22loca
+   tions%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Faccounts%22%
+   5D%7D%2C%7B%22type%22%3A%22payment%5Finitiation%22%2C%22act
+   ions%22%3A%5B%22initiate%22%2C%22status%22%2C%22cancel%22%5
+   D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample%2Ecom%2Fp
+   ayments%22%5D%2C%22instructedAmount%22%3A%7B%22currency%22%
+   3A%22EUR%22%2C%22amount%22%3A%22123%2E50%22%7D%2C%22credito
+   rName%22%3A%22Merchant%20A%22%2C%22creditorAccount%22%3A%7B
+   %22iban%22%3A%22DE02100100109307118603%22%7D%2C%22remittanc
+   eInformationUnstructured%22%3A%22Ref%20Number%20Merchant%22
+   %7D%5D HTTP/1.1
+Host: server.example.com
+]]></artwork>
+</figure>
+<t>Based on the data provided in the <tt>authorization_details</tt> parameter, the AS will ask the user for consent to the requested access permissions.</t>
+<t>Note: The user may also grant a subset of the requested authorization details.</t>
+<t>In <xref target="fig9" format="default"/>, the client wants to get access to account information and initiate a payment:</t>
+
+<figure anchor="fig9"><name>URL Decoded <tt>authorization_details</tt></name>
+<sourcecode type="json">[
+   {
+      "type": "account_information",
+      "actions": [
+         "list_accounts",
+         "read_balances",
+         "read_transactions"
+      ],
+      "locations": [
+         "https://example.com/accounts"
+      ]
+   },
+   {
+      "type": "payment_initiation",
+      "actions": [
+         "initiate",
+         "status",
+         "cancel"
+      ],
+      "locations": [
+         "https://example.com/payments"
+      ],
+      "instructedAmount": {
+         "currency": "EUR",
+         "amount": "123.50"
+      },
+      "creditorName": "Merchant A",
+      "creditorAccount": {
+         "iban": "DE02100100109307118603"
+      },
+      "remittanceInformationUnstructured": "Ref Number Merchant"
+   }
+]
+</sourcecode>
+</figure>
+
+<section anchor="scope"><name>Relationship to "scope" Parameter</name>
+<t><tt>authorization_details</tt> and <tt>scope</tt> can be used in the same authorization request for carrying independent authorization requirements.</t>
+<t>Combined use of <tt>authorization_details</tt> and <tt>scope</tt> is supported by this specification in part to allow existing OAuth-based applications to incrementally migrate towards using <tt>authorization_details</tt> exclusively. It is <bcp14>RECOMMENDED</bcp14> that a given API use only one form of requirement specification.</t>
+<t>The AS <bcp14>MUST</bcp14> process both sets of requirements in combination with each other for the given authorization request. The details of how the AS combines these parameters are specific to the APIs being protected and outside the scope of this specification.</t>
+<t>When gathering user consent, the AS <bcp14>MUST</bcp14> present the merged set of requirements represented by the authorization request.</t>
+<t>If the resource owner grants the client the requested access, the AS will issue tokens to the client that are associated with the respective <tt>authorization_details</tt> (and scope values, if applicable).</t>
+</section>
+
+<section anchor="relationship-to-resource-parameter"><name>Relationship to "resource" Parameter</name>
+<t>The <tt>resource</tt> authorization request parameter, as defined in <xref target="RFC8707"></xref>, can be used to further determine the resources where the requested scope can be applied. The  <tt>resource</tt> parameter does not have any impact on the way the AS processes the <tt>authorization_details</tt> authorization request parameter.</t>
+</section>
+</section>
+
+<section anchor="authorization-response"><name>Authorization Response</name>
+<t>This specification does not define extensions to the authorization response.</t>
+</section>
+
+<section anchor="authz_details_error"><name>Authorization Error Response</name>
+<t>The AS <bcp14>MUST</bcp14> refuse to process any unknown authorization details type or authorization details not conforming to the respective type definition. The AS <bcp14>MUST</bcp14> abort processing and respond with an error <tt>invalid_authorization_details</tt> to the client if any of the following are true of the objects in the <tt>authorization_details</tt> structure:</t>
+
+<ul spacing="normal">
+<li>contains an unknown authorization details type value,</li>
+<li>is an object of known type but containing unknown fields,</li>
+<li>contains fields of the wrong type for the authorization details type,</li>
+<li>contains fields with invalid values for the authorization details type, or</li>
+<li>is missing required fields for the authorization details type.</li>
+</ul>
+</section>
+
+<section anchor="token-request"><name>Token Request</name>
+<t>The <tt>authorization_details</tt> token request parameter can be used to specify the authorization details that a client wants the AS to assign to an access token. The AS checks whether the underlying grant (in case of grant types <tt>authorization_code</tt>, <tt>refresh_token</tt>, etc.) or the client's policy (in case of grant type <tt>client_credential</tt>) allows the issuance of an access token with the requested authorization details. Otherwise, the AS refuses the request with the error code <tt>invalid_authorization_details</tt> (similar to <tt>invalid_scope</tt>).</t>
+
+<section anchor="comparing-authorization-details"><name>Comparing Authorization Details</name>
+<t>Many actions in the OAuth protocol allow the AS and RS to make security decisions based on whether the request
+is asking for "more" or "less" than a previous, existing request. For example, upon refreshing a token, the client can
+ask for a new access token with "fewer permissions" than had been previously authorized by the resource owner.
+The requested access token will convey the reduced permissions, but the resource owner's previous authorization is unchanged by such requests.
+Since the semantics of the fields in the <tt>authorization_details</tt> will be implementation specific to a given API or set of APIs, there is no
+standardized mechanism to compare two arbitrary authorization detail requests.
+Authorization servers should not rely on simple object comparison in most cases, as the intersection of some fields
+within a request could have side effects on the access rights granted, depending on how the API
+has been designed and deployed. This is a similar effect to the scope values used with some APIs.</t>
+<t>When comparing a new request to an existing request, authorization servers can use the same
+processing techniques as used in granting the request in the first place to determine if a resource
+owner needs to authorize the request. The details of this comparison are dependent on the definition
+of the <tt>type</tt> of authorization request and outside the scope of this specification, but common patterns
+can be applied.</t>
+<t>This shall be illustrated using our running example. The example authorization request in <xref target="authz_request"></xref>, if approved by the user, resulted in the issuance of an authorization code associated with the privileges to:</t>
+
+<ul spacing="normal">
+<li>list accounts,</li>
+<li>access the balance of one or more accounts,</li>
+<li>access the transactions of one or more accounts, and</li>
+<li>initiate, check the status of, and cancel a payment.</li>
+</ul>
+<t>The client could now request the AS to issue an access token assigned with the privilege to just access a list of accounts as follows:</t>
+
+<figure><name>Example of <tt>authorization_details</tt> Reduced Privileges
+</name>
+<sourcecode type="json">[
+   {
+      "type": "account_information",
+      "actions": [
+         "list_accounts"
+      ],
+      "locations": [
+         "https://example.com/accounts"
+      ]
+   }
+]
+</sourcecode>
+</figure>
+<t>The example API is designed such that each field used by the <tt>account_information</tt> type contains additive rights,
+with each value within the <tt>actions</tt> and <tt>locations</tt> arrays specifying a different element of access. To make a comparison in this
+instance, the AS would perform the following steps:</t>
+
+<!-- [rfced] There are two instances in this document where a list is
+introduced with "the following steps". Should the steps be numbered?
+
+Original (Section 6.1):
+
+   To make a comparison in this instance, the AS
+   would perform the following steps:
+
+   *  compare that the authorization code issued in the previous step
+      contains an authorization details object of type
+      account_information
+   *  compare whether the approved list of actions contains
+      list_account, and
+   *  whether the locations value includes only previously-approved
+      locations.
+
+Original (Section 11.1):
+   Using authorization details in a certain deployment will require the
+   following steps:
+
+   *  Define authorization details types
+   *  Publish authorization details types in the OAuth server metadata
+   *  Determine how authorization details are shown to the user in the
+      user consent prompt
+   *  (if needed) Enrich authorization details in the user consent
+      process (e.g. add selected accounts or set expirations)
+   *  (if needed) Determine how authorization details are reflected in
+      access token content or introspection responses
+   *  Determine how the resource server(s) process(s) the authorization
+      details or token data derived from authorization details
+   *  (if needed) Entitle clients to use certain authorization details
+      types
+-->
+
+<ul spacing="normal">
+
+<!-- [rfced] Please review if "compare" should be replaced with "verify" 
+in this list, as "compare" typically indicates that two items are being
+compared to each other. Also, to make this list parallel, what verb may
+be added for the last bullet point (e.g., verify)?
+
+Original:
+   To make a comparison in this instance, the AS
+   would perform the following steps:
+
+   *  compare that the authorization code issued in the previous step
+      contains an authorization details object of type
+      account_information
+   *  compare whether the approved list of actions contains
+      list_account, and
+   *  whether the locations value includes only previously-approved
+      locations.
+
+Perhaps:
+   To make a comparison in this instance, the AS
+   would perform the following steps:
+
+   *  verify that the authorization code issued in the previous step
+      contains an authorization details object of type,
+      account_information
+   *  verify whether the approved list of actions contains
+      list_account, and
+   *  verify whether the locations value includes only previously approved
+      locations.
+-->
+
+<li>compare that the authorization code issued in the previous step contains an authorization details object of type <tt>account_information</tt>,</li>
+<li>compare whether the approved list of actions contains <tt>list_account</tt>, and</li>
+<li>whether the <tt>locations</tt> value includes only previously approved locations.</li>
+</ul>
+<t>If all checks succeed, the AS would issue the requested access token with the reduced set of access.</t>
+<t>Note that this comparison is relevant to this specific API type definition. A different API type definition could have different processing rules. For example, the
+value of an <tt>action</tt> could subsume the rights associated with another <tt>action</tt> value. For example, if a client initially asks for
+a token with <tt>write</tt> access, this implies both read and write access to this API:</t>
+
+<figure><name>Example of <tt>authorization_details</tt> Requesting "write" Access to an API</name>
+<sourcecode type="json">[
+    {
+        "type": "example_api",
+        "actions": [
+            "write"
+        ]
+    }
+]
+</sourcecode>
+</figure>
+
+<t>Later, that same client makes a refresh request for <tt>read</tt> access:</t>
+
+<figure><name>Example of <tt>authorization_details</tt> Requesting "read" Access to an API
+</name>
+<sourcecode type="json">[
+    {
+        "type": "example_api",
+        "actions": [
+            "read"
+        ]
+    }
+]
+</sourcecode>
+</figure>
+<t>The AS would compare the <tt>type</tt> value and the <tt>action</tt> value to determine that the <tt>read</tt> access is
+already covered by the <tt>write</tt> access previously granted to the client.</t>
+<t>This same API could be designed with a possible value for <tt>privileges</tt> of <tt>admin</tt>, used in this example to
+denote that the resulting token is allowed to perform any of the functions on the resources. 
+
+<!-- [rfced] Please clarify the sentence fragment ("If that client 
+is then granted such admin privileges to the API"), which is 
+the lead-in text for Figure 13. (The preceding sentence is 
+included for context.)
+
+Original:
+   This same API could be designed with a possible value for privileges
+   of admin, used in this example to denote that the resulting token is
+   allowed to perform any functions on the resources.  If that client is
+   then granted such admin privileges to the API:
+
+Perhaps:
+   [...] If that client is granted such admin privileges to the API,
+   a request for admin access would be as follows:
+-->
+
+If that
+client is then granted such <tt>admin</tt> privileges to the API:</t>
+<figure><name>Example of <tt>authorization_details</tt> Requesting <tt>admin</tt> Access to an API
+</name>
+<sourcecode type="json">[
+    {
+        "type": "example_api",
+        "privileges": [
+            "admin"
+        ]
+    }
+]
+</sourcecode>
+</figure>
+
+<t>The AS would compare the <tt>type</tt> value and find that the <tt>privileges</tt> value subsumes any aspects of
+<tt>read</tt> or <tt>write</tt> access that had been granted to the client previously. Note that other
+API definitions can use <tt>privileges</tt> such that values do not subsume one another.</t>
+<!--[rfced] FYI, the spelling has been corrected here; please let us know
+if this is not correct.
+
+Original: payment_iniation
+Current:  payment_initiation
+-->
+<t>The next example shows how the client can use the common data element <tt>locations</tt> (see <xref target="common_data_fields"></xref>) to request the issuance of an access token restricted to a certain resource server. In our running example, the client may ask for all permissions of the approved grant of type <tt>payment_initiation</tt> applicable to the resource server residing at <tt>https://example.com/payments</tt> as follows:</t>
+<figure><name>Example of <tt>authorization_details</tt> Requesting an Audience-Restricted Access Token
+</name>
+<sourcecode type="json">[
+   {
+      "type": "payment_initiation",
+      "locations": [
+         "https://example.com/payments"
+      ]
+   }
+]
+
+</sourcecode>
+</figure>
+</section>
+</section>
+
+<section anchor="token-response"><name>Token Response</name>
+<t>In addition to the token response parameters as defined in <xref target="RFC6749"></xref>, the authorization server <bcp14>MUST</bcp14> also return the <tt>authorization_details</tt> as granted by the resource owner and assigned to the respective access token.</t>
+<t>The authorization details assigned to the access token issued in a token response are determined by the <tt>authorization_details</tt> parameter of the corresponding token request. If the client does not specify the <tt>authorization_details</tt> token request parameters, the AS determines the resulting <tt>authorization_details</tt> at its discretion.</t>
+<t>The AS <bcp14>MAY</bcp14> omit values in the <tt>authorization_details</tt> to the client.</t>
+<t>For our running example, it would look like this:</t>
+
+<figure><name>Example Token Response</name>
+
+<!-- [rfced] Please review the "type" attribute of each sourcecode element 
+in the XML file to ensure correctness. If the current list of preferred
+values for "type" (https://www.rfc-editor.org/materials/sourcecode-types.txt)
+does not contain an applicable type, then feel free to let us know.  
+Also, it is acceptable to leave the "type" attribute not set.  
+(e.g., for Figures 15 and 17, would type="http-message" be accurate?)
+
+In addition, review each artwork element. Specifically,
+should any artwork element be tagged as sourcecode or another
+element? 
+ -->
+
+<sourcecode type="json">
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+
+{
+   "access_token": "2YotnFZFEjr1zCsicMWpAA",
+   "token_type": "example",
+   "expires_in": 3600,
+   "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA",
+   "authorization_details": [
+      {
+         "type": "payment_initiation",
+         "actions": [
+            "initiate",
+            "status",
+            "cancel"
+         ],
+         "locations": [
+            "https://example.com/payments"
+         ],
+         "instructedAmount": {
+            "currency": "EUR",
+            "amount": "123.50"
+         },
+         "creditorName": "Merchant A",
+         "creditorAccount": {
+            "iban": "DE02100100109307118603"
+         },
+         "remittanceInformationUnstructured": "Ref Number Merchant"
+      }
+   ]
+}
+</sourcecode>
+</figure>
+
+<section anchor="enriched-authorization-details-in-token-response"><name>Enriched Authorization Details in Token Response</name>
+<t>The authorization details attached to the access token <bcp14>MAY</bcp14> differ from what the client requests. In addition to the user authorizing less than what the client requested, there are some use cases where the authorization server enriches the data in an authorization details object. Whether enrichment is allowed and specifics of how it works are necessarily part of the definition of the respective authorization details type.</t>
+<t>As one example, a client may ask for access to account information but leave the decision about the specific accounts it will be able to access to the user. During the course of the authorization process, the user would select the subset of their accounts that they want to allow the client to access. As one design option to convey the selected accounts, the authorization server could add this information to the respective authorization details object.</t>
+<!--[rfced] Should "authorization detail parameter" (one instance within
+this document) be "authorization_details parameter" to match other usage
+within this document?
+
+Original:
+   In that example, the requested authorization detail parameter might
+   look like the following. 
+-->
+<t>In that example, the requested authorization detail parameter might look like the following. In this example, the empty arrays serve as placeholders for where data will be added during enrichment by the AS. This example is illustrative only and is not intended to suggest a preference for designing the specifics of any authorization details type this way.</t>
+
+<figure><name>Example of Requested <tt>authorization_details</tt></name>
+<sourcecode type="json">"authorization_details": [
+   {
+      "type": "account_information",
+      "access": {
+         "accounts": [],
+         "balances": [],
+         "transactions": []
+      },
+      "recurringIndicator":true
+   }
+]
+</sourcecode>
+</figure>
+<t>The authorization server then would expand the authorization details object and add the respective account identifiers.</t>
+
+<figure><name>Example of Enriched <tt>authorization_details</tt></name>
+<sourcecode type="json">
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+
+{
+   "access_token":"2YotnFZFEjr1zCsicMWpAA",
+   "token_type":"example",
+   "expires_in":3600,
+   "refresh_token":"tGzv3JokF0XG5Qx2TlKWIA",
+   "authorization_details":[
+      {
+         "type":"account_information",
+         "access":{
+            "accounts":[
+               {
+                  "iban":"DE2310010010123456789"
+               },
+               {
+                  "maskedPan":"123456xxxxxx1234"
+               }
+            ],
+            "balances":[
+               {
+                  "iban":"DE2310010010123456789"
+               }
+            ],
+            "transactions":[
+               {
+                  "iban":"DE2310010010123456789"
+               },
+               {
+                  "maskedPan":"123456xxxxxx1234"
+               }
+            ]
+         },
+         "recurringIndicator":true
+      }
+   ]
+}
+</sourcecode>
+</figure>
+<t>For another example, the client is asking for access to a medical record but does not know the record number at request time. In this example, the client specifies the type of access it wants but doesn't specify the location or identifier of that access.</t>
+
+<figure><name>Example of Requested <tt>authorization_details</tt></name>
+<sourcecode type="json">{
+"authorization_details": [
+   {
+      "type": "medical_record",
+      "sens": [ "HIV", "ETH", "MART" ],
+      "actions": [ "read" ],
+      "datatypes": [ "Patient", "Observation", "Appointment" ]
+   }
+]}
+</sourcecode>
+</figure>
+<t>When the user interacts with the AS, they select which of the medical records they are responsible for giving to the client. This information gets returned with the access token.</t>
+
+<figure><name>Example of Enriched <tt>authorization_details</tt></name>
+<sourcecode type="json">{
+   "access_token":"2YotnFZFEjr1zCsicMWpAA",
+   "token_type":"example",
+   "expires_in":3600,
+   "refresh_token":"tGzv3JokF0XG5Qx2TlKWIA",
+   "authorization_details":[
+    {
+      "type": "medical_record",
+      "sens": [ "HIV", "ETH", "MART" ],
+      "actions": [ "read" ],
+      "datatypes": [ "Patient", "Observation", "Appointment" ],
+      "identifier": "patient-541235",
+      "locations": [ "https://records.example.com/" ]
+     }
+  ]
+}
+</sourcecode>
+</figure>
+<t>Note: The client needs to be aware upfront of the possibility that a certain authorization details object can be enriched. It is assumed that this property is part of the definition of the respective authorization details type.</t>
+</section>
+</section>
+
+<section anchor="token-error-response"><name>Token Error Response</name>
+<t>The Token Error Response <bcp14>MUST</bcp14> conform to the rules given in <xref target="authz_details_error"></xref>.</t>
+</section>
+
+<section anchor="resource_servers"><name>Resource Servers</name>
+<t>In order to enable the RS to enforce the authorization details as approved in the authorization process, the AS <bcp14>MUST</bcp14> make this data available to the RS. The AS <bcp14>MAY</bcp14> add the <tt>authorization_details</tt> field to access tokens in JSON Web Token (JWT) format or to Token Introspection responses.</t>
+
+<section anchor="jwt_based_access_tokens"><name>JWT-Based Access Tokens</name>
+<t>If the access token is a JWT <xref target="RFC7519"></xref>, the AS is <bcp14>RECOMMENDED</bcp14> to add the <tt>authorization_details</tt> object, filtered to the specific audience, as a top-level claim.</t>
+<t>The AS will typically also add further claims to the JWT that the RS requires request processing, e.g., user id, roles, and transaction-specific data. What claims the particular RS requires is defined by the RS-specific policy with the AS.</t>
+<t>The following shows the contents of an example JWT for the payment initiation example above:</t>
+
+<figure><name>Example of <tt>authorization_details</tt> in JWT-Based Access Token</name>
+<sourcecode type="json">{
+   "iss": "https://as.example.com",
+   "sub": "24400320",
+   "aud": "a7AfcPcsl2",
+   "exp": 1311281970,
+   "acr": "psd2_sca",
+   "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
+   "authorization_details": [
+      {
+         "type": "https://scheme.example.com/payment_initiation",
+         "actions": [
+            "initiate",
+            "status",
+            "cancel"
+         ],
+         "locations": [
+            "https://example.com/payments"
+         ],
+         "instructedAmount": {
+            "currency": "EUR",
+            "amount": "123.50"
+         },
+         "creditorName": "Merchant A",
+         "creditorAccount": {
+            "iban": "DE02100100109307118603"
+         },
+         "remittanceInformationUnstructured": "Ref Number Merchant"
+      }
+   ],
+   "debtorAccount": {
+      "iban": "DE40100100103307118608",
+      "user_role": "owner"
+   }
+}
+</sourcecode>
+</figure>
+<t>In this case, the AS added the following example claims to the JWT-based access token:</t>
+
+<dl spacing="normal" newline="false">
+
+<!-- [rfced] For clarity, may we update the definition as follows?
+
+Original:
+   *  sub: conveys the user on which behalf the client is asking for
+      payment initiation
+
+Perhaps:
+   sub: indicates the user for which the client is asking for 
+      payment initiation.
+-->
+
+<dt><tt>sub</tt>:</dt>
+<dd>conveys the user on which behalf the client is asking for payment initiation</dd>
+<dt><tt>txn</tt>:</dt>
+<dd>transaction id used to trace the transaction across the services of provider <tt>example.com</tt></dd>
+<dt><tt>debtorAccount</tt>:</dt>
+<dd>API-specific field containing the debtor account. In the example, this account was not passed in the <tt>authorization_details</tt> but was selected by the user during the authorization process. The field <tt>user_role</tt> conveys the role the user has with respect to this particular account. In this case, they are the owner. This data is used for access control at the payment API (the RS).</dd>
+</dl>
+</section>
+
+<section anchor="token_introspection"><name>Token Introspection</name>
+<t>Token introspection <xref target="RFC7662"></xref> provides a means for an RS to query the AS to determine information about an access token. If the AS includes authorization detail information for the token in its response, the information <bcp14>MUST</bcp14> be conveyed with <tt>authorization_details</tt> as a top-level member of the introspection response JSON object. The <tt>authorization_details</tt> member <bcp14>MUST</bcp14> contain the same structure defined in <xref target="authz_details"></xref>, potentially filtered and extended for the RS making the introspection request.</t>
+<t>Here is an example introspection response for the payment initiation example:</t>
+
+<figure><name>Example of <tt>authorization_details</tt> in Introspection Response</name>
+<sourcecode type="json">{
+   "active": true,
+   "sub": "24400320",
+   "aud": "s6BhdRkqt3",
+   "exp": 1311281970,
+   "acr": "psd2_sca",
+   "txn": "8b4729cc-32e4-4370-8cf0-5796154d1296",
+   "authorization_details": [
+      {
+         "type": "https://scheme.example.com/payment_initiation",
+         "actions": [
+            "initiate",
+            "status",
+            "cancel"
+         ],
+         "locations": [
+            "https://example.com/payments"
+         ],
+         "instructedAmount": {
+            "currency": "EUR",
+            "amount": "123.50"
+         },
+         "creditorName": "Merchant123",
+         "creditorAccount": {
+            "iban": "DE02100100109307118603"
+         },
+         "remittanceInformationUnstructured": "Ref Number Merchant"
+      }
+   ],
+   "debtorAccount": {
+      "iban": "DE40100100103307118608",
+      "user_role": "owner"
+   }
+}
+</sourcecode>
+</figure>
+</section>
+</section>
+
+<section anchor="metadata"><name>Metadata</name>
+<t>To advertise its support for this feature, the supported list of authorization details types is included in the AS metadata response <xref target="RFC8414"></xref> using the metadata parameter <tt>authorization_details_types_supported</tt>, which is a JSON array.</t>
+<t>This is illustrated by the following example:</t>
+
+<figure><name>Example of Server Metadata about the Supported authorization details</name>
+<sourcecode type="json">{
+   ...
+   "authorization_details_types_supported":[
+      "payment_initiation",
+      "account_information"
+   ]
+}
+</sourcecode>
+</figure>
+<t>Clients <bcp14>MAY</bcp14> indicate the authorization details types they will use when requesting authorization with the client registration metadata parameter <tt>authorization_details_types</tt>, which is a JSON array.</t>
+<t>This is illustrated by the following example:</t>
+
+<figure><name>Example of Server Metadata about authorization details</name>
+<sourcecode type="json">{
+   ...
+   "authorization_details_types":[
+      "payment_initiation"
+   ]
+}
+</sourcecode>
+</figure>
+<t>The registration of authorization details types with the AS is outside the scope of this specification.</t>
+</section>
+
+<section anchor="implementation-considerations"><name>Implementation Considerations</name>
+
+<section anchor="using-authorization-details-in-a-certain-deployment"><name>Using authorization details in a Certain Deployment</name>
+<t>Using authorization details in a certain deployment will require the following steps:</t>
+
+<ul spacing="normal">
+<li>Define authorization details types.</li>
+<li>Publish authorization details types in the OAuth server metadata.</li>
+<li>Determine how authorization details are shown to the user in the user consent prompt.</li>
+<li>If needed, enrich authorization details in the user consent process (e.g., add selected accounts or set expirations).</li>
+<li>If needed, determine how authorization details are reflected in access token content or introspection responses.</li>
+<li>Determine how the resource servers process the authorization details or token data derived from authorization details.</li>
+<li>If needed, entitle clients to use certain authorization details types.</li>
+</ul>
+</section>
+
+<section anchor="minimal-implementation-support"><name>Minimal Implementation Support</name>
+<t>General authorization server implementations supporting this specification should provide the following basic functions:</t>
+
+<ul spacing="normal">
+<li>Support advertisement of supported authorization details types in OAuth server metadata</li>
+<li>Accept the <tt>authorization_details</tt> parameter in authorization requests in conformance with this specification</li>
+<li>Support storage of consented authorization details as part of a grant</li>
+<li>Implement default behavior for adding authorization details to access tokens and token introspection responses in order to make them available to resource servers (similar to scope values). This should work with any grant type, especially <tt>authorization_code</tt> and <tt>refresh_token</tt>.</li>
+</ul>
+<t>Processing and presentation of authorization details will vary significantly among different authorization details types. Implementations should therefore support customization of the respective behavior. In particular, implementations should allow deployments to:</t>
+
+<ul spacing="normal">
+<li>determine presentation of the authorization details;</li>
+<li>modify requested authorization details in the user consent process, e.g., adding fields; and</li>
+<li>merge requested and preexisting authorization details.</li>
+</ul>
+
+<t>One approach to supporting such customization would be to have a mechanism allowing the registration of extension modules, each of them responsible for rendering the respective user consent and any transformation needed to provide the data needed to the resource server by way of structured access tokens or token introspection responses.</t>
+</section>
+
+<section anchor="use-of-machine-readable-type-schemas"><name>Use of Machine-Readable Type Schemas</name>
+<t>Implementations might allow deployments to use machine-readable schema languages for defining authorization details types to facilitate creating and validating authorization details objects against such schemas. For example, if an authorization details <tt>type</tt> were defined using JSON Schemas <xref target="JSON.Schema"></xref>, the JSON Schema identifier could be used as <tt>type</tt> value in the respective authorization details objects.</t>
+<t>Note, however, that <tt>type</tt> values are identifiers understood by the AS and, to the extent necessary, the client and RS. 
+
+<!-- [rfced] FYI, this use of the subjunctive may trip up readers; we have
+rephrased as follows.  Please review and let us know if you prefer otherwise.
+
+Original:
+   This specification
+   makes no assumption that a type value point to a machine-readable
+   schema format, or that any party in the system (such as the client,
+   AS, or RS) dereference or process the contents of the type field in
+   any specific way.
+
+Current:
+   This specification 
+   makes no assumption that a type value would point to a machine-readable 
+   schema format or that any party in the system (such as the client, 
+   AS, or RS) would dereference or process the contents of the type 
+   field in any specific way.
+-->
+
+This specification makes no assumption that a <tt>type</tt> value would point to a machine-readable schema format or that any party in the system (such as the client, AS, or RS) would dereference or process the contents of the <tt>type</tt> field in any specific way.</t>
+</section>
+
+<section anchor="large_requests"><name>Large Requests</name>
+<t>Authorization request URIs containing <tt>authorization_details</tt> in a request parameter or a request object can become very long. Therefore, implementers should consider using the <tt>request_uri</tt> parameter as defined in <xref target="RFC9101"></xref> in combination with the pushed request object mechanism as defined in <xref target="RFC9126"></xref> to pass <tt>authorization_details</tt> in a reliable and secure manner. Here is an example of such a pushed authorization request that sends the authorization request data directly to the AS via an HTTPS-protected connection:</t>
+
+<figure><name>Example of Large Request including <tt>authorization_details</tt></name>
+<artwork><![CDATA[
+  POST /as/par HTTP/1.1
+  Host: as.example.com
+  Content-Type: application/x-www-form-urlencoded
+  Authorization: Basic czZCaGRSa3F0Mzo3RmpmcDBaQnIxS3REUmJuZlZkbUl3
+
+  response_type=code&
+  client_id=s6BhdRkqt3
+  &state=af0ifjsldkj
+  &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
+  &code_challenge_method=S256
+  &code_challenge=K2-ltc83acc4h0c9w6ESC_rEMTJ3bwc-uCHaoeK1t8U
+  &authorization_details=%5B%7B%22type%22%3A%22account_information%22
+  %2C%22actions%22%3A%5B%22list_accounts%22%2C%22read_balances%22%2C%
+  22read_transactions%22%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fe
+  xample.com%2Faccounts%22%5D%7D%2C%7B%22type%22%3A%22payment_initiat
+  ion%22%2C%22actions%22%3A%5B%22initiate%22%2C%22status%22%2C%22canc
+  el%22%5D%2C%22locations%22%3A%5B%22https%3A%2F%2Fexample.com%2Fpaym
+  ents%22%5D%2C%22instructedAmount%22%3A%7B%22currency%22%3A%22EUR%22
+  %2C%22amount%22%3A%22123.50%22%7D%2C%22creditorName%22%3A%22Merchan
+  t123%22%2C%22creditorAccount%22%3A%7B%22iban%22%3A%22DE021001001093
+  07118603%22%7D%2C%22remittanceInformationUnstructured%22%3A%22Ref%2
+  0Number%20Merchant%22%7D%5D
+]]></artwork>
+</figure>
+</section>
+</section>
+
+<section anchor="security_considerations"><name>Security Considerations</name>
+<t>The <tt>authorization_details</tt> parameter is sent through the user agent in case of an OAuth authorization request, which makes them vulnerable to modifications by the user. If the integrity of the
+<tt>authorization_details</tt> is a concern, clients <bcp14>MUST</bcp14> protect <tt>authorization_details</tt> against tampering and swapping. This can be achieved by signing the request using signed request objects as defined in <xref target="RFC9101"></xref> or using the <tt>request_uri</tt> authorization request parameter as defined in <xref target="RFC9101"></xref> in conjunction with <xref target="RFC9126"></xref> to pass the URI of the request object to the authorization server.</t>
+<t>All string comparisons in an <tt>authorization_details</tt> parameter are to be done as defined by <xref target="RFC8259"></xref>. No additional transformation or normalization is to be done in evaluating equivalence of string values.</t>
+<t>The common data field <tt>locations</tt> allows a client to specify where it intends to use a certain authorization, i.e., it is  possible to unambiguously assign permissions to resource servers. In situations with multiple resource servers, this prevents unintended client authorizations (e.g., a <tt>read</tt> scope value potentially applicable for an email as well as a cloud service) through audience restriction.</t>
+<t>The AS <bcp14>MUST</bcp14> properly sanitize and handle the data passed in the <tt>authorization_details</tt> in order to prevent injection attacks.</t>
+<t>The Security Considerations of <xref target="RFC6749"></xref>, <xref target="RFC7662"></xref>, and <xref target="RFC8414"></xref> also apply.</t>
+</section>
+
+<section anchor="privacy_considerations"><name>Privacy Considerations</name>
+<t>It is especially important for implementers to design and use authorization details in a privacy-preserving manner.</t>
+<t>Any sensitive personal data included in <tt>authorization_details</tt> must be prevented from leaking, e.g., through referrer headers. Implementation options include encrypted request objects as defined in <xref target="RFC9101"></xref> or transmission of <tt>authorization_details</tt> via end-to-end encrypted connections between client and authorization server by utilizing <xref target="RFC9126"></xref> and the <tt>request_uri</tt> authorization request parameter as defined in <xref target="RFC9101"></xref>. The latter does not require application-level encryption, but it requires another message exchange between the client and the AS.</t>
+<t>Even if the request data is encrypted, an attacker could use the authorization server to learn the user's data by injecting the encrypted request data into an authorization request on a device under their control and use the authorization server's user consent screens to show the (decrypted) user data in the clear. Implementations need to consider this attack vector and implement appropriate countermeasures, e.g., by only showing portions of the data or, if possible, determining whether the assumed user context is still the same (after user authentication).</t>
+<t>The AS needs to take into consideration the privacy implications when sharing <tt>authorization_details</tt> with the client or resource servers. The AS should share this data with those parties on a "need to know" basis as determined by local policy.</t>
+</section>
+
+<section anchor="iana_considerations"><name>IANA Considerations</name>
+
+<section anchor="oauth-parameters-registration"><name>OAuth Parameters Registration</name>
+<t>The following parameter has been registered 
+in the "OAuth Parameters" registry <xref target="IANA.OAuth.Parameters"></xref>
+established by <xref target="RFC6749"></xref>.</t>
+
+<dl spacing="normal">
+<dt>Name:</dt>
+<dd><tt>authorization_details</tt></dd>
+<dt>Parameter Usage Location:</dt>
+<dd>authorization request, token request, token response</dd>
+<dt>Change Controller:</dt>
+<dd>IETF</dd>
+<dt>Reference:</dt>
+<dd>RFC 9396</dd>
+</dl>
+</section>
+
+<section anchor="json-web-token-claims-registration"><name>JSON Web Token Claims Registration</name>
+<t>The following value has been registered in the IANA "JSON Web Token Claims" registry established by <xref target="RFC7519"></xref>.</t>
+
+<dl spacing="normal">
+<dt>Claim Name:</dt>
+<dd><tt>authorization_details</tt></dd>
+<dt>Claim Description:</dt>
+<dd>The claim <tt>authorization_details</tt> contains a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.</dd>
+<dt>Change Controller:</dt>
+<dd>IETF</dd>
+<dt>Reference:</dt>
+<dd><xref target="jwt_based_access_tokens"></xref> of RFC 9396</dd>
+</dl>
+</section>
+
+<section anchor="oauth-token-introspection-response-registration"><name>OAuth Token Introspection Response Registration</name>
+<t>The following value has been registered in the IANA "OAuth Token Introspection Response" registry established by <xref target="RFC7662"></xref>.</t>
+
+<dl spacing="normal">
+<dt>Name:</dt>
+<dd><tt>authorization_details</tt></dd>
+<dt>Description:</dt>
+<dd>The member <tt>authorization_details</tt> contains a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.</dd>
+<dt>Change Controller:</dt>
+<dd>IETF</dd>
+<dt>Reference:</dt>
+<dd><xref target="token_introspection"></xref> of RFC 9396</dd>
+</dl>
+</section>
+
+<section anchor="oauth-authorization-server-metadata-registration"><name>OAuth Authorization Server Metadata Registration</name>
+<t>The following values have been registered in the IANA "OAuth Authorization Server Metadata" registry of <xref target="IANA.OAuth.Parameters"></xref> established by <xref target="RFC8414"></xref>.</t>
+
+<dl spacing="normal">
+<dt>Metadata Name:</dt>
+<dd><tt>authorization_details_types_supported</tt></dd>
+<dt>Metadata Description:</dt>
+<dd>JSON array containing the authorization details types the AS supports</dd>
+<dt>Change Controller:</dt>
+<dd>IETF</dd>
+<dt>Reference:</dt>
+<dd><xref target="metadata"></xref> of RFC 9396</dd>
+</dl>
+</section>
+
+<section anchor="oauth-dynamic-client-registration-metadata-registration"><name>OAuth Dynamic Client Registration Metadata Registration</name>
+<t>The following value has been registered in the IANA "OAuth Dynamic Client Registration Metadata" registry of <xref target="IANA.OAuth.Parameters"></xref> established by <xref target="RFC7591"></xref>.</t>
+
+<dl spacing="normal">
+<dt>Client Metadata Name:</dt>
+<dd><tt>authorization_details_types</tt></dd>
+<dt>Client Metadata Description:</dt>
+<dd>Indicates what authorization details types the client uses.</dd>
+<dt>Change Controller:</dt>
+<dd>IETF</dd>
+<dt>Reference:</dt>
+<dd><xref target="metadata"></xref> of RFC 9396</dd>
+</dl>
+</section>
+
+<section anchor="oauth-extensions-error-registration"><name>OAuth Extensions Error Registration</name>
+<t>The following value has been registered in the IANA "OAuth Extensions Error Registry" of <xref target="IANA.OAuth.Parameters"></xref> established by <xref target="RFC6749"></xref>.</t>
+
+<dl spacing="normal">
+<dt>Name:</dt>
+<dd><tt>invalid_authorization_details</tt></dd>
+<dt>Usage Location:</dt>
+<dd>token endpoint, authorization endpoint</dd>
+<dt>Protocol Extension:</dt>
+<dd>OAuth 2.0 Rich Authorization Requests</dd>
+<dt>Change Controller:</dt>
+<dd>IETF</dd>
+<dt>Reference:</dt>
+<dd><xref target="authz_details_error"></xref> of RFC 9396</dd>
+</dl>
+</section>
+</section>
+
+</middle>
+
+<back>
+<references>
+<name>References</name>
+
+<references>
+<name>Normative References</name>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7519.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7662.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8414.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8628.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8707.xml"/>
+</references>
+
+<references>
+<name>Informative References</name>
+
+<!-- [rfced] The provided URL redirects to
+https://cloudsignatureconsortium.org/. May we update to the URL below?
+Note: "2019/07" is changed to "2020/01".
+
+Original:
+   [CSC]      Consortium, C. S., "Architectures and protocols for remote
+              signature applications", 1 June 2019,
+              <https://cloudsignatureconsortium.org/wp-
+              content/uploads/2019/07/CSC_API_V1_1.0.4.0.pdf>.
+
+Perhaps:
+   [CSC]      Cloud Signature Consortium, "Architectures and protocols for 
+              remote signature applications", June 2019,
+	      <https://cloudsignatureconsortium.org/wp-
+	      content/uploads/2020/01/CSC_API_V1_1.0.4.0.pdf>.
+-->
+
+<reference anchor="CSC" target="https://cloudsignatureconsortium.org/wp-content/uploads/2019/07/CSC_API_V1_1.0.4.0.pdf">
+  <front>
+    <title>Architectures and protocols for remote signature applications</title>
+    <author>
+      <organization>Cloud Signature Consortium</organization>
+    </author>
+    <date year="2019" month="June"></date>
+  </front>
+  <refcontent>Version 1.0.4.0</refcontent>
+</reference>
+
+<!-- [ETSI] The URl below is correct -->
+
+<reference anchor="ETSI" target="https://www.etsi.org/deliver/etsi_ts/119400_119499/119432/01.01.01_60/ts_119432v010101p.pdf">
+  <front>
+    <title>Electronic Signatures and Infrastructures (ESI); Protocols for
+    remote digital signature creation </title>
+    <author>
+      <organization>ETSI</organization>
+    </author>
+    <date year="2019" month="March"/>
+  </front>
+  <seriesInfo name="ETSI TS" value="119 432"/>
+  <refcontent>V1.1.1</refcontent>
+</reference>
+
+<reference anchor="IANA.OAuth.Parameters" target="https://www.iana.org/assignments/oauth-parameters">
+  <front>
+    <title>OAuth Parameters</title>
+    <author>
+      <organization>IANA</organization>
+    </author>
+  </front>
+</reference>
+
+<reference anchor="JSON.Schema" target="https://json-schema.org/">
+  <front>
+    <title>JSON Schema</title>
+    <author>
+      <organization>OpenJS Foundation</organization>
+    </author>
+  </front>
+</reference>
+
+<reference anchor="OIDC" target="https://openid.net/specs/openid-connect-core-1_0.html">
+  <front>
+    <title>OpenID Connect Core 1.0 incorporating errata set 1</title>
+    <author initials="N." surname="Sakimura">
+      <organization>NRI</organization>
+    </author>
+    <author initials="J." surname="Bradley">
+      <organization>Ping Identity</organization>
+    </author>
+    <author initials="M." surname="Jones">
+      <organization>Microsoft</organization>
+    </author>
+    <author initials="B." surname="de Medeiros">
+      <organization>Google</organization>
+    </author>
+    <author initials="C." surname="Mortimore">
+      <organization>Salesforce</organization>
+    </author>
+    <date year="2014" month="Nov" day="8"></date>
+  </front>
+</reference>
+
+<reference anchor="OID-CIBA" target="https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0.html">
+  <front>
+    <title>OpenID Connect Client-Initiated Backchannel Authentication Flow - Core 1.0</title>
+    <author initials="G." surname="Fernandez">
+      <organization>Telefonica</organization>
+    </author>
+    <author initials="F." surname="Walter">
+      <organization>Deutsche Telekom AG</organization>
+    </author>
+    <author initials="A." surname="Nennker">
+      <organization>Deutsche Telekom AG</organization>
+    </author>
+    <author initials="D." surname="Tonge">
+      <organization>Moneyhub</organization>
+    </author>
+    <author initials="B." surname="Campbell">
+      <organization abbrev="Ping Identity">Ping Identity</organization>
+    </author>
+    <date year="2021" month="September" day="1"></date>
+  </front>
+</reference>
+
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.0020.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6749.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7591.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8259.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.9101.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.9126.xml"/>
+
+<reference anchor="Transaction-Auth" target="https://medium.com/oauth-2/transaction-authorization-or-why-we-need-to-re-think-oauth-scopes-2326e2038948">
+  <front>
+    <title>Transaction Authorization or why we need to re-think OAuth scopes</title>
+    <author fullname="Torsten Lodderstedt" initials="T." surname="Lodderstedt">
+      <organization>yes.com</organization>
+    </author>
+    <date year="2019" month="April" day="20"></date>
+  </front>
+</reference>
+
+</references>
+</references>
+
+<section anchor="additional-examples"><name>Additional Examples</name>
+
+<section anchor="openid"><name>OpenID Connect</name>
+<t>OpenID Connect <xref target="OIDC"></xref> specifies the JSON-based <tt>claims</tt> request parameter that can be used to specify the claims a client (acting as an OpenID Connect Relying Party) wishes to receive in a fine-grained and privacy-preserving way as well as assign those claims to certain delivery mechanisms, i.e., ID Token or userinfo response.</t>
+<t>The combination of the scope value <tt>openid</tt> and the additional parameter <tt>claims</tt> can be used beside <tt>authorization_details</tt> in the same way as every non-OIDC scope value.</t>
+<t>Alternatively, there could be an authorization details type for OpenID Connect. This section gives an example of what such an authorization details type could look like, but defining this authorization details type is outside the scope of this specification.</t>
+<t>These hypothetical examples try to encapsulate all details specific to the OpenID Connect part of an authorization process into an authorization JSON object.</t>
+<t>The top-level fields are based on the definitions given in <xref target="OIDC"></xref>:</t>
+
+<dl spacing="normal" newline="false">
+<dt><tt>claim_sets</tt>:</dt>
+<dd>the names of predefined claim sets, replacement for respective scope values, such as <tt>profile</tt></dd>
+<dt><tt>max_age</tt>:</dt>
+<dd>Maximum Authentication Age</dd>
+<dt><tt>acr_values</tt>:</dt>
+<dd>requested Authentication Context Class Reference (ACR) values</dd>
+<dt><tt>claims</tt>:</dt>
+<dd>the <tt>claims</tt> JSON structure as defined in <xref target="OIDC"></xref></dd>
+</dl>
+<t>This is a simple request for some claim sets.</t>
+
+<figure><name>Example of OpenID Connect Request Utilizing <tt>authorization_details</tt></name>
+<sourcecode type="json">[
+   {
+      "type": "openid",
+      "locations": [
+         "https://op.example.com/userinfo"
+      ],
+      "claim_sets": [
+         "email",
+         "profile"
+      ]
+   }
+]
+</sourcecode>
+</figure>
+<t>Note: <tt>locations</tt> specifies the location of the userinfo endpoint since this is the only place where an access token is used by a client (RP) in OpenID Connect to obtain claims.</t>
+<t>A more sophisticated example is shown in <xref target="fig26" format="default"/>.</t>
+
+<figure anchor="fig26"><name>Advanced Example of OpenID Connect Request Utilizing <tt>authorization_details</tt></name>
+<sourcecode type="json">[
+   {
+      "type": "openid",
+      "locations": [
+         "https://op.example.com/userinfo"
+      ],
+      "max_age": 86400,
+      "acr_values": "urn:mace:incommon:iap:silver",
+      "claims": {
+         "userinfo": {
+            "given_name": {
+               "essential": true
+            },
+            "nickname": null,
+            "email": {
+               "essential": true
+            },
+            "email_verified": {
+               "essential": true
+            },
+            "picture": null,
+            "http://example.com/claims/groups": null
+         },
+         "id_token": {
+            "auth_time": {
+               "essential": true
+            }
+         }
+      }
+   }
+]
+</sourcecode>
+</figure>
+</section>
+
+<section anchor="signing"><name>Remote Electronic Signing</name>
+<t>The following example is based on the concept laid out for remote electronic signing in ETSI TS 119 432 <xref target="ETSI"></xref> and the Cloud Signature Consortium (CSC) API for remote signature creation <xref target="CSC"></xref>.</t>
+
+<figure><name>Example of Electronic Signing</name>
+<sourcecode type="json">[
+   {
+      "type": "sign",
+      "locations": [
+         "https://signing.example.com/signdoc"
+      ],
+      "credentialID": "60916d31-932e-4820-ba82-1fcead1c9ea3",
+      "documentDigests": [
+         {
+            "hash": "sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=",
+            "label": "Credit Contract"
+         },
+         {
+            "hash": "HZQzZmMAIWekfGH0/ZKW1nsdt0xg3H6bZYztgsMTLw0=",
+            "label": "Contract Payment Protection Insurance"
+         }
+      ],
+      "hashAlgorithmOID": "2.16.840.1.101.3.4.2.1"
+   }
+]
+</sourcecode>
+</figure>
+
+<t>The top-level fields have the following meaning:</t>
+
+<dl spacing="normal" newline="false">
+<dt><tt>credentialID</tt>:</dt>
+<dd>identifier of the certificate to be used for signing</dd>
+<dt><tt>documentDigests</tt>:</dt>
+<dd>array containing the hash of every document to be signed (<tt>hash</tt> fields). Additionally, the corresponding <tt>label</tt> field identifies the respective document to the user, e.g., to be used in user consent.</dd>
+<dt><tt>hashAlgorithm</tt>:</dt>
+<dd>algorithm that was used to calculate the hash values</dd>
+</dl>
+<!--[rfced] Will "sign doc endpoint" be clear to the reader?
+Does it mean "signature document endpoint"?
+
+Original:
+   The client
+   uses the access token issued as a result of the process to call the
+   sign doc endpoint at the respective signing service to actually
+   create the signature. 
+-->
+
+<t>The AS is supposed to ask the user for consent for the creation of signatures for the documents listed in the structure. The client uses the access token issued as a result of the process to call the sign doc endpoint at the respective signing service to actually create the signature. This access token is bound to the client, the user id and the hashes (and signature algorithm) as consented by the user.</t>
+</section>
+
+<section anchor="tax"><name>Access to Tax Data</name>
+<t>This example is inspired by an API allowing third parties to access citizen's tax declarations and income statements, for example, to determine their creditworthiness.</t>
+
+<figure><name>Example of Tax Data Access</name>
+<sourcecode type="json">[
+    {
+        "type": "tax_data",
+        "locations": [
+            "https://taxservice.govehub.no.example.com"
+        ],
+        "actions":"read_tax_declaration",
+        "periods": ["2018"],
+        "duration_of_access": 30,
+        "tax_payer_id": "23674185438934"
+    }
+]
+</sourcecode>
+</figure>
+<t>The top-level fields have the following meaning:</t>
+
+<dl spacing="normal" newline="false">
+<dt><tt>periods</tt>:</dt>
+<dd>the periods the client wants to access</dd>
+<dt><tt>duration_of_access</tt>:</dt>
+<dd>how long the clients intend to access the data in days</dd>
+<dt><tt>tax_payer_id</tt>:</dt>
+<dd>identifier of the taxpayer (if known to the client)</dd>
+</dl>
+</section>
+
+<section anchor="ehealth"><name>eHealth</name>
+<t>These two examples are inspired by requirements for APIs used in the Norwegian eHealth system.</t>
+<t>In this use case, the physical therapist sits in front of their computer using a local Electronic Health Records (EHR) system. They want to look at the electronic patient records of a certain patient, and they also want to fetch the patient's journal entries in another system, perhaps at another institution or a national service. Access to this data is provided by an API.</t>
+<t>The information necessary to authorize the request at the API is only known by the EHR system and must be presented to the API.</t>
+<t>In the first example, the authorization details object contains the identifier of an organization. In this case, the API needs to know if the given organization has the lawful basis for processing personal health information to give access to sensitive data.</t>
+
+<figure><name>eHealth Example</name>
+<sourcecode type="json"><![CDATA["authorization_details": { 
+    "type": "patient_record",
+    "requesting_entity": {
+        "type": "Practitioner",
+        "identifier": [
+        {
+            "system": "urn:oid:2.16.578.1.12.4.1.4.4",
+            "value": "1234567"
+        }],
+        "practitioner_role": { 
+            "organization": { 
+                "identifier": {
+                    "system": "urn:oid:2.16.578.1.12.4.1.2.101",
+                    "type": "ENH",
+                    "value": "[organizational number]"
+                }
+            }
+        }
+    }
+}
+]]></sourcecode>
+</figure>
+<t>In the second example, the API requires more information to authorize the request. In this case, the authorization details object contains additional information about the health institution and the current profession the user has at the time of the request. The additional level of detail could be used for both authorization and data minimization.</t>
+
+<figure><name>Advanced eHealth Example</name>
+<sourcecode type="json"><![CDATA[
+[
+   {
+      "type": "patient_record",
+      "location": "https://fhir.example.com/patient",
+      "actions": [
+         "read"
+      ],
+      "patient_identifier": [
+         {
+            "system": "urn:oid:2.16.578.1.12.4.1.4.1",
+            "value": "12345678901"
+         }
+      ],
+      "reason_for_request": "Clinical treatment",
+      "requesting_entity": {
+         "type": "Practitioner",
+         "identifier": [
+            {
+               "system": "urn:oid:2.16.578.1.12.4.1.4.4",
+               "value": "1234567"
+            }
+         ],
+         "practitioner_role": {
+            "organization": {
+               "identifier": [
+                  {
+                     "system": "urn:oid:2.16.578.1.12.4.1.2.101",
+                     "type": "ENH",
+                     "value": "<organizational number>"
+                  }
+               ],
+               "type": {
+                  "coding": [
+                     {
+                        "system": 
+                           "http://hl7.example.org/fhir/org-type",
+                        "code": "dept",
+                        "display": "Hospital Department"
+                     }
+                  ]
+               },
+               "name": "Akuttmottak"
+            },
+            "profession": {
+               "coding": [
+                  {
+                     "system": "http://snomed.example.org/sct",
+                     "code": "36682004",
+                     "display": "Physical therapist"
+                  }
+               ]
+            }
+         }
+      }
+   }
+]
+]]></sourcecode>
+</figure>
+<t>Description of the fields:</t>
+
+<dl spacing="normal" newline="false">
+<dt><tt>patient_identifier</tt>:</dt>
+<dd>the identifier of the patient composed of a system identifier in OID format (namespace) and the actual value within this namespace.</dd>
+<dt><tt>reason_for_request</tt>:</dt>
+<dd>the reason why the user wants to access a certain API.</dd>
+<dt><tt>requesting_entity</tt>:</dt>
+<dd>specification of the requester by means of identity, role and organizational context. This data is provided to facilitate authorization and for auditing purposes.</dd>
+</dl>
+<t>In this use case, the AS authenticates the requester, who is not the patient, and approves access based on policies.</t>
+</section>
+</section>
+
+<section anchor="Acknowledgements" numbered="false">
+<name>Acknowledgements</name>
+<t>We would like to thank <contact fullname="Daniel Fett"/>, <contact fullname="Sebastian Ebling"/>, <contact fullname="Dave Tonge"/>, <contact fullname="Mike Jones"/>, <contact fullname="Nat Sakimura"/>, and <contact fullname="Rob Otto"/> for their valuable feedback during the preparation of this specification.</t>
+<t>We would also like to thank <contact fullname="Vladimir Dzhuvinov"/>,
+<contact fullname="Takahiko Kawasaki"/>, <contact fullname="Daniel Fett"/>,
+<contact fullname="Dave Tonge"/>, <contact fullname="Travis Spencer"/>,
+<contact fullname="Joergen Binningsboe"/>, <contact fullname="Aamund
+Bremer"/>, <contact fullname="Steinar Noem"/>, <contact fullname="Francis
+Pouatcha"/>, <contact fullname="Jacob Ideskog"/>, <contact fullname="Hannes
+Tschofenig"/>, and <contact fullname="Aaron Parecki"/> for their valuable
+feedback to this specification.</t>
+</section>
+
+</back>
+
+<!-- [rfced] Please review uses of quotation marks throughout the document
+with the following in mind.  If you prefer to make these changes to the
+XML file yourself instead of describing them via email, please use this
+file: https://www.rfc-editor.org/authors/rfc9396.xml
+
+a) The text rendering of the <tt> element was changed in Sept. 2021 (xml2rfc
+release 3.10.0). <tt> no longer yields quotation marks in the text rendering.
+This change is especially problematic for figure, table, and section titles
+where the terms in <tt> appear in lowercase while the rest of the title will
+appear using initial capitalization.  For example:
+
+Original:
+       Figure 12: Example for authorization_details requesting "read"
+                             access to an API.
+Current:
+       Figure 12: Example of authorization_details Requesting "read"
+                             Access to an API
+Perhaps:
+       Figure 12: Example of "authorization_details" Requesting "read"
+                             Access to an API
+
+Some of the terms that appear in <tt> also appear in the text using quotes in
+other places.  We suggest reviewing terms in <tt> or quotes and ensuring that
+their use is helpful to the reader and is consistent throughout the document.
+
+b) We noticed that some of the terms in <tt> have variances in
+singular/plural.  Please review and let us know if any updates are necessary.
+
+action vs. actions
+datatype vs. datatypes
+-->
+
+<!-- [rfced] Terminology
+
+a) Please review usage of authorization_details vs. authorization details
+and let us know any updates. Are they used as you intended?
+
+We also see this term associated with several different concepts (parameter
+vs. request parameter vs. type vs. array vs. authorization request parameter
+vs. structure vs. type value vs. token request parameter vs. request
+vs. object vs. information vs. member). Will it be clear to readers how 
+this term is being used? How may usage of this term be more consistent 
+throughout the document?
+
+For example, regarding usage in the figure titles:
+"authorization_details" (with underscore) is used in most figure titles,
+except Figures 22 and 23, which use "authorization details" (no underscore).
+Is this intentional?
+
+b) Similarly, please review usage of these terms, which seem to 
+appear inconsistently in the document.
+
+   authorization code vs. authorization_code
+   authorization details object vs. authorization_details object
+   read access vs. "read" Access
+   write access vs. "write" Access
+   scope parameter vs. "scope" Parameter (Section 3.1)
+   resource parameter vs. "resource" Parameter (Section 3.2)
+   Token Introspection responses vs. token introspection responses
+
+
+c) What does "RP" stand for here? 
+
+Original:
+   Note: locations specifies the location of the userinfo endpoint since
+   this is the only place where an access token is used by a client (RP)
+   in OpenID Connect to obtain claims.
+
+
+d) For the acronyms AS and RS, sometimes the acronym is used and sometimes
+the expansion is used throughout the document. May we only expand the
+acronyms on first usage and use the acronym in all subsequent instances?
+
+
+e) May we capitalize "ID" in this term (two instances)?
+
+   user id
+-->
+
+<!-- [rfced] Please review whether any of the notes in this document
+should be in the <aside> element. It is defined as "a container for 
+content that is semantically less important or tangential to the 
+content that surrounds it" (https://authors.ietf.org/en/rfcxml-vocabulary#aside).
+-->
+
+<!-- [rfced] Please review the "Inclusive Language" portion of the online 
+Style Guide <https://www.rfc-editor.org/styleguide/part2/#inclusive_language>
+and let us know if any changes are needed.
+
+Note that our script did not flag any words in particular, but this should 
+still be reviewed as a best practice.
+-->
+
+</rfc>
