@@ -826,7 +826,7 @@ Cache-Control: no-store
 <t>To advertise its support for this feature, the supported list of authorization details types is included in the AS metadata response <xref target="RFC8414"></xref> using the metadata parameter <tt>authorization_details_types_supported</tt>, which is a JSON array.</t>
 <t>This is illustrated by the following example:</t>
 
-<figure><name>Example of Server Metadata about the Supported authorization details</name>
+<figure><name>Example of Server Metadata about the Supported Authorization Details</name>
 <sourcecode type="json">{
    ...
    "authorization_details_types_supported":[
@@ -839,7 +839,7 @@ Cache-Control: no-store
 <t>Clients <bcp14>MAY</bcp14> indicate the authorization details types they will use when requesting authorization with the client registration metadata parameter <tt>authorization_details_types</tt>, which is a JSON array.</t>
 <t>This is illustrated by the following example:</t>
 
-<figure><name>Example of Server Metadata about authorization details</name>
+<figure><name>Example of Server Metadata about Authorization Details</name>
 <sourcecode type="json">{
    ...
    "authorization_details_types":[
@@ -853,7 +853,7 @@ Cache-Control: no-store
 
 <section anchor="implementation-considerations"><name>Implementation Considerations</name>
 
-<section anchor="using-authorization-details-in-a-certain-deployment"><name>Using authorization details in a Certain Deployment</name>
+<section anchor="using-authorization-details-in-a-certain-deployment"><name>Using Authorization Details in a Certain Deployment</name>
 <t>Using authorization details in a certain deployment will require the following steps:</t>
 
 <ul spacing="normal">
