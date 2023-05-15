@@ -495,11 +495,10 @@ instance, the AS would perform the following steps:</t>
 
 <li>verify that the authorization code issued in the previous step contains an authorization details object of type <tt>account_information</tt>,</li>
 <li>verify whether the approved list of actions contains <tt>list_accounts</tt>, and</li>
-<li>verify whether the <tt>locations</tt> value includes only previously-approved locations.</li>
+<li>verify whether the <tt>locations</tt> value includes only previously approved locations.</li>
 </ul>
 <t>If all checks succeed, the AS would issue the requested access token with the reduced set of access.</t>
-<t>Note that this comparison is relevant to this specific API type definition. A different API type definition could have different processing rules. For example, the
-value of an <tt>actions</tt> could subsume the rights associated with another <tt>actions</tt> value. For example, if a client initially asks for
+<t>Note that this comparison is relevant to this specific API type definition. A different API type definition could have different processing rules. For example, an <tt>actions</tt> value could subsume the rights associated with another <tt>actions</tt> value. For example, if a client initially asks for
 a token with <tt>write</tt> access, this implies both read and write access to this API:</t>
 
 <figure><name>Example of "authorization_details" Requesting "write" Access to an API</name>
